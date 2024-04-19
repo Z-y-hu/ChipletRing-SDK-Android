@@ -27,7 +27,7 @@
                                                                                                     green:24042;accX:-34;accY:-1089;accZ:-282  
                                                                                                     green:-4842;accX:-20;accY:-1089;accZ:-282  
 
-#English
+# English
 ## SDK Iteration Information
 ### 1.0.4
 Added three interface callbacks:
