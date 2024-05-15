@@ -27,6 +27,10 @@
                                                                                                     green:24042;accX:-34;accY:-1089;accZ:-282  
                                                                                                     green:-4842;accX:-20;accY:-1089;accZ:-282  
 
+### 1.0.7
+修复lmAPI.READ_HISTORY这个接口无法读取全部历史数据的问题  
+*其它：将minSdk修改为21*
+
 # English
 ## SDK Iteration Information
 ### 1.0.4
@@ -55,3 +59,7 @@ example：green:67388;accX:-37;accY:-1084;accZ:-294
                                                                                                     green:41202;accX:-36;accY:-1090;accZ:-285  
                                                                                                     green:24042;accX:-34;accY:-1089;accZ:-282  
                                                                                                     green:-4842;accX:-20;accY:-1089;accZ:-282  
+
+### 1.0.7
+Fixed the issue that lmAPI.READ_HISTORY this interface could not read all historical data  
+*Other: Change minSdk to 21*
