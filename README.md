@@ -1,4 +1,15 @@
 # ChipletRing-SDK-Android
+## 如何使用SDK
+### 直接使用
+**推荐使用最新SDK**   
+SDK是一个aar，放在lib里添加即可，详细参考文档:[《安卓SDK中文文档》](https://github.com/Z-y-hu/ChipletRing-SDK-Android/blob/master/BCL603M1%20ChipletRing%20APP%20SDK%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3-Android%20V1.3.2.pdf )
+### 使用简单demo
+环境：    
+ide：AndroidStudio 2022.3.1   
+Gradle JDK:11    
+Project Structure→Modules→Source Compatibility and Target Ccompatibility:Java8   
+在**TestActivity**里修改mac为正确的戒指**mac** 即可连接使用            
+通过参考**简单demo对接口使用的示例**，相信您可以快速上手开发自己的程序
 ## SDK迭代信息
 ### 1.0.4
 增加三个接口回调
@@ -30,8 +41,23 @@
 ### 1.0.7
 修复lmAPI.READ_HISTORY这个接口无法读取全部历史数据的问题  
 *其它：将minSdk修改为21*
+### 1.0.9
+修改了calculateSleep接口，使其返回指定日期的数据   
+增加了血压算法接口LmAPI.GET_BPwaveData()，具体使用请看文档
+> 注：需要固件支持血压算法         
 
 # English
+## How to use the SDK
+### Use it directly
+**We recommend that you use the latest SDK**   
+The SDK is an aar, you can add it in the lib, please refer to the documentation for details:[《Android SDK Documentation in English》](https://github.com/Z-y-hu/ChipletRing-SDK-Android/blob/master/BCL603M1%20ChipletRing%20%20APP%20SDK%20Manual-Android%20V1.3.2.pdf )
+### Use a simple demo
+environment：    
+ide：AndroidStudio 2022.3.1   
+Gradle JDK:11    
+Project Structure→Modules→Source Compatibility and Target Ccompatibility:Java8   
+In **TestActivity**, change the mac to the correct ring **mac** to connect and use            
+By referring to **the example of using the interface in the simple demo**, I believe you can quickly start developing your own program
 ## SDK Iteration Information
 ### 1.0.4
 Added three interface callbacks:
@@ -63,3 +89,7 @@ example：green:67388;accX:-37;accY:-1084;accZ:-294
 ### 1.0.7
 Fixed the issue that lmAPI.READ_HISTORY this interface could not read all historical data  
 *Other: Change minSdk to 21*
+### 1.0.9
+The **calculateSleep interface** has been modified to return data for the specified date  
+Added the blood pressure algorithm interface **LmAPI.GET_BPwaveData()**, please refer to the documentation for specific use
+> Note: Firmware is required to support the blood pressure algorithm     
