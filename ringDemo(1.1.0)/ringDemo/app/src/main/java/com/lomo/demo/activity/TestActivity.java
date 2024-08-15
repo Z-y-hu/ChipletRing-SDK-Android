@@ -52,7 +52,7 @@ import java.util.List;
 public class TestActivity extends BaseActivity implements IResponseListener, View.OnClickListener {
 
     TextView tv_result;
-    private String mac = "B2:30:2E:00:00:97";
+    private String mac = "B2:20:11:00:00:C6";
 
     Button bt_connect;
     Button bt_battery;
@@ -258,9 +258,14 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
-    public void stepCount(byte[] bytes) {
+    public void stepCount(byte[] bytes, byte b) {
 
     }
+
+//    @Override
+//    public void stepCount(byte[] bytes) {
+//
+//    }
 
     @Override
     public void battery(byte b, byte b1) {
@@ -283,15 +288,26 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
-    public void collection(byte[] bytes) {
+    public void collection(byte[] bytes, byte b) {
 
     }
+
+    @Override
+    public void BPwaveformData(byte b, byte b1, String s) {
+
+    }
+
+//    @Override
+//    public void collection(byte[] bytes) {
+//
+//    }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.bt_connect:
                 connect(mac);
+                LmAPI.READ_TIME();
                 break;
             case R.id.bt_test:
                  tv_result.append("\n开始测量心率");
@@ -310,14 +326,10 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                         Log.d("TAG", "resultData success:");
                     }
 
-                    @Override
-                    public void waveformData(byte seq, byte number, byte[] data) {
-                        Log.d("TAG", "success:");
-                        String str = "";
-                        str = hrhrv(data);
-                        writeTxtToFile(str,"/sdcard/Download/LM/","data.txt");
-                        //setMessage("序号: " + seq + "数据个数: " + number +"\r\n" ,0);
-                    }
+                     @Override
+                     public void waveformData(byte seq, byte number, String s) {
+
+                     }
 
                     @Override
                     public void error(int value) {
