@@ -2,7 +2,7 @@
 ## 如何使用SDK
 ### 直接使用
 **推荐使用最新SDK**   
-SDK是一个aar，放在lib里添加即可，详细参考文档:[《安卓SDK中文文档》](https://github.com/Z-y-hu/ChipletRing-SDK-Android/blob/master/BCL603M1%20ChipletRing%20APP%20SDK%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3-Android%20V1.3.3.pdf )
+SDK是一个aar，放在lib里添加即可，详细参考文档:[《安卓SDK中文文档》](https://github.com/Z-y-hu/ChipletRing-SDK-Android/blob/master/BCL603M1%20ChipletRing%20APP%20SDK%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3-Android%20V1.3.4.pdf )
 ### 使用简单demo
 环境：    
 ide：AndroidStudio 2022.3.1   
@@ -51,7 +51,7 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 ## How to use the SDK
 ### Use it directly
 **We recommend that you use the latest SDK**   
-The SDK is an aar, you can add it in the lib, please refer to the documentation for details:[《Android SDK Documentation in English》](https://github.com/Z-y-hu/ChipletRing-SDK-Android/blob/master/BCL603M1%20ChipletRing%20%20APP%20SDK%20Manual-Android%20V1.3.3.pdf)
+The SDK is an aar, you can add it in the lib, please refer to the documentation for details:[《Android SDK Documentation in English》](https://github.com/Z-y-hu/ChipletRing-SDK-Android/blob/master/BCL603M1%20ChipletRing%20%20APP%20SDK%20Manual-Android%20V1.3.4.pdf)
 ### Use a simple demo
 environment：    
 ide：AndroidStudio 2022.3.1   
