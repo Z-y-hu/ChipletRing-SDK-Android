@@ -297,6 +297,31 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 
     }
 
+    @Override
+    public void onSport(int i, byte[] bytes) {
+
+    }
+
+    @Override
+    public void breathLight(byte b) {
+
+    }
+
+    @Override
+    public void SET_HID(byte b) {
+
+    }
+
+    @Override
+    public void GET_HID(byte b, byte b1, byte b2) {
+
+    }
+
+    @Override
+    public void GET_HID_CODE(byte[] bytes) {
+
+    }
+
 //    @Override
 //    public void collection(byte[] bytes) {
 //

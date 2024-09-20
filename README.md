@@ -45,7 +45,11 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 ### 1.0.9
 修改了calculateSleep接口，使其返回指定日期的数据   
 增加了血压算法接口LmAPI.GET_BPwaveData()，具体使用请看文档
-> 注：需要固件支持血压算法         
+> 注：需要固件支持血压算法  
+### 1.0.10
+修改了calculateSleep接口，更新了睡眠算法  
+增加了部分开发中的功能，不是特定戒指不需要关注
+> 注：需要实现新加的抽象类       
 
 # English
 ## How to use the SDK
@@ -95,3 +99,7 @@ Fixed the issue that lmAPI.READ_HISTORY this interface could not read all histor
 The **calculateSleep interface** has been modified to return data for the specified date  
 Added the blood pressure algorithm interface **LmAPI.GET_BPwaveData()**, please refer to the documentation for specific use
 > Note: Firmware is required to support the blood pressure algorithm     
+### 1.0.10
+The calculateSleep API has been modified and the sleep algorithm has been updated  
+Added some features in development, not specific rings don't need attention
+> Note:A newly added abstract class needs to be implemented 
