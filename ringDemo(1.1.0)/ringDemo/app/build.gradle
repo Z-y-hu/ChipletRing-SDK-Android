@@ -5,7 +5,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.lomo.demo"
+        applicationId "com.r.demo"
         minSdkVersion 26
         targetSdkVersion 33
         versionCode 2

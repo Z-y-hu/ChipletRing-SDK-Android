@@ -42,10 +42,10 @@
         android:usesCleartextTraffic="true"
         tools:ignore="LockedOrientationActivity">
         <activity
-            android:name=".activity.YUHUActivity"
+            android:name=".activity.TestActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.TestActivity"
+            android:name=".activity.MainActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="true"
             android:screenOrientation="user">

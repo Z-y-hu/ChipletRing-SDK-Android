@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,7 @@ import androidx.annotation.NonNull;
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
+import com.lm.sdk.BLEService;
 import com.lm.sdk.DataApi;
 import com.lm.sdk.LmAPI;
 import com.lm.sdk.LogicalApi;
@@ -38,6 +40,7 @@ import com.lm.sdk.utils.ByteKit;
 import com.lm.sdk.utils.ImageSaverUtil;
 import com.lm.sdk.utils.TimeUtils;
 import com.lomo.demo.R;
+import com.lomo.demo.adapter.DeviceBean;
 import com.lomo.demo.application.App;
 import com.lomo.demo.base.BaseActivity;
 
@@ -52,88 +55,55 @@ import java.util.List;
 public class TestActivity extends BaseActivity implements IResponseListener, View.OnClickListener {
 
     TextView tv_result;
-    private String mac = "B2:20:11:00:00:C6";
+//    private String mac = "15:12:03:00:00:02";
+//    private String mac = "54:65:46:46:46:54";
 
-    Button bt_connect;
     Button bt_battery;
     Button bt_version;
     Button bt_sync_time;
     Button bt_test;
 
+    private Handler handler = new Handler();
+    private Runnable runnable;
+    private DeviceBean deviceBean;
+    static String mac;
+    private BluetoothDevice bluetoothDevice;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         LmAPI.addWLSCmdListener(this,this);
-        bt_connect = findViewById(R.id.bt_connect);
         bt_test = findViewById(R.id.bt_test);
         bt_battery = findViewById(R.id.bt_battery);
         bt_version = findViewById(R.id.bt_version);
         bt_sync_time = findViewById(R.id.bt_sync_time);
         tv_result = findViewById(R.id.tv_result);
 
-        bt_connect.setOnClickListener(this);
         bt_test.setOnClickListener(this);
         bt_battery.setOnClickListener(this);
         bt_version.setOnClickListener(this);
         bt_sync_time.setOnClickListener(this);
         tv_result.setText("数据区域");
-        /**
-        * 申请权限
-        */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
-            XXPermissions.with(this)
-                    // 申请多个权限
-                    .permission(Permission.ACCESS_COARSE_LOCATION, Permission.ACCESS_FINE_LOCATION, Permission.BLUETOOTH_SCAN, Permission.BLUETOOTH_CONNECT, Permission.BLUETOOTH_ADVERTISE,Permission.MANAGE_EXTERNAL_STORAGE)
-                    // 设置权限请求拦截器（局部设置）
-                    //.interceptor(new PermissionInterceptor())
-                    // 设置不触发错误检测机制（局部设置）
-                    //.unchecked()
-                    .request(new OnPermissionCallback() {
-
-                        @Override
-                        public void onGranted(@NonNull List<String> permissions, boolean allGranted) {
-                            if (!allGranted) {
-                                Toast.makeText(getApplicationContext(),"获取部分权限成功，但部分权限未正常授予",Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                        }
-
-                        @Override
-                        public void onDenied(@NonNull List<String> permissions, boolean doNotAskAgain) {
-                            if (doNotAskAgain) {
-                                Toast.makeText(getApplicationContext(),"被永久拒绝授权，请手动授予录音和日历权限",Toast.LENGTH_SHORT).show();
-                                // 如果是被永久拒绝就跳转到应用权限系统设置页面
-                                XXPermissions.startPermissionActivity(TestActivity.this, permissions);
-                            } else {
-                                Toast.makeText(getApplicationContext(),"获取录音和日历权限失败",Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-
-        }else {
-            XXPermissions.with(TestActivity.this)
-                    .permission(Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.READ_EXTERNAL_STORAGE)
-                    .request(new OnPermissionCallback() {
-                        @Override
-                        public void onGranted(@NonNull List<String> permissions, boolean allGranted) {
-                            if (!allGranted) {
-                                Toast.makeText(getApplicationContext(),"获取部分权限成功，但部分权限未正常授予",Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                        }
-
-                        @Override
-                        public void onDenied(@NonNull List<String> permissions, boolean doNotAskAgain) {
-                            if (doNotAskAgain) {
-                                Toast.makeText(getApplicationContext(),"被永久拒绝授权，请手动授予权限",Toast.LENGTH_SHORT).show();
-                                // 如果是被永久拒绝就跳转到应用权限系统设置页面
-                                XXPermissions.startPermissionActivity(TestActivity.this, permissions);
-                            } else {
-                                Toast.makeText(getApplicationContext(),"获取权限失败",Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+        findViewById(R.id.bt_unpair).setOnClickListener(this);
+        findViewById(R.id.bt_re_connect).setOnClickListener(this);
+        findViewById(R.id.bt_set_name).setOnClickListener(this);
+        Intent intent = getIntent();
+        if (intent != null) {
+            deviceBean = intent.getParcelableExtra("deviceBean");
+            bluetoothDevice = deviceBean.getDevice();
+            mac = bluetoothDevice.getAddress();
+            DeviceBean bean = DeviceManager.deviceMap.get(mac);
+            String hidDevice=bean.getHidDevice();
+            if(hidDevice == "0" || hidDevice == null){
+                BLEUtils.isHIDDevice = false;
+            }else{
+                BLEUtils.isHIDDevice = true;
+            }
+            assert deviceBean != null;
+            BLEUtils.connectLockByBLE(this, deviceBean.getDevice());
+        } else {
+            Toast.makeText(this, "未知设备，请重新选择!", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
     }
@@ -196,38 +166,37 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
     /**
      * 连接设备
-     * @param mac
      */
-    private void connect(String mac) {
-        this.mac = mac;
-        BluetoothAdapter bluetoothAdapter = App.getInstance().getBluetoothAdapter();
-        if (!bluetoothAdapter.isEnabled()) {
-            // 弹出对话框，打开蓝牙
-            Toast.makeText(this, "未打开蓝牙，请打开后操作", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        BLEUtils.stopLeScan(this, leScanCallback);
-        BLEUtils.startLeScan(this, leScanCallback);
-        tv_result.append("\n开始寻找设备："+mac);
-    }
+//    private void connect(String mac) {
+//        this.mac = mac;
+//        BluetoothAdapter bluetoothAdapter = App.getInstance().getBluetoothAdapter();
+//        if (!bluetoothAdapter.isEnabled()) {
+//            // 弹出对话框，打开蓝牙
+//            Toast.makeText(this, "未打开蓝牙，请打开后操作", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//        BLEUtils.stopLeScan(this, leScanCallback);
+//        BLEUtils.startLeScan(this, leScanCallback);
+//        tv_result.append("\n开始寻找设备："+mac);
+//    }
 
-    @SuppressLint("MissingPermission")
-    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
-        @Override
-        public void onLeScan(BluetoothDevice device, int rssi, byte[] bytes) {
-            if (device == null || TextUtils.isEmpty(device.getName())) {
-                return;
-            }
-            Log.d("TAG", "===" + device.getName());
-            Log.d("TAG", "===" + device.getAddress());
-            Log.d("TAG","onLeScan bytes = " + Arrays.toString(bytes));
-            if (device.getAddress().equalsIgnoreCase(mac)) {
-                BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
-                BLEUtils.connectLockByBLE(TestActivity.this, device);
-                tv_result.append("\n开始连接设备："+device.getAddress());
-            }
-        }
-    };
+//    @SuppressLint("MissingPermission")
+//    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+//        @Override
+//        public void onLeScan(BluetoothDevice device, int rssi, byte[] bytes) {
+//            if (device == null || TextUtils.isEmpty(device.getName())) {
+//                return;
+//            }
+//            Log.d("TAG", "===" + device.getName());
+//            Log.d("TAG", "===" + device.getAddress());
+//            Log.d("TAG","onLeScan bytes = " + Arrays.toString(bytes));
+//            if (device.getAddress().equalsIgnoreCase(mac)) {
+//                BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+//                BLEUtils.connectLockByBLE(TestActivity.this, device);
+//                tv_result.append("\n开始连接设备："+device.getAddress());
+//            }
+//        }
+//    };
 
 
     @Override
@@ -293,6 +262,20 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
+    public void setBlueToolName(byte b) {
+        if(b == 0x01){
+            tv_result.append("\n设置成功");
+        }else{
+            tv_result.append("\n设置失败");
+        }
+    }
+
+    @Override
+    public void readBlueToolName(byte b, String s) {
+        tv_result.append("\n长度:" + b + "蓝牙名称:" + s);
+    }
+
+    @Override
     public void BPwaveformData(byte b, byte b1, String s) {
 
     }
@@ -322,6 +305,11 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 
     }
 
+    @Override
+    public void setAudio(short i, int i1, byte[] bytes) {
+
+    }
+
 //    @Override
 //    public void collection(byte[] bytes) {
 //
@@ -330,12 +318,26 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.bt_connect:
-                connect(mac);
-                LmAPI.READ_TIME();
+            case R.id.bt_re_connect://重连时输入mac
+                BluetoothDevice remote  = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(TestActivity.mac);
+                DeviceBean bean = DeviceManager.deviceMap.get(TestActivity.mac);
+                String hidDevice=bean.getHidDevice();
+                if(hidDevice == "0" || hidDevice == null){
+                    BLEUtils.isHIDDevice = false;
+                }else{
+                    BLEUtils.isHIDDevice = true;
+                }
+
+                if(remote != null){
+                    BLEUtils.connectLockByBLE(this,remote);
+                }
+                break;
+            case R.id.bt_unpair:
+                BLEUtils.disconnectBLE(this);
                 break;
             case R.id.bt_test:
-                 tv_result.append("\n开始测量心率");
+                 tv_result.append("\n开始读取全部历史数据");
+/*
                  LmAPI.GET_HEART_ROTA((byte) 1, new IHeartListener() {
 
                     @Override
@@ -366,23 +368,72 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                         Log.d("TAG", "success:");
                     }
                 });
+*/
+                LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener() {
+                    @Override
+                    public void error(int i) {
+                        tv_result.append("\nerror:" + i);
+                    }
 
+                    @Override
+                    public void success() {
+                        tv_result.append("\n读取数据成功");
+                    }
+
+                    @Override
+                    public void progress(double v, HistoryDataBean historyDataBean) {
+                        tv_result.append("\n读取进度" + v + "%");
+                    }
+                });
                 //skipPage();
                 break;
-            case R.id.bt_sync_time:
-                tv_result.append("\n开始同步时间");
-                LmAPI.SYNC_TIME();
+            case R.id.bt_sync_time://手机已连接情况下，手动输入bool值true
+                mac = "B0:02:30:00:00:07";
+                remote  = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(TestActivity.mac);
+//                bean = DeviceManager.deviceMap.get(TestActivity.mac);
+//                hidDevice=bean.getHidDevice();
+//                if(hidDevice == "0" || hidDevice == null){
+//                    BLEUtils.isHIDDevice = false;
+//                }else{
+//                    BLEUtils.isHIDDevice = true;
+//                }
+                BLEUtils.isHIDDevice = true;
+                if(remote != null){
+                    BLEUtils.connectLockByBLE(this,remote);
+                }
+//                tv_result.append("\n开始同步时间");
+//                LmAPI.SYNC_TIME();
+                break;
+            case R.id.bt_set_name:
+//                tv_result.append("\n设置蓝牙名称");
+//                LmAPI.Set_BlueTooth_Name("studyingvery");//最长12位字节
+                tv_result.append("\n获取蓝牙名称");
+                LmAPI.Get_BlueTooth_Name();
                 break;
             case R.id.bt_version:
                 tv_result.append("\n开始获取版本信息");
                 LmAPI.GET_VERSION((byte) 0x00);
                 break;
             case R.id.bt_battery:
-                tv_result.append("\n开始获取电量信息");
-                LmAPI.GET_BATTERY((byte) 0x00);
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        tv_result.append("\n开始获取电量信息");
+                        LmAPI.GET_BATTERY((byte) 0x00);
+
+                        handler.postDelayed(this,500);
+                    }
+                };
+                handler.post(runnable);
                 break;
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(runnable);
     }
 }

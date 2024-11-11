@@ -43,24 +43,60 @@
         android:orientation="vertical"
         android:padding="10dp">
 
-        <Button
-            android:id="@+id/bt_connect"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_bg_state"
-            android:text="连接设备"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp">
 
-        <Button
-            android:id="@+id/bt_sync_time"
+            <Button
+                android:id="@+id/bt_re_connect"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/button_bg_state"
+                android:text="重连设备"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/bt_unpair"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_bg_state"
+                android:text="解绑设备"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/button_bg_state"
-            android:text="同步时间"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp">
+            <Button
+                android:id="@+id/bt_sync_time"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_bg_state"
+                android:text="同步时间"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+            <Button
+                android:id="@+id/bt_set_name"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_bg_state"
+                android:text="设置蓝牙名称"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/bt_version"
@@ -88,7 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:background="@drawable/button_bg_state"
-            android:text="测试心率"
+            android:text="获取数据"
             android:textColor="@color/white"
             android:textSize="14sp" />
     </LinearLayout>
