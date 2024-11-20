@@ -336,7 +336,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 BLEUtils.disconnectBLE(this);
                 break;
             case R.id.bt_test:
-                 tv_result.append("\n开始读取全部历史数据");
+                 tv_result.append("\nStart reading all historical data");
 /*
                  LmAPI.GET_HEART_ROTA((byte) 1, new IHeartListener() {
 
@@ -372,17 +372,17 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener() {
                     @Override
                     public void error(int i) {
-                        tv_result.append("\nerror:" + i);
+                        tv_result.append("\nread History error:" + i);
                     }
 
                     @Override
                     public void success() {
-                        tv_result.append("\n读取数据成功");
+                        tv_result.append("\nread History Success!");
                     }
 
                     @Override
                     public void progress(double v, HistoryDataBean historyDataBean) {
-                        tv_result.append("\n读取进度" + v + "%");
+                        tv_result.append("\nread History Progress:" + v + "%");
                     }
                 });
                 //skipPage();
@@ -411,8 +411,40 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 LmAPI.Get_BlueTooth_Name();
                 break;
             case R.id.bt_version:
+//                tv_result.append("\n开始获取版本信息");
+//                LmAPI.GET_VERSION((byte) 0x00);
                 tv_result.append("\n开始获取版本信息");
-                LmAPI.GET_VERSION((byte) 0x00);
+                LmAPI.GET_HEART_ROTA((byte) 0, (byte) 30, new IHeartListener() {
+                    @Override
+                    public void progress(int i) {
+                        tv_result.append("\nTest progress:" + i + "%");
+                    }
+
+                    @Override
+                    public void resultData(int heart, int i1, int i2, int i3) {
+                        tv_result.append("\nheartRota：" + heart);
+                    }
+
+                    @Override
+                    public void waveformData(byte b, byte b1, String s) {
+
+                    }
+
+                    @Override
+                    public void rriData(byte b, byte b1, String s) {
+                        tv_result.append("\nrr：" + s);
+                    }
+
+                    @Override
+                    public void error(int i) {
+                        tv_result.append("\nerror：" + i);
+                    }
+
+                    @Override
+                    public void success() {
+                        tv_result.append("\nTest success");
+                    }
+                });
                 break;
             case R.id.bt_battery:
                 runnable = new Runnable() {
