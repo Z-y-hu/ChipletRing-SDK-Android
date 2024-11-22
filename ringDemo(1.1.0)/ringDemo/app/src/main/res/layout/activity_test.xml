@@ -11,121 +11,236 @@
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:background="@color/colorPrimary">
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:text="测试DEMO"
-            android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:layout_centerInParent="true"
+            android:textColor="@color/white"/>
     </RelativeLayout>
-
-    <ScrollView
+    <TextView
+        android:id="@+id/tv_result"
         android:layout_width="match_parent"
-        android:layout_height="500dp">
-        <TextView
-            android:id="@+id/tv_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:lineSpacingExtra="5dp"
-            android:padding="10dp"
-            android:text="数据区域"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="16sp" />
-    </ScrollView>
-
-
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="数据区域"
+        android:scrollbars="vertical"
+        android:padding="10dp"
+        android:lineSpacingExtra="5dp"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimaryDark"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp">
-
+        android:padding="10dp"
+        android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="5dp">
-
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
             <Button
-                android:id="@+id/bt_re_connect"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@drawable/button_bg_state"
-                android:text="重连设备"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
-            <Button
-                android:id="@+id/bt_unpair"
+                android:id="@+id/bt_sys_control"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_bg_state"
-                android:text="解绑设备"
+                android:text="系统配置"
+                android:textSize="14sp"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
-        </LinearLayout>
+                android:background="@drawable/button_bg_state"/>
 
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="5dp">
             <Button
                 android:id="@+id/bt_sync_time"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/button_bg_state"
                 android:text="同步时间"
+                android:textSize="14sp"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:background="@drawable/button_bg_state"/>
             <Button
-                android:id="@+id/bt_set_name"
+                android:id="@+id/bt_read_time"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/button_bg_state"
-                android:text="设置蓝牙名称"
+                android:text="读取时间"
+                android:textSize="14sp"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:background="@drawable/button_bg_state"/>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/bt_version"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:background="@drawable/button_bg_state"
-            android:text="版本信息"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/bt_set_file"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="设置路径"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+            <Button
+                android:id="@+id/bt_start_update"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="开始升级"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/bt_battery"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:background="@drawable/button_bg_state"
-            android:text="获取电量"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/bt_battery"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="获取电量"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+            <Button
+                android:id="@+id/bt_version"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="版本信息"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/bt_clear_step"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="清除步数"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+            <Button
+                android:id="@+id/bt_step"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="获取步数"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/bt_collection"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="采集周期"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+            <Button
+                android:id="@+id/bt_get_collection"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="获取周期"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/bt_heart"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="心率测量"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+            <Button
+                android:id="@+id/bt_blood_oxygen"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="血氧测量"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/bt_read_log"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="读取未上传记录"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+            <Button
+                android:id="@+id/bt_read_sql"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="血压测量"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/bt_test"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:background="@drawable/button_bg_state"
-            android:text="获取数据"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/bt_unbind"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="解绑"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_bg_state"/>
+             </LinearLayout>
+
+
+<!--        <Button-->
+<!--            android:id="@+id/bt_reset"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_marginTop="5dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="跳转页面2"-->
+<!--            android:textSize="14sp"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:background="@drawable/button_bg_state"/>-->
     </LinearLayout>
 </LinearLayout>

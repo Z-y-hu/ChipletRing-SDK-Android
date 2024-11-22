@@ -1,5 +1,11 @@
 package com.lomo.demo.activity;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -11,16 +17,14 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
+import com.lm.sdk.BLEService;
+import com.lm.sdk.LmAPI;
 import com.lm.sdk.utils.BLEUtils;
+import com.lm.sdk.utils.StringUtils;
+import com.lm.sdk.utils.UtilSharedPreference;
 import com.lomo.demo.R;
 import com.lomo.demo.adapter.DeviceAdapter;
 import com.lomo.demo.adapter.DeviceBean;
@@ -28,8 +32,10 @@ import com.lomo.demo.adapter.OnItemClickListener;
 import com.lomo.demo.application.App;
 import com.lomo.demo.base.BaseActivity;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -50,6 +56,7 @@ public class MainActivity extends BaseActivity {
         initView();
         //初始化权限
         initPermissions();
+
     }
 
     private void initPermissions() {
@@ -69,7 +76,17 @@ public class MainActivity extends BaseActivity {
                                 Toast.makeText(getApplicationContext(),"获取部分权限成功，但部分权限未正常授予",Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            searchDevice();
+                            String mac = UtilSharedPreference.getStringValue(MainActivity.this,"address");
+                            if(StringUtils.isEmpty(mac)){
+                                searchDevice();
+                            }else{
+                                //自动重连，默认软连接
+                                UtilSharedPreference.saveInt(MainActivity.this, LmAPI.needHardconnection,0);
+                                Intent intent = new Intent(MainActivity.this, TestActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+
                         }
 
                         @Override
@@ -94,7 +111,16 @@ public class MainActivity extends BaseActivity {
                                 Toast.makeText(getApplicationContext(),"获取部分权限成功，但部分权限未正常授予",Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            searchDevice();
+                            String mac = UtilSharedPreference.getStringValue(MainActivity.this,"address");
+                            if(StringUtils.isEmpty(mac)){
+                                searchDevice();
+                            }else{
+                                //自动重连，默认软连接
+                                UtilSharedPreference.saveInt(MainActivity.this,LmAPI.needHardconnection,0);
+                                Intent intent = new Intent(MainActivity.this, TestActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
                         }
 
                         @Override
@@ -135,10 +161,14 @@ public class MainActivity extends BaseActivity {
         adapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(Object o, int position) {
+                //扫描的时候，默认都是软连接，设置个标志位，后续弹出硬连接
+                UtilSharedPreference.saveInt(MainActivity.this,LmAPI.needHardconnection,2);
+
                 DeviceBean deviceBean = (DeviceBean) o;
+
+                UtilSharedPreference.saveString(MainActivity.this,"address",deviceBean.getDevice().getAddress());
                 //关闭当前页面，跳转到TestActivity并且携带deviceBean对象
                 Intent intent = new Intent(MainActivity.this, TestActivity.class);
-                intent.putExtra("deviceBean", deviceBean);
                 App.getInstance().setDeviceBean(deviceBean);
                 startActivity(intent);
                 finish();
@@ -177,18 +207,17 @@ public class MainActivity extends BaseActivity {
             List<UUID> uuids = parsedAd1.uuids;
             //  Log.e("xxxxx","deviceName  "+ device.getName()+"uuid  "+ uuids.toString());
 
-            for (UUID uuid : uuids) {
-                if (uuid.toString().contains("1812")) {//UUID包含1812是HID模式，走强连接模式
-                    BLEUtils.isHIDDevice = true;
-                    break;
-                }
-            }
+//            for (UUID uuid : uuids) {
+//                if (uuid.toString().contains("1812")) {//UUID包含1812是HID模式，走强连接模式
+//                    BLEUtils.isHIDDevice = true;
+//                    break;
+//                }
+//            }
 
             DeviceBean bean = new DeviceBean(device, rssi);
-            bean.setHidDevice(BLEUtils.isHIDDevice ? "1" : "0");
+            //  bean.setHidDevice(BLEUtils.isHIDDevice ? "1" : "0");
             // 存储到集合中，使用设备的 MAC 地址作为键
             DeviceManager.deviceMap.put(device.getAddress(), bean);
-
 
             if (macList.contains(device.getAddress())) {
                 return;

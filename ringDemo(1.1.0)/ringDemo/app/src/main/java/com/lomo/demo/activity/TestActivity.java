@@ -1,8 +1,6 @@
 package com.lomo.demo.activity;
 
-import static com.lomo.demo.application.FileUtils.writeTxtToFile;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -11,8 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -25,82 +22,92 @@ import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 import com.lm.sdk.BLEService;
-import com.lm.sdk.DataApi;
 import com.lm.sdk.LmAPI;
-import com.lm.sdk.LogicalApi;
-import com.lm.sdk.greenDao.DayLastBeanDao;
+import com.lm.sdk.OtaApi;
 import com.lm.sdk.inter.IHeartListener;
 import com.lm.sdk.inter.IHistoryListener;
 import com.lm.sdk.inter.IQ2Listener;
 import com.lm.sdk.inter.IResponseListener;
-import com.lm.sdk.mode.DayLastBean;
+import com.lm.sdk.inter.LmOTACallback;
 import com.lm.sdk.mode.HistoryDataBean;
+import com.lm.sdk.mode.SystemControlBean;
 import com.lm.sdk.utils.BLEUtils;
-import com.lm.sdk.utils.ByteKit;
-import com.lm.sdk.utils.ImageSaverUtil;
-import com.lm.sdk.utils.TimeUtils;
+import com.lm.sdk.utils.ConvertUtils;
+import com.lm.sdk.utils.Logger;
+import com.lm.sdk.utils.StringUtils;
+import com.lm.sdk.utils.UtilSharedPreference;
 import com.lomo.demo.R;
 import com.lomo.demo.adapter.DeviceBean;
 import com.lomo.demo.application.App;
 import com.lomo.demo.base.BaseActivity;
 
-import org.greenrobot.greendao.query.WhereCondition;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.Date;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class TestActivity extends BaseActivity implements IResponseListener, View.OnClickListener {
-
+    public String TAG = getClass().getSimpleName();
     TextView tv_result;
-//    private String mac = "15:12:03:00:00:02";
-//    private String mac = "54:65:46:46:46:54";
-
+    Button bt_step;
     Button bt_battery;
     Button bt_version;
     Button bt_sync_time;
-    Button bt_test;
-
-    private Handler handler = new Handler();
-    private Runnable runnable;
+    Button bt_start_update;
     private DeviceBean deviceBean;
-    static String mac;
     private BluetoothDevice bluetoothDevice;
+    private String hidDevice="0";
+
+    static String mac;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        LmAPI.addWLSCmdListener(this,this);
-        bt_test = findViewById(R.id.bt_test);
+        LmAPI.addWLSCmdListener(this, this);
+        bt_step = findViewById(R.id.bt_step);
         bt_battery = findViewById(R.id.bt_battery);
         bt_version = findViewById(R.id.bt_version);
         bt_sync_time = findViewById(R.id.bt_sync_time);
         tv_result = findViewById(R.id.tv_result);
+        bt_start_update = findViewById(R.id.bt_start_update);
 
-        bt_test.setOnClickListener(this);
+        bt_step.setOnClickListener(this);
         bt_battery.setOnClickListener(this);
         bt_version.setOnClickListener(this);
         bt_sync_time.setOnClickListener(this);
-        tv_result.setText("数据区域");
-        findViewById(R.id.bt_unpair).setOnClickListener(this);
-        findViewById(R.id.bt_re_connect).setOnClickListener(this);
-        findViewById(R.id.bt_set_name).setOnClickListener(this);
+        bt_start_update.setOnClickListener(this);
+        findViewById(R.id.bt_get_collection).setOnClickListener(this);
+        findViewById(R.id.bt_clear_step).setOnClickListener(this);
+        findViewById(R.id.bt_read_time).setOnClickListener(this);
+        findViewById(R.id.bt_collection).setOnClickListener(this);
+        findViewById(R.id.bt_blood_oxygen).setOnClickListener(this);
+        findViewById(R.id.bt_heart).setOnClickListener(this);
+        findViewById(R.id.bt_read_log).setOnClickListener(this);
+        findViewById(R.id.bt_read_sql).setOnClickListener(this);
+        findViewById(R.id.bt_set_file).setOnClickListener(this);
+        findViewById(R.id.bt_sys_control).setOnClickListener(this);
+        findViewById(R.id.bt_unbind).setOnClickListener(this);
+
+        //获取上个页面传递过来的deviceBean对象
         Intent intent = getIntent();
         if (intent != null) {
-            deviceBean = intent.getParcelableExtra("deviceBean");
-            bluetoothDevice = deviceBean.getDevice();
-            mac = bluetoothDevice.getAddress();
-            DeviceBean bean = DeviceManager.deviceMap.get(mac);
-            String hidDevice=bean.getHidDevice();
-            if(hidDevice == "0" || hidDevice == null){
-                BLEUtils.isHIDDevice = false;
-            }else{
-                BLEUtils.isHIDDevice = true;
-            }
-            assert deviceBean != null;
-            BLEUtils.connectLockByBLE(this, deviceBean.getDevice());
+            //  deviceBean = intent.getParcelableExtra("deviceBean");
+            // bluetoothDevice = deviceBean.getDevice();
+
+//            hidDevice=deviceBean.getHidDevice();
+//            if(hidDevice == "0" || hidDevice == null){
+//                BLEUtils.isHIDDevice = false;
+//            }
+            mac = UtilSharedPreference.getStringValue(TestActivity.this,"address");
+//            DeviceBean bean = DeviceManager.deviceMap.get(mac);
+//            String hidDevice=bean.getHidDevice();
+//            if(hidDevice == "0" || hidDevice == null){
+//                BLEUtils.isHIDDevice = false;
+//            }else{
+//                BLEUtils.isHIDDevice = true;
+//            }
+//            assert deviceBean != null;
+            //   BLEUtils.connectLockByBLE(this, deviceBean.getDevice());
+            connect(mac);
         } else {
             Toast.makeText(this, "未知设备，请重新选择!", Toast.LENGTH_SHORT).show();
             finish();
@@ -108,137 +115,150 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 
     }
 
-    private static AlertDialog info;
-    private void setMessage(String content,int i){
-        if (info == null){
-            info = new AlertDialog.Builder(TestActivity.this).create();
-            info.setMessage(content);
-        }else{
-            info.setMessage(content);
-        }
-        info.show();
-        if(i == 100){
-            info.dismiss();
-            Toast.makeText(this, "测量完成", Toast.LENGTH_SHORT).show();
-        }
-    }
-    private static Toast toast;
-    public static void showToast(Context context, String content) {
 
-        if (toast == null) {
-            toast = Toast.makeText(context,content,Toast.LENGTH_SHORT);
+
+    private void connect(String mac) {
+        Logger.show(TAG, "connect=" + mac, 6);
+        this.mac = mac;
+        //合并
+        checkPermission();
+        // progress_bar_connect.setVisibility(View.VISIBLE);
+//  下边代码是走配对或gtta配对      //获取BluetoothAdapter
+//        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//        showBondedDevice(mac,bluetoothAdapter);
+
+
+    }
+
+    public void checkPermission() {
+
+        String[] permission;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permission = new String[]{Permission.ACCESS_FINE_LOCATION, Permission.BLUETOOTH_CONNECT, Permission.BLUETOOTH_SCAN};
         } else {
-
-            toast.setText(content);
+            permission = new String[]{Permission.READ_MEDIA_IMAGES,Permission.READ_MEDIA_VIDEO,Permission.READ_MEDIA_AUDIO, Permission.WRITE_EXTERNAL_STORAGE, Permission.ACCESS_FINE_LOCATION};
         }
-        toast.show();
+        XXPermissions.with(this).permission(permission)
+                .request(new OnPermissionCallback() {
+                    @Override
+                    public void onGranted(@NonNull List<String> permissions, boolean allGranted) {
+                        if (!allGranted) {
+                            // ToastUtils.show(getResources().getString(R.string.tips_get_permission_err));
+                            return;
+                        }
+                        Log.e("ConnectDevice","mac :"+mac);
+                        BluetoothDevice remote = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
+//                        remote=null;
+                        if (BLEService.isGetToken()) {
+                            Log.e("ConnectDevice"," 蓝牙已连接");
+
+                        } else if (remote != null && (mac).equalsIgnoreCase(remote.getAddress())) {
+                            UtilSharedPreference.saveString(TestActivity.this,"address",remote.getAddress());
+                            Log.e("ConnectDevice"," 蓝牙 RemoteDevice 连接   ");
+
+                            BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+                            BLEUtils.connectLockByBLE(TestActivity.this, remote);
+                            App.getInstance().setDeviceBean(new DeviceBean(remote, -50));
+                        } else {
+                            Log.e("ConnectDevice"," 蓝牙 startLeScan 连接   ");
+                            BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+                            BLEUtils.startLeScan(TestActivity.this, leScanCallback);
+                        }
+
+                    }
+                });
     }
 
-    private String hrhrv(byte[] data){
-        String str = "";
-        for (int i = 0; i < data.length/10; i++) {
-            ByteBuffer buffer = ByteBuffer.wrap(data,i * 10,10);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
+    boolean isReUpData;
+    @SuppressLint("MissingPermission")
+    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+        @Override
+        public void onLeScan(BluetoothDevice device, int rssi, byte[] bytes) {
+            if (device == null || StringUtils.isEmpty(device.getName())) {
+                return;
+            }
+            isReUpData = false;
 
-            int green = buffer.getInt();
-            short accX = buffer.getShort();
-            short accY = buffer.getShort();
-            short accZ = buffer.getShort();
-            //green是心率，X,Y,Z为加速度。视需求返回
-            str += "green:" + green + ";accX:" + accX +";accY:" + accY + ";accZ:" + accZ + "\r\n";
+            if ((mac).equalsIgnoreCase(device.getAddress()) || BLEService.isGetToken()) {
+                UtilSharedPreference.saveString(TestActivity.this,"address",device.getAddress());
+                Logger.show(TAG, "=== STOP Scan");
+                BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+//                bluetoothUtils.connect(device);
+                BLEUtils.connectLockByBLE(TestActivity.this, device);
+                App.getInstance().setDeviceBean(new DeviceBean(device, rssi));
+            }
         }
-        return str;
-    }
-    private String spo2hr(byte[] data){
-        String str = "";
-        for (int i = 0; i < data.length/14; i++) {
-            ByteBuffer buffer = ByteBuffer.wrap(data,i * 14,14);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            int red = buffer.getInt();
-            int ied = buffer.getInt();
-            short accX = buffer.getShort();
-            short accY = buffer.getShort();
-            short accZ = buffer.getShort();
-            //red:红色,ied:红外,X,Y,Z为加速度。视需求返回
-            str += "red:" + red + ";ied:" + ied + ";accX:" + accX + ";accY:" + accY + ";accZ:" + accZ + "\r\n";
-        }
-        return str;
-    }
-    /**
-     * 连接设备
-     */
-//    private void connect(String mac) {
-//        this.mac = mac;
-//        BluetoothAdapter bluetoothAdapter = App.getInstance().getBluetoothAdapter();
-//        if (!bluetoothAdapter.isEnabled()) {
-//            // 弹出对话框，打开蓝牙
-//            Toast.makeText(this, "未打开蓝牙，请打开后操作", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//        BLEUtils.stopLeScan(this, leScanCallback);
-//        BLEUtils.startLeScan(this, leScanCallback);
-//        tv_result.append("\n开始寻找设备："+mac);
-//    }
+    };
 
-//    @SuppressLint("MissingPermission")
-//    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
-//        @Override
-//        public void onLeScan(BluetoothDevice device, int rssi, byte[] bytes) {
-//            if (device == null || TextUtils.isEmpty(device.getName())) {
-//                return;
-//            }
-//            Log.d("TAG", "===" + device.getName());
-//            Log.d("TAG", "===" + device.getAddress());
-//            Log.d("TAG","onLeScan bytes = " + Arrays.toString(bytes));
-//            if (device.getAddress().equalsIgnoreCase(mac)) {
-//                BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
-//                BLEUtils.connectLockByBLE(TestActivity.this, device);
-//                tv_result.append("\n开始连接设备："+device.getAddress());
-//            }
-//        }
-//    };
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        BLEUtils.disconnectBLE(this);
+    }
 
     @Override
     public void lmBleConnecting(int i) {
-
+        postView("\n连接中..." + i);
     }
 
     @Override
     public void lmBleConnectionSucceeded(int i) {
-        BLEUtils.setGetToken(true);
-        tv_result.append("\n连接成功");
-        LmAPI.setDebug(true);
+        if(i==7){
+            BLEUtils.setGetToken(true);
+            postView("\n连接成功");
+            int hardconnection = UtilSharedPreference.getIntValue(getApplicationContext(), "NeedHardconnection");
+            if(hardconnection==2){//如果是软连接，继续弹出硬连接，用户自由选择要不要配对
+                UtilSharedPreference.saveInt(getApplicationContext(), "NeedHardconnection",1);
+                BluetoothDevice remote = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
+                BLEUtils.connectLockByBLE(this, remote);
+                postView("\n配对中");
+            }
+        }
+
     }
 
     @Override
     public void lmBleConnectionFailed(int i) {
+        BLEUtils.setGetToken(false);
+        postView("\n连接失败");
+    }
 
+    @Override
+    public void SystemControl(SystemControlBean systemControlBean) {
+        postView("\nSystemControl："+systemControlBean.toString());
     }
 
     @Override
     public void VERSION(byte b, String s) {
-        tv_result.append("\n获取版本信息成功"+s);
+        postView("\n获取版本信息成功" + s);
     }
 
     @Override
-    public void syncTime(byte b,byte[] var2) {
-        tv_result.append("\n"+(b==0?"同步时间成功":"同步时间失败"));
+    public void syncTime(byte b, byte[] timeBytes) {
+        if (b == 0) {
+            postView("\n" + "同步时间成功");
+        } else {
+            //timeBytes转成int数值
+
+
+            postView("\n读取时间成功：" + ConvertUtils.BytesToLong(timeBytes));
+        }
+
     }
 
     @Override
-    public void stepCount(byte[] bytes, byte b) {
+    public void stepCount(byte[] bytes, byte subCmd) {
+        if (subCmd == 0) {
+            postView("\n获取步数成功：" + ConvertUtils.BytesToInt(bytes));
+        } else {
+            postView("\n清空步数成功");
+        }
 
     }
-
-//    @Override
-//    public void stepCount(byte[] bytes) {
-//
-//    }
 
     @Override
     public void battery(byte b, byte b1) {
-        tv_result.append("\n获取电量成功："+b1);
+        postView("\n获取电量成功：" + b1);
     }
 
     @Override
@@ -248,224 +268,362 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 
     @Override
     public void saveData(String s) {
-
     }
 
     @Override
     public void reset(byte[] bytes) {
+        postView("\n恢复出厂设置成功");
+    }
+
+    @Override
+    public void collection(byte[] bytes, byte subCmd) {
+        postView(subCmd==0?"\n设置采集周期成功":"\n获取采集周期成功："+ConvertUtils.bytes2HexString(new byte[]{bytes[4],bytes[5],bytes[6],bytes[7]}));
+    }
+
+    @Override
+    public void setBlueToolName(byte data) {
 
     }
 
     @Override
-    public void collection(byte[] bytes, byte b) {
+    public void readBlueToolName(byte len, String name) {
 
     }
 
     @Override
-    public void setBlueToolName(byte b) {
-        if(b == 0x01){
-            tv_result.append("\n设置成功");
-        }else{
-            tv_result.append("\n设置失败");
-        }
-    }
-
-    @Override
-    public void readBlueToolName(byte b, String s) {
-        tv_result.append("\n长度:" + b + "蓝牙名称:" + s);
-    }
-
-    @Override
-    public void BPwaveformData(byte b, byte b1, String s) {
+    public void stopRealTimeBP(byte isSend) {
 
     }
 
     @Override
-    public void onSport(int i, byte[] bytes) {
-
+    public void BPwaveformData(byte seq, byte number, String waveDate) {
+        postView("最终数据 " + waveDate + "\n");
     }
 
     @Override
-    public void breathLight(byte b) {
-
+    public void onSport(int type, byte[] data) {
+        postView("type:" + type + " data:" + data + "\n");
+        Logger.show("Sport","type:" + type + " data:" + data );
     }
 
     @Override
-    public void SET_HID(byte b) {
-
+    public void breathLight(byte time) {
+        postView("time:" + time);
     }
 
     @Override
-    public void GET_HID(byte b, byte b1, byte b2) {
+    public void SET_HID(byte result) {
+        postView("结果：" + result + "\n");
+    }
 
+    @Override
+    public void GET_HID(byte touch, byte gesture, byte system) {
+        postView("touch：" + touch + " gesture：" + gesture +  " system：" + system + "\n");
     }
 
     @Override
     public void GET_HID_CODE(byte[] bytes) {
+        postView("支持与否：" + bytes[0] + " 触摸功能：" + bytes[1] +  " 空中手势：" + bytes[9] + "\n");
+    }
+
+    @Override
+    public void setAudio(short totalLength, int index, byte[] audioData) {
 
     }
 
     @Override
-    public void setAudio(short i, int i1, byte[] bytes) {
+    public void stopHeart(byte data) {
 
     }
 
-//    @Override
-//    public void collection(byte[] bytes) {
-//
-//    }
+    @Override
+    public void stopQ2(byte data) {
+
+    }
+
+    @Override
+    public void GET_ECG(byte[] bytes) {
+
+    }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.bt_re_connect://重连时输入mac
-                BluetoothDevice remote  = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(TestActivity.mac);
-                DeviceBean bean = DeviceManager.deviceMap.get(TestActivity.mac);
-                String hidDevice=bean.getHidDevice();
-                if(hidDevice == "0" || hidDevice == null){
-                    BLEUtils.isHIDDevice = false;
-                }else{
-                    BLEUtils.isHIDDevice = true;
-                }
+        switch (view.getId()) {
+            case R.id.bt_clear_step:
+                postView("\n开始清空步数");
+                LmAPI.START_SPORT();
+//                LmAPI.CLEAR_COUNTING();
+                break;
+            case R.id.bt_sys_control:
+                postView("\n系统设置和状态");
+                LmAPI.SYSTEM_CONTROL();
+//                LmAPI.CLEAR_COUNTING();
+                break;
 
-                if(remote != null){
-                    BLEUtils.connectLockByBLE(this,remote);
-                }
+            case R.id.bt_sync_time:
+//                postView("\n设置HID");
+//                LmAPI.SET_HID(new byte[]{0x00, (byte) 0xFF,0x00});
+//                postView("\n开始执行呼吸灯指令");
+//                LmAPI.BREATH_LIGHT((byte)05);
+                postView("\n开始同步时间");
+                LmAPI.SYNC_TIME();
                 break;
-            case R.id.bt_unpair:
-                BLEUtils.disconnectBLE(this);
+            case R.id.bt_read_time:
+                postView("\n开始读取时间");
+                LmAPI.READ_TIME();
                 break;
-            case R.id.bt_test:
-                 tv_result.append("\nStart reading all historical data");
-/*
-                 LmAPI.GET_HEART_ROTA((byte) 1, new IHeartListener() {
+            case R.id.bt_set_file:
+//                File file = new File(this.getCacheDir(), "filename.tmp");
+
+//                postView("\n开始获取HID");
+//                LmAPI.GET_HID();
+
+                String filePath = "/storage/emulated/0/1/ota/BCL603M1_2.4.4.11.hex16";
+                postView("\n设置文件固定路径为:" + filePath);
+                OtaApi.setUpdateFile(filePath);
+                break;
+            case R.id.bt_start_update:
+                postView("\n开始升级");
+                OtaApi.startUpdate(App.getInstance().getDeviceBean().getDevice(), App.getInstance().getDeviceBean().getRssi(), new LmOTACallback() {
+                    @Override
+                    public void onDeviceStateChange(int i) {
+                        Logger.show("固件升级", "固件升级-onDevicestatechange:"+i);
+                    }
 
                     @Override
+                    public void onProgress(int i, int i1) {
+                        Logger.show("固件升级", "固件升级-onProgress:"+i+" /"+i1);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Logger.show("固件升级", "固件升级-oncomplete");
+                    }
+                });
+                break;
+            case R.id.bt_version:
+                postView("\n开始获取版本信息");
+                LmAPI.GET_VERSION((byte) 0x00);
+                break;
+            case R.id.bt_battery:
+//                postView("\n开始获取HID_CODE");
+//                LmAPI.GET_HID_CODE((byte) 0x00);
+                postView("\n开始获取电量信息");
+                LmAPI.GET_BATTERY((byte) 0x00);
+                break;
+            case R.id.bt_step:
+                postView("\n开始获取步数信息");
+                LmAPI.STEP_COUNTING();
+                break;
+            case R.id.bt_collection:
+                postView("\n开始设置采集周期");
+                LmAPI.SET_COLLECTION(300);
+                break;
+            case R.id.bt_get_collection:
+                postView("\n开始获取采集周期");
+                LmAPI.GET_COLLECTION();
+                break;
+//            case R.id.bt_reset:
+//                Intent intent = new Intent();
+//                intent.setClass(TestActivity.this,TestActivity2.class);
+//                startActivity(intent);
+////                postView("\n开始恢复出厂设置");
+////                LmAPI.RESET();
+              //  break;
+            case R.id.bt_blood_oxygen:
+                postView("\n开始测量血氧");
+                LmAPI.GET_HEART_Q2((byte) 0x01, new IQ2Listener() {
+                    @Override
                     public void progress(int progress) {
-                        Log.d("TAG", "progress:" + progress);
-                        //tv_result.append("\n正在测量心率..." + String.format("%02d%%",progress));
-                        //showToast(TestActivity.this,"正在测量心率..." + String.format("%02d%%",progress));
-                        setMessage("正在测量心率..." + String.format("%02d%%",progress),progress);
+                        postView("\n测量血氧进度：" + progress + "%");
+                    }
+
+                    @Override
+                    public void resultData(int heart, int q2, int temp) {
+                        postView("\n测量血氧数据：" + q2);
+                    }
+
+                    @Override
+                    public void waveformData(byte seq, byte number, String waveData) {
+                        tv_result.setText(waveData);
+                    }
+
+                    @Override
+                    public void error(int code) {
+                        postView("\n测量血氧错误：" + code);
+                    }
+
+                    @Override
+                    public void success() {
+                        postView("\n测量血氧完成");
+                    }
+
+                });
+                break;
+            case R.id.bt_heart:
+/*                postView("\n开始拿calculateSleep");
+                String formattedDateTime = "2024-10-10";
+                try {
+                    // 解析输入日期字符串为 LocalDate 对象
+                    LocalDate localDate = LocalDate.parse(formattedDateTime);
+
+                    // 转换为 LocalDateTime 对象，设置时间为午夜
+                    LocalDateTime localDateTime = localDate.atTime(0, 0);
+
+                    // 定义输出格式
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    formattedDateTime = localDateTime.format(formatter);
+
+                    // 输出结果
+                    System.out.println("Formatted date and time: " + formattedDateTime);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                SleepBean sleepBean = LogicalApi.calculateSleep(formattedDateTime,App.getInstance().getDeviceBean().getDevice().getAddress(),1);
+                Logger.show("shuju","sleepBean深睡:" + sleepBean.getHighTime() );
+                Logger.show("shuju","浅睡："+ sleepBean.getLowTime() );
+                Logger.show("shuju","清醒："+ sleepBean.getQxTime() );
+                Logger.show("shuju","眼动："+ sleepBean.getYdTime() );
+                Logger.show("shuju","全部睡眠小时:" + sleepBean.getAllHours());
+                Logger.show("shuju","全部睡眠分钟："+ sleepBean.getAllMinutes());
+                Logger.show("shuju","入睡时间戳："+ sleepBean.getStartTime() );
+                Logger.show("shuju","清醒时间戳："+ sleepBean.getEndTime() );
+                Logger.show("shuju","零星睡眠小时:："+ sleepBean.getHours() );
+                Logger.show("shuju","零星睡眠分钟："+ sleepBean.getMinutes() );
+                postView("\nsleepBean深睡:" + sleepBean.getHighTime() +" 浅睡："+ sleepBean.getLowTime() +" 清醒："+ sleepBean.getQxTime() +" 眼动："+ sleepBean.getYdTime());*/
+                postView("\n开始测量心率");
+                LmAPI.GET_HEART_ROTA((byte) 0x01, (byte)0x30,new IHeartListener() {
+                    @Override
+                    public void progress(int progress) {
+                        postView("\n测量心率进度：" + progress + "%");
                     }
 
                     @Override
                     public void resultData(int heart, int heartRota, int yaLi, int temp) {
-                        Log.d("TAG", "resultData success:");
+//                        postView("\n测量心率数据：" + heart);
                     }
 
-                     @Override
-                     public void waveformData(byte seq, byte number, String s) {
-
-                     }
+                    @Override
+                    public void waveformData(byte seq, byte number, String waveData) {
+                        tv_result.setText(waveData);
+                    }
 
                     @Override
-                    public void error(int value) {
-                        Log.d("TAG", "success:");
+                    public void rriData(byte seq, byte number, String data) {
+                        postView("\ndata的值是：" + data);
+                    }
+
+                    @Override
+                    public void error(int code) {
+                        postView("\n测量心率错误：" + code);
                     }
 
                     @Override
                     public void success() {
-                        Log.d("TAG", "success:");
+                        postView("\n测量心率完成");
                     }
                 });
-*/
+                break;
+            case R.id.bt_read_log:
+                postView("\n开始读取全部数据");
+                //postView("\n开始读取未上传数据");
                 LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener() {
                     @Override
-                    public void error(int i) {
-                        tv_result.append("\nread History error:" + i);
+                    public void error(int code) {
+                        if(code == 3){
+                            postView("\n出现了BIX的问题");
+                        }
+                       // setMessage(TestActivity.this,"\n出现了BIX的问题");
                     }
 
                     @Override
                     public void success() {
-                        tv_result.append("\nread History Success!");
+                        postView("\n读取记录完成");
+
+
                     }
 
                     @Override
-                    public void progress(double v, HistoryDataBean historyDataBean) {
-                        tv_result.append("\nread History Progress:" + v + "%");
+                    public void progress(double progress, HistoryDataBean historyDataBean) {
+                        postView("\n读取记录进度:" + progress + "%");
+                        postView("\n记录内容:" + historyDataBean.toString());
                     }
                 });
-                //skipPage();
+
                 break;
-            case R.id.bt_sync_time://手机已连接情况下，手动输入bool值true
-                mac = "B0:02:30:00:00:07";
-                remote  = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(TestActivity.mac);
-//                bean = DeviceManager.deviceMap.get(TestActivity.mac);
-//                hidDevice=bean.getHidDevice();
-//                if(hidDevice == "0" || hidDevice == null){
-//                    BLEUtils.isHIDDevice = false;
-//                }else{
-//                    BLEUtils.isHIDDevice = true;
-//                }
-                BLEUtils.isHIDDevice = true;
-                if(remote != null){
-                    BLEUtils.connectLockByBLE(this,remote);
-                }
-//                tv_result.append("\n开始同步时间");
-//                LmAPI.SYNC_TIME();
+            case R.id.bt_read_sql:
+                postView("\n开始获取血压数据\n");
+                LmAPI.GET_BPwaveData((byte) 20, (byte) 20, (byte) 20, (byte) 20);
+//                int dayBeginTime = TimeUtils.getDayBeginTime();
+//                int dayEndTime = TimeUtils.getDayEndTime();
+//                List<HistoryDataBean> historyDataBeans = DataApi.instance.queryHistoryData(dayBeginTime, dayEndTime, deviceBean.getDevice().getAddress());
+//                postView("\n本地记录内容条数:" + historyDataBeans.size());
+//                postView("\n开启DFU模式" );
+//                LmAPI.TURN_DFU();
                 break;
-            case R.id.bt_set_name:
-//                tv_result.append("\n设置蓝牙名称");
-//                LmAPI.Set_BlueTooth_Name("studyingvery");//最长12位字节
-                tv_result.append("\n获取蓝牙名称");
-                LmAPI.Get_BlueTooth_Name();
+            case R.id.bt_unbind:
+                postView("\n解绑\n");
+                BLEUtils.disconnectBLE(this);
+                removeBond(bluetoothDevice);
+                UtilSharedPreference.saveString(TestActivity.this,"address","");
+                Intent intent = new Intent(TestActivity.this, MainActivity.class);
+                UtilSharedPreference.saveInt(TestActivity.this,LmAPI.needHardconnection,2);
+
+                startActivity(intent);
+                finish();
                 break;
-            case R.id.bt_version:
-//                tv_result.append("\n开始获取版本信息");
-//                LmAPI.GET_VERSION((byte) 0x00);
-                tv_result.append("\n开始获取版本信息");
-                LmAPI.GET_HEART_ROTA((byte) 0, (byte) 30, new IHeartListener() {
-                    @Override
-                    public void progress(int i) {
-                        tv_result.append("\nTest progress:" + i + "%");
-                    }
 
-                    @Override
-                    public void resultData(int heart, int i1, int i2, int i3) {
-                        tv_result.append("\nheartRota：" + heart);
-                    }
-
-                    @Override
-                    public void waveformData(byte b, byte b1, String s) {
-
-                    }
-
-                    @Override
-                    public void rriData(byte b, byte b1, String s) {
-                        tv_result.append("\nrr：" + s);
-                    }
-
-                    @Override
-                    public void error(int i) {
-                        tv_result.append("\nerror：" + i);
-                    }
-
-                    @Override
-                    public void success() {
-                        tv_result.append("\nTest success");
-                    }
-                });
-                break;
-            case R.id.bt_battery:
-                runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        tv_result.append("\n开始获取电量信息");
-                        LmAPI.GET_BATTERY((byte) 0x00);
-
-                        handler.postDelayed(this,500);
-                    }
-                };
-                handler.post(runnable);
-                break;
             default:
                 break;
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        handler.removeCallbacks(runnable);
+    public void removeBond( BluetoothDevice btDevice){
+        if(btDevice==null){
+            return;
+        }
+        Method removeBondMethod = null;
+        try {
+            removeBondMethod = BluetoothDevice.class.getMethod("removeBond");
+            Boolean returnValue = (Boolean) removeBondMethod.invoke(btDevice);
+            returnValue.booleanValue();
+//            removeBondMethod = btDevice.getClass().getMethod("removeBond");
+//            Boolean returnValue = (Boolean) removeBondMethod.invoke(btDevice);
+//            returnValue.booleanValue();
+            Logger.show(TAG, "===removeBond===  "+returnValue);
+        } catch (Exception e) {
+            Logger.show(TAG, "===removeBond=== Exception ");
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+    public static void setMessage(Context context, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(message)
+                .setTitle("提示")
+                .setPositiveButton("确定", null); // 添加确定按钮，点击后不执行任何操作，可根据需求修改
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+    /**
+     * @param value 打印的log
+     */
+    public void postView(String value) {
+        // tv_result.setText(value);
+        tv_result.setMovementMethod(ScrollingMovementMethod.getInstance());
+        tv_result.setScrollbarFadingEnabled(false);//滚动条一直显示
+        tv_result.append(value);
+        int scrollAmount = tv_result.getLayout().getLineTop(tv_result.getLineCount()) - tv_result.getHeight();
+        if (scrollAmount > 0)
+            tv_result.scrollTo(0, scrollAmount);
+        else
+            tv_result.scrollTo(0, 0);
+
     }
 }
