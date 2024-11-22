@@ -49,7 +49,16 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 ### 1.0.10
 修改了calculateSleep接口，更新了睡眠算法  
 增加了部分开发中的功能，不是特定戒指不需要关注
-> 注：需要实现新加的抽象类       
+> 注：需要实现新加的抽象类  
+### 1.0.12     
+修改了UI界面，添加了搜索页面   
+支持长连接（需固件同步支持）   
+添加了设置、获取蓝牙名称的接口    
+添加了心率、血氧停止接口    
+读取心率接口新增了设置时间的参数，参数为0时代表一直采集
+### 1.0.14
+修改蓝牙连接方式，优化连接速度
+
 
 # English
 ## How to use the SDK
@@ -103,3 +112,11 @@ Added the blood pressure algorithm interface **LmAPI.GET_BPwaveData()**, please 
 The calculateSleep API has been modified and the sleep algorithm has been updated  
 Added some features in development, not specific rings don't need attention
 > Note:A newly added abstract class needs to be implemented 
+### 1.0.12    
+The UI interface has been modified and a search page has been added       
+Support persistent connection (firmware synchronization required)           
+Added an interface for setting and obtaining Bluetooth names    
+Added heart rate and blood oxygen stop interfaces       
+The Read heart rate interface has added a new parameter to set the time, and when the parameter is 0, it means that it has been collected
+### 1.0.14
+Modify the Bluetooth connection mode to optimize the connection speed

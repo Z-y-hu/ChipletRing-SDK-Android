@@ -2,8 +2,14 @@
 新增修改/读取蓝牙名称接口
 增加长连接相关的连接、重连、断开功能
 新增实时血压测量接口（和固件相关）
+1.0.14
+修改蓝牙连接方式，优化连接速度
+
+
 
 1.0.12（EN）
 Added the interface for modifying/reading Bluetooth names
 Added connection, reconnection, and disconnection functions related to persistent connections
 Added real-time blood pressure measurement interface (related to firmware)
+1.0.14
+Modify the Bluetooth connection mode to optimize the connection speed
