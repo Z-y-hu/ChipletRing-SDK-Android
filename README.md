@@ -58,7 +58,8 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 读取心率接口新增了设置时间的参数，参数为0时代表一直采集
 ### 1.0.14
 修改蓝牙连接方式，优化连接速度
-
+### 1.0.16   
+添加语音录制，增加一键获取状态接口
 
 # English
 ## How to use the SDK
@@ -120,3 +121,5 @@ Added heart rate and blood oxygen stop interfaces
 The Read heart rate interface has added a new parameter to set the time, and when the parameter is 0, it means that it has been collected
 ### 1.0.14
 Modify the Bluetooth connection mode to optimize the connection speed
+### 1.0.16
+Add a voice recording，Added the API for obtaining status with one click
