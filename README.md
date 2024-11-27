@@ -60,6 +60,8 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 修改蓝牙连接方式，优化连接速度
 ### 1.0.16   
 添加语音录制，增加一键获取状态接口
+### 1.0.17
+修复自1.0.12以来可能遇到的LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener()回调全为0的bug
 
 # English
 ## How to use the SDK
@@ -123,3 +125,5 @@ The Read heart rate interface has added a new parameter to set the time, and whe
 Modify the Bluetooth connection mode to optimize the connection speed
 ### 1.0.16
 Add a voice recording，Added the API for obtaining status with one click
+### 1.0.17
+Fixed the bug that the LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener() callback all 0 that may be encountered since 1.0.12

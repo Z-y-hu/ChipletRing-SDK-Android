@@ -229,6 +229,16 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
+    public void CONTROL_AUDIO(short[] shorts) {
+
+    }
+
+    @Override
+    public void motionCalibration(byte b) {
+
+    }
+
+    @Override
     public void VERSION(byte b, String s) {
         postView("\n获取版本信息成功" + s);
     }
