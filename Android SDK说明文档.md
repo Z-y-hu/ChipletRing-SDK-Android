@@ -8,7 +8,7 @@
 
 ### 适用范围
 
-本SDK基于安卓原生开发 ，最终提供为jar包库。可用于Android环境下使用。
+本SDK基于安卓原生开发 ，最终提供为jar包库。可用于Android环境下使用。  
 **注：使用开发语言为JAVA**
 
 ### 功能介绍
@@ -101,10 +101,10 @@
 
 ### 使用流程
 
-按以下流程使用 SDK：
-第—步：集成 SDK
-第二步：初始化 SDK
-第三步：使用 SDK
+按以下流程使用 SDK：  
+第—步：集成 SDK  
+第二步：初始化 SDK  
+第三步：使用 SDK  
 
 ### 流程图
 
@@ -124,7 +124,7 @@
 
 ![alt text](image/bb8525aa0288b3d7b62d61b60dda713.png)
 
-##### 1.1.4 配置所需权限 ，如需存储以及其他权限可自行配置 ，牵扯到动态权限处 ，需要做相关处理
+##### 1.1.4 配置所需权限 ，如需存储以及其他权限可自行配置 ，牵扯到动态权限处 ，需要做相关处理  
 
 在Manifest.xml中加入以下代码
 
@@ -200,7 +200,7 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 BLEUtils.startLeScan(Context context, BluetoothAdapter.LeScanCallback leScanCallback);
 ```
 
-参数说明：context：上下文     leScanCallback：蓝牙搜索的回调
+参数说明：context：上下文     leScanCallback：蓝牙搜索的回调  
 返回值
 
 ```jave
@@ -219,20 +219,20 @@ private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapt
 };
 ```
 
-注意事项：1.保证蓝牙设备有电
+注意事项：1.保证蓝牙设备有电  
 2.如要筛选蓝牙设备（厂商ID == 0xFF01），具体请参考四、其他，筛选相关
 
 ##### 3.1.2 停止搜索
 
-接口功能：关闭蓝牙搜索功能。
+接口功能：关闭蓝牙搜索功能。  
 接口声明：
 
 ```java
 BLEUtils.stopLeScan(Context context, BluetoothAdapter.LeScanCallback leScanCallback);
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：context：上下文    leScanCallback：蓝牙搜索的回调
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：context：上下文    leScanCallback：蓝牙搜索的回调  
 返回值：无
 
 ##### 3.1.3 连接设备
@@ -244,9 +244,10 @@ BLEUtils.stopLeScan(Context context, BluetoothAdapter.LeScanCallback leScanCa
 BLEUtils.connectLockByBLE(Context context, BluetoothDevice bluetoothDevice);
 ```
 
-注意事项：1.调用此接口 ，需保证与戒指处于连接状态
-2.扫描连接时会自动判断是否为长连接，在已经长连接下去重连时，需手动输入bool值确认是否重连（demo里有示例）
-参数说明：context：上下文       bluetoothDevice ：蓝牙设备
+注意事项：1.调用此接口 ，需保证与戒指处于连接状态  
+2.扫描连接时会自动判断是否为长连接，在已经长连接下去重连时，需手动输入bool值确认是否重连（demo里有示例）  
+参数说明：context：上下文  
+bluetoothDevice ：蓝牙设备  
 返回值：
 
 ```java
@@ -268,15 +269,15 @@ public void lmBleConnectionFailed(int code) {
 
 ##### 3.1.4 断开蓝牙
 
-接口功能：断开设备。
+接口功能：断开设备。  
 接口声明：
 
 ```java
 BLEUtils.disconnectBLE(Context context);
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：context：上下文
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：context：上下文  
 返回值：无
 
 #### 3.2 指令功能（LmAPI）
@@ -285,15 +286,15 @@ BLEUtils.disconnectBLE(Context context);
 
 ##### 3.2.1 同步时间
 
-接口功能：同步时间 ，调用此接口 ，会获取手机当前时间同步给戒指 ，保持时间同步。
+接口功能：同步时间 ，调用此接口 ，会获取手机当前时间同步给戒指 ，保持时间同步。  
 接口声明：
 
 ```java
 LmAPI.SYNC_TIME();
 ```
 
-注意事项：同步时间和读取时间共用一个返回值。调用此接口 ，需保证与戒指处于连接状态
-参数说明：无
+注意事项：同步时间和读取时间共用一个返回值。调用此接口 ，需保证与戒指处于连接状态  
+参数说明：无  
 返回值
 
 ```java
@@ -307,9 +308,9 @@ LmAPI.SYNC_TIME();
 
 ##### 3.2.2 读取时间
 
-接口功能：读取时间 ，调用此接口 ，会获取戒指当前时间。
-接口声明：
-注意事项：同步时间和读取时间共用一个返回值。调用此接口 ，需保证与戒指处于连接状态
+接口功能：读取时间 ，调用此接口 ，会获取戒指当前时间。  
+接口声明：  
+注意事项：同步时间和读取时间共用一个返回值。调用此接口 ，需保证与戒指处于连接状态  
 参数说明：无
 
 ```java
@@ -329,15 +330,15 @@ LmAPI.READ_TIME();
 
 ##### 3.2.3 版本信息
 
-接口功能：版本信息 ，获取戒指的版本信息。
+接口功能：版本信息 ，获取戒指的版本信息。  
 接口声明：
 
 ```java
 LmAPI.GET_VERSION((byte) 0x00);  //0x00获取软件版本，0x01获取硬件版本
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：type：0x00获取软件版本 ，0x01获取硬件版本
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：type：0x00获取软件版本 ，0x01获取硬件版本  
 返回值
 
 ```java
@@ -351,15 +352,15 @@ LmAPI.GET_VERSION((byte) 0x00);  //0x00获取软件版本，0x01获取硬件�
 
 ##### 3.2.4 电池电量
 
-接口功能：获取电池电量、 电池状态。
+接口功能：获取电池电量、 电池状态。  
 接口声明：
 
 ```java
 LmAPI.GET_BATTERY((byte) 0x00);  //0x00获取电量，0x01获取充电状态
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：type：0x00获取电量 ，0x01获取充电状态
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：type：0x00获取电量 ，0x01获取充电状态  
 返回值
 
 ```java
@@ -373,15 +374,15 @@ LmAPI.GET_BATTERY((byte) 0x00);  //0x00获取电量，0x01获取充电状态
 
 ##### 3.2.5 读取步数
 
-接口功能：获取当天累计步数。
+接口功能：获取当天累计步数。  
 接口声明：
 
 ```java
 LmAPI.STEP_COUNTING（）
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：无
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：无  
 返回值
 
 ```java
@@ -395,41 +396,41 @@ LmAPI.STEP_COUNTING（）
 
 ##### 3.2.6 清除步数
 
-接口功能：清除步数。
+接口功能：清除步数。  
 接口声明：
 
 ```java
 LmAPI.CLEAR_COUNTING（）
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：无
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：无  
 返回值：参考上条
 
 ##### 3.2.7 恢复出厂设置
 
-接口功能：恢复出厂设置
+接口功能：恢复出厂设置  
 接口声明：
 
 ```java
 LmAPI.RESET（）
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：无
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：无  
 返回值：无 ，有回调reset方法即认为成功
 
 ##### 3.2.8 采集周期设置
 
-接口功能：采集周期设置
+接口功能：采集周期设置  
 接口声明：
 
 ```java
 LmAPI.SET_COLLECTION（collection）//采集周期，单位秒
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：colection：采集间隔，单位秒
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：colection：采集间隔，单位秒  
 返回值：
 
 ```java
@@ -443,15 +444,15 @@ LmAPI.SET_COLLECTION（collection）//采集周期，单位秒
 
 ##### 3.2.9 采集周期读取
 
-接口功能：采集周期读取
+接口功能：采集周期读取  
 接口声明：
 
 ```java
 LmAPI.GET_COLLECTION（）//采集周期，单位秒
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：无
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：无  
 返回值：
 
 ```java
@@ -465,18 +466,18 @@ LmAPI.GET_COLLECTION（）//采集周期，单位秒
 
 ##### 3.2.10 测量心率
 
-接口功能：测量心率。
+接口功能：测量心率。  
 接口声明：
 
 ```java
 LmAPI.GET_HEART_ROTA（byte waveForm, byte acqTime,IHeartListener iHeartListener）
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：
-waveForm：是否配置波形 0不上传 1上传
-acqTime：采集时间 （byte）30是正常时间,0为一直采集
-iHeartListener:  此接口是测量数据的监听
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：  
+waveForm：是否配置波形 0不上传 1上传  
+acqTime：采集时间 （byte）30是正常时间,0为一直采集  
+iHeartListener:  此接口是测量数据的监听  
 返回值：
 
 ```java
@@ -527,17 +528,17 @@ iHeartListener:  此接口是测量数据的监听
 
 ##### 3.2.11 测量血氧
 
-接口功能：测量血氧。
+接口功能：测量血氧。  
 接口声明：
 
 ```java
 LmAPI.GET_HEART_Q2（byte waveForm,IQ2Listener iQ2Listener）
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：
-waveForm：是否配置波形 0不上传 1上传
-IQ2Listener: 此接口是测量数据的监听
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：  
+waveForm：是否配置波形 0不上传 1上传  
+IQ2Listener: 此接口是测量数据的监听  
 返回值：
 
 ```java
@@ -586,28 +587,28 @@ LmAPI.GET_HEART_Q2(new IQ2Listener() {
 
 ##### 3.2.12 测量温度
 
-接口功能： 测量温度。
+接口功能： 测量温度。  
 接口声明：
 
 ```java
 LmAPI.GET_HEART_Q2（IQ2Listener iQ2Listener）
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：IQ2Listener: 此接口是测量数据的监听
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：IQ2Listener: 此接口是测量数据的监听  
 返回值：同上。测量血氧时同时会返回温度
 
 ##### 3.2.13 历史记录管理
 
-接口功能：读取历史记录。
+接口功能：读取历史记录。  
 接口声明：
 
 ```java
 LmAPI.READ_HISTORY（int type,IHistoryListener iHistoryListener）
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：type: 1,获取全部历史记录；0，获取未上传的历史记录
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：type: 1,获取全部历史记录；0，获取未上传的历史记录  
 返回值：
 
 ```java
@@ -645,28 +646,28 @@ LmAPI.READ_HISTORY(type, new IHistoryListener() {
 
 ##### 3.2.14 清空历史数据
 
-接口功能：清空历史数据。
+接口功能：清空历史数据。  
 接口声明：
 
 ```java
 LmAPI.CLEAN_HISTORY（）
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：无
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：无  
 返回值：无
 
 ##### 3.2.15 血压测试算法
 
-接口功能：清空历史数据。
+接口功能：清空历史数据。  
 接口声明：
 
 ```java
 LmAPI.GET_BPwaveData()
 ```
 
-注意事项：戒指固件必须支持，否则无法使用。调用此接口 ，需保证与戒指处于连接状态
-参数说明：无
+注意事项：戒指固件必须支持，否则无法使用。调用此接口 ，需保证与戒指处于连接状态  
+参数说明：无  
 返回值
 
 ```java
@@ -681,17 +682,17 @@ LmAPI.GET_BPwaveData()
 
 ##### 3.2.16 实时PPG血压测量
 
-接口功能：实时测量血压值和500hz的原始波形
+接口功能：实时测量血压值和500hz的原始波形  
 接口声明：
 
 ```java
 LmAPI.GET_REAL_TIME_BP（byte time,byte isWave,byte isProgress,IRealTimePPGBpListener iRealTimePPGBpListener）
 ```
 
-注意事项：戒指固件必须支持，否则无法使用。调用此接口 ，需保证与戒指处于连接状态
-参数说明：
-time：采集时间,byte类型，默认30s
-isWave:是否上传波形。0：不上传，1：上传
+注意事项：戒指固件必须支持，否则无法使用。调用此接口 ，需保证与戒指处于连接状态  
+参数说明：  
+time：采集时间,byte类型，默认30s  
+isWave:是否上传波形。0：不上传，1：上传  
 isProgress：是否上传进度。0：不上传，1：上传
 
 ```java
@@ -716,14 +717,14 @@ LmAPI.GET_REAL_TIME_BP((byte) 0x30, (byte) 1, (byte) 1, new IRealTimePPGB
 
 ##### 3.2.17 实时PPG血压停止采集
 
-接口功能：停止采集
+接口功能：停止采集  
 接口声明：
 
 ```java
 LmAPI.STOP_REAL_TIME_BP()
 ```
 
-参数说明：无
+参数说明：无  
 回调：
 
 ```java
@@ -737,16 +738,16 @@ LmAPI.STOP_REAL_TIME_BP()
 
 ##### 3.2.18 设置蓝牙名称
 
-接口功能：设置蓝牙名称
+接口功能：设置蓝牙名称  
 接口声明：
 
 ```java
 LmAPI.Set_BlueTooth_Name(String name)
 ```
 
-参数说明：
-Name:蓝牙名称，不超过12个字节，可以为中文、英文、数字，即4个汉字或者12个英文
-注：设置蓝牙名称后，广播不会立即改变，需要等待一段时间
+参数说明：  
+Name:蓝牙名称，不超过12个字节，可以为中文、英文、数字，即4个汉字或者12个英文  
+注：设置蓝牙名称后，广播不会立即改变，需要等待一段时间  
 回调：
 
 ```java
@@ -762,14 +763,14 @@ Name:蓝牙名称，不超过12个字节，可以为中文、英文、数字，�
 
 ##### 3.2.19 获取蓝牙名称
 
-接口功能：设置蓝牙名称
+接口功能：设置蓝牙名称  
 接口声明：
 
 ```java
 LmAPI.Get_BlueTooth_Name()
 ```
 
-参数说明：无
+参数说明：无  
 回调：
 
 ```java
@@ -781,14 +782,14 @@ LmAPI.Get_BlueTooth_Name()
 
 ##### 3.2.20 心率测量停止
 
-接口功能：停止正在测量的心率
+接口功能：停止正在测量的心率  
 接口声明：
 
 ```java
 LmAPI.STOP_HEART()
 ```
 
-参数说明：无
+参数说明：无  
 回调：
 
 ```java
@@ -800,14 +801,14 @@ LmAPI.STOP_HEART()
 
 ##### 3.2.21 血氧测量停止
 
-接口功能：停止正在测量的血氧
+接口功能：停止正在测量的血氧  
 接口声明：
 
 ```java
 LmAPI.STOP_Q2()
 ```
 
-参数说明：无
+参数说明：无  
 回调：
 
 ```java
@@ -819,14 +820,14 @@ LmAPI.STOP_Q2()
 
 ##### 3.2.22 一键获取状态
 
-接口功能：一键获取系统支持的功能，简化版的接口集合，会返回电量、固件版本、采集周期等
+接口功能：一键获取系统支持的功能，简化版的接口集合，会返回电量、固件版本、采集周期等  
 接口声明：
 
 ```java
 LmAPI.SYSTEM_CONTROL()
 ```
 
-参数说明：无
+参数说明：无  
 回调：
 
 ```java
@@ -838,14 +839,14 @@ LmAPI.SYSTEM_CONTROL()
 
 ##### 3.2.23 语音录制
 
-接口功能：录制语音
+接口功能：录制语音  
 接口声明：
 
 ```java
 LmAPI.SET_AUDIO(byte data)
 ```
 
-参数说明：0代表关闭，1代表打开
+参数说明：0代表关闭，1代表打开  
 回调：
 
 ```java
@@ -868,16 +869,16 @@ LmAPI.SET_AUDIO(byte data)
 
 ##### 3.3.1 检查版本
 
-接口功能：检查固件版本是否是最新。
+接口功能：检查固件版本是否是最新。  
 接口声明：
 
 ```java
 OtaApi.checkVersion(String version, VersionCallback versionCallback);
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：version：当前戒指的版本号
-versionCallback：最新版本信息回调
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：version：当前戒指的版本号  
+versionCallback：最新版本信息回调  
 返回值：
 
 ```java
@@ -901,17 +902,17 @@ OtaApi.checkVersion(version, new VersionCallback() {
 
 ##### 3.3.2 开始升级
 
-接口功能：执行固件升级。
+接口功能：执行固件升级。  
 接口声明：
 
 ```java
 void startUpdate(BluetoothDevice bluetoothDevice, int rssi, LmOTACallback otaCallback)
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态
-参数说明：bluetoothDevice： 当前要升级的设备
-rssi：设备信号值
-otaCallback：升级回调
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：bluetoothDevice： 当前要升级的设备  
+rssi：设备信号值  
+otaCallback：升级回调  
 返回值：
 
 ```java
@@ -937,7 +938,7 @@ OtaApi.startUpdate(App.getInstance().getDeviceBean().getDevice(), App.getInstan
 
 ##### 3.4.1 查询历史记录
 
-接口功能：查询指定时间的历史数据
+接口功能：查询指定时间的历史数据  
 接口声明：
 
 ```java
@@ -949,10 +950,10 @@ List<HistoryDataBean> queryHistoryDataOrderByTimeAsc(long dayBeginTime,long d
 List<HistoryDataBean> queryHistoryDataOrderByStepCountDesc(long dayBeginTime,long dayEndTime,String mac)
 ```
 
-注意事项：需开启相应权限
-参数说明：dayBeginTime ：开始时间戳，单位：秒
-dayEndTime ：结束时间戳，单位：秒
-mac ：设备的MAC地址
+注意事项：需开启相应权限  
+参数说明：dayBeginTime ：开始时间戳，单位：秒  
+dayEndTime ：结束时间戳，单位：秒  
+mac ：设备的MAC地址  
 返回值：
 
 ```java
@@ -1002,32 +1003,32 @@ public class HistoryDataBean{
 
 ##### 3.4.2 清空历史数据
 
-接口功能：清空全部历史数据。
+接口功能：清空全部历史数据。  
 接口声明：
 
 ```java
 void deleteHistoryData()；
 ```
 
-注意事项：需开启相应权限
-参数说明：无
+注意事项：需开启相应权限  
+参数说明：无  
 返回值：无
 
 #### 3.5 逻辑算法相关（LogicalApi）
 
 ##### 3.5.1 计算距离、卡路里
 
-接口功能：根据步数计算距离、卡路里。
+接口功能：根据步数计算距离、卡路里。  
 接口声明：
 
 ```java
 DistanceCaloriesBean calculateDistance(int stepCount,double height,double weight)；
 ```
 
-注意事项：需开启相应权限
-参数说明：stepCount：步数
-height：身高 单位cm
-weight：体重 单位kg
+注意事项：需开启相应权限  
+参数说明：stepCount：步数  
+height：身高 单位cm  
+weight：体重 单位kg  
 返回值：
 
 ```java
@@ -1041,17 +1042,17 @@ public class DistanceCaloriesBean {
 
 ##### 3.5.2 计算睡眠数据
 
-接口功能：计算指定时间睡眠数据。
+接口功能：计算指定时间睡眠数据。  
 接口声明：
 
 ```java
 SleepBean calculateSleep(String date, String mac, int type)；
 ```
 
-注意事项：需开启相应权限
-参数说明：date：日期，格式为YYYY-MM-DD HH:mm:ss
-mac ：设备蓝牙MAC
-type：暂时无效
+**注意事项：计算睡眠时间的接口需要先调用查询历史数据**  
+参数说明：date：日期，格式为YYYY-MM-DD HH:mm:ss  
+mac ：设备蓝牙MAC  
+type：暂时无效  
 返回值：
 
 ```java
@@ -1064,9 +1065,9 @@ public class SleepBean{
     int allHours = 0;
     // 全部睡眠分钟
     int allMinutes =0;
-    // 全部睡眠小时
+    //睡眠小时
     int sleepHours = 0;
-    //全部睡眠分钟
+    //睡眠分钟
     int sleepMinutes =0;
     //深度睡眠时间
     long highTime = 0;
@@ -1136,31 +1137,31 @@ public class HistoryDataBean{
 **注：使用戒指API前，应先查看戒指状态**
 
 ### 1、筛选相关
-血氧戒指设备以XXXXXX的名字进行广播。XXX为任何字符，广播间隔为500ms。本例中XXX为BCL603。
+血氧戒指设备以XXXXXX的名字进行广播。XXX为任何字符，广播间隔为500ms。本例中XXX为BCL603。  
 广播包的长度必须是31个字节，如果不到31个字节 ，则剩下的全用0填充 补全，这部分的数据是无效的
 
 #### 1.1 广播数据单元
 
-广播包中包含若干个广播数据单元，广播数据单元也称为 AD Structure。
-广播数据单元 = 长度值Length + AD type + AD Data
-长度值Length只占一个字节，并且位于广播数据单元的第一个字节。
+广播包中包含若干个广播数据单元，广播数据单元也称为 AD Structure。  
+广播数据单元 = 长度值Length + AD type + AD Data  
+长度值Length只占一个字节，并且位于广播数据单元的第一个字节。  
 ![alt text](image/312b2c57a6e766bc46d0dfd459a1ceb.png)
 
 ##### 1.1.1 Raw data:
 
-0x代表这串字符串是十六进制的字符串。两位十六进制数代表一个字节。因为两个字符组成的十六进制字符串最大为FF，即255，而Java中byte类型的取值范围是-128到127，刚好可以表示一个255的大小。所以两个十六进制的字符串表示一个字节。
- 继续查看报文内容，开始读取第一个广播数据单元。读取第一个字节:0x02,转换为十进制就是2，即表示后面的2个字节是这个广播数据单元的数据内容。超过这2个字节的数据内容后，表示是一个新的广播数据单元。
- 而第二个广播数据单元，第一个字节的值是0x09,转换为十进制就是9，表示后面9个字节为第二个广播数据单元。
-而第三个广播数据单元，第一个字节的值是0x03,转换为十进制就是3，表示后面3个字节为第三个广播数据单元。
-以此类推。
+0x代表这串字符串是十六进制的字符串。两位十六进制数代表一个字节。因为两个字符组成的十六进制字符串最大为FF，即255，而Java中byte类型的取值范围是-128到127，刚好可以表示一个255的大小。所以两个十六进制的字符串表示一个字节。  
+ 继续查看报文内容，开始读取第一个广播数据单元。读取第一个字节:0x02,转换为十进制就是2，即表示后面的2个字节是这个广播数据单元的数据内容。超过这2个字节的数据内容后，表示是一个新的广播数据单元。  
+ 而第二个广播数据单元，第一个字节的值是0x09,转换为十进制就是9，表示后面9个字节为第二个广播数据单元。  
+而第三个广播数据单元，第一个字节的值是0x03,转换为十进制就是3，表示后面3个字节为第三个广播数据单元。  
+以此类推。  
 在广播数据单元的数据部分中，第一个字节代表数据类型（AD type），决定数据部分表示的是什么数据。（即广播数据单元第二个字节为AD type）
 ![alt text](image/25e9a73f53c0af921c68212550c21c8.png)
 
 ##### 1.1.2 Details:
 
-(1)、Type = 0x01 表示设备LE物理连接。
-(2)、Type = 0xFF 表示厂商数据。前两个字节表示厂商ID,即厂商ID为0xFF01。后面的为厂商数据，具体由用户自行定义
-(3)、Type = 0x03 表示完整的16bit UUID。其值为0x0D18。
+(1)、Type = 0x01 表示设备LE物理连接。  
+(2)、Type = 0xFF 表示厂商数据。前两个字节表示厂商ID,即厂商ID为0xFF01。后面的为厂商数据，具体由用户自行定义  
+(3)、Type = 0x03 表示完整的16bit UUID。其值为0x0D18。  
 (4)、Type = 0x09 表示设备的全名，例如：0x42434C363033转byte[]再转字符串即为“BCL603” 
 
 #### 1.2 应用
@@ -1168,19 +1169,19 @@ public class HistoryDataBean{
 **注：数据传输方式为小端模式**
 ![alt text](image/3797913e9240aaa452369398244d427.png)
 
-调用蓝牙扫描时找到返回的byte[],这里具体为[2, 1, 6, 9, -1, 1, -1, -58, 0, 0, 17, 32, -78, 3, 3, 13, 24, 7, 9, 66, 67, 76, 54, 48, 51, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-注：byte数据需转换为16进制
-已知该数据的格式和含义，根据规则设置筛选条件为厂商ID == “FF01”即可
-或直接对接收到的数据验证“01FF”
+调用蓝牙扫描时找到返回的byte[],这里具体为[2, 1, 6, 9, -1, 1, -1, -58, 0, 0, 17, 32, -78, 3, 3, 13, 24, 7, 9, 66, 67, 76, 54, 48, 51, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  
+注：byte数据需转换为16进制  
+已知该数据的格式和含义，根据规则设置筛选条件为厂商ID == “FF01”即可  
+或直接对接收到的数据验证“01FF”（``后续可能只需要识别广播中arr[1]为FF即可``）
 
 ##### 1.2.1 广播最新版本
 
-新增广播UUID[1]，“0018”，在广播FF01之后
-新增点在于“0018”，二进制表示0000 0000 ``0001`` 1000（小端模式），赋予更多含义
-释意：
-``bit[4:7]``：通讯协议版本号(即二进制的0001)
-0:不支持一键获取状态指令的版本。
-1:支持一键获取状态指令的版本。
+新增广播UUID[1]，“0018”，在广播FF01之后  
+新增点在于“0018”，二进制表示0000 0000 ``0001`` 1000（小端模式），赋予更多含义  
+释意：  
+``bit[4:7]``：通讯协议版本号(即二进制的0001)  
+0:不支持一键获取状态指令的版本。  
+1:支持一键获取状态指令的版本。  
 
 ### 2、可能会遇到的问题
 
@@ -1188,7 +1189,7 @@ public class HistoryDataBean{
 
 #### 2.1 版本相关
 
-Gradle版本。可在gradle-wrapper.properties里修改
+Gradle版本。可在gradle-wrapper.properties里修改  
 ```java
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
@@ -1197,7 +1198,7 @@ zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
 ```
 
-可在以下网址下载所需版本，将zip放在wrapper/dists对应的路径下（放在随机码文件夹下，记得清空原有内容），重新sync一下
+可在以下网址下载所需版本，将zip放在wrapper/dists对应的路径下（放在随机码文件夹下，记得清空原有内容），重新sync一下  
 提供Gradle网站：[Gradle Distributions](https://services.gradle.org/distributions/)
 
 #### 2.2 Gradle 4.0以上导致Xpopup无法使用问题
@@ -1206,7 +1207,7 @@ Xpopup是个第三方弹窗框架，换为普通弹窗可以解决问题
 
 #### 2.3 不需要界面如何使用
 
-ringSDK1.0.2已支持不需要界面，在service做扫描、连接等功能
+ringSDK1.0.2已支持不需要界面，在service做扫描、连接等功能  
 **注：后续更新没有专门针对这个开发，如有需要，可以专门更新**
 
 #### 2.4 OTA类引用未找到
@@ -1219,18 +1220,18 @@ ringSDK1.0.2已支持不需要界面，在service做扫描、连接等功能
 
 #### 3.1 戒指相关
 
-问：戒指多久存一次数据
-答：5分钟
-问：OTA升级会清除数据吗
-答：会
-问：戒指里的数据可以存几天
-答：7天，7天后自动覆盖
-问：恢复出厂设置是只恢复戒指吗
+问：戒指多久存一次数据  
+答：5分钟  
+问：OTA升级会清除数据吗  
+答：会  
+问：戒指里的数据可以存几天  
+答：7天，7天后自动覆盖  
+问：恢复出厂设置是只恢复戒指吗  
 答：对，只针对戒指硬件进行恢复
 
 #### 3.2 算法相关
 
-问：为什么使用SDK的心率/血氧测量时总显示超时
+问：为什么使用SDK的心率/血氧测量时总显示超时  
 答：戒指充电时，无法进行心率血氧测量
 
 #### 3.3 睡眠逻辑图
@@ -1243,7 +1244,7 @@ ringSDK1.0.2已支持不需要界面，在service做扫描、连接等功能
 
 ### 4、Q&A
 
-Q：读历史记录过程中，是上报一条标记一条已同步，还是全部上传了整体标记？
-A：一条一条
-Q：采集周期设置有什么限制
+Q：读历史记录过程中，是上报一条标记一条已同步，还是全部上传了整体标记？  
+A：一条一条  
+Q：采集周期设置有什么限制  
 A: 采集周期单位为秒，正常值最小为60s，为0时代表关闭采集。
