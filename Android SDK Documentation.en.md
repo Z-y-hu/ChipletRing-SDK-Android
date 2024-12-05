@@ -303,7 +303,7 @@ Return value
 
 | The name of the parameter | type   | Example values | illustrate                        |
 | -------- | ------ | ------ | --------------------------- |
-| datum    | byte   | 0或1   | 0 indicates that the synchronization is successful, and 1 indicates the read time |
+| datum    | byte   | 0 or 1   | 0 indicates that the synchronization is successful, and 1 indicates the read time |
 | time     | byte[] | null   | Sync time does not return byte[]      |
 
 ##### 3.2.2 Read time
