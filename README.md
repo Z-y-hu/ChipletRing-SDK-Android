@@ -62,6 +62,8 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 添加语音录制，增加一键获取状态接口
 ### 1.0.17
 修复自1.0.12以来可能遇到的LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener()回调全为0的bug
+### 1.0.18
+注释了bintray-release:0.9，解决找不到库得问题。添加客户定制接口，增加demo示例
 
 # English
 ## How to use the SDK
@@ -127,3 +129,5 @@ Modify the Bluetooth connection mode to optimize the connection speed
 Add a voice recording，Added the API for obtaining status with one click
 ### 1.0.17
 Fixed the bug that the LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener() callback all 0 that may be encountered since 1.0.12
+### 1.0.18
+commented bintray-release:0.9 to solve the problem that the library could not be found. Add custom APIs and add demo examples
