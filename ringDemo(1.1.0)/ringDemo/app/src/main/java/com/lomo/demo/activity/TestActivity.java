@@ -22,19 +22,24 @@ import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 import com.lm.sdk.BLEService;
+import com.lm.sdk.DataApi;
 import com.lm.sdk.LmAPI;
+import com.lm.sdk.LogicalApi;
 import com.lm.sdk.OtaApi;
 import com.lm.sdk.inter.IHeartListener;
 import com.lm.sdk.inter.IHistoryListener;
 import com.lm.sdk.inter.IQ2Listener;
 import com.lm.sdk.inter.IResponseListener;
 import com.lm.sdk.inter.LmOTACallback;
+import com.lm.sdk.mode.DistanceCaloriesBean;
 import com.lm.sdk.mode.HistoryDataBean;
+import com.lm.sdk.mode.SleepBean;
 import com.lm.sdk.mode.SystemControlBean;
 import com.lm.sdk.utils.BLEUtils;
 import com.lm.sdk.utils.ConvertUtils;
 import com.lm.sdk.utils.Logger;
 import com.lm.sdk.utils.StringUtils;
+import com.lm.sdk.utils.TimeUtils;
 import com.lm.sdk.utils.UtilSharedPreference;
 import com.lomo.demo.R;
 import com.lomo.demo.adapter.DeviceBean;
@@ -42,6 +47,9 @@ import com.lomo.demo.application.App;
 import com.lomo.demo.base.BaseActivity;
 
 import java.lang.reflect.Method;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class TestActivity extends BaseActivity implements IResponseListener, View.OnClickListener {
@@ -86,6 +94,11 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
         findViewById(R.id.bt_set_file).setOnClickListener(this);
         findViewById(R.id.bt_sys_control).setOnClickListener(this);
         findViewById(R.id.bt_unbind).setOnClickListener(this);
+        findViewById(R.id.bt_set_BlueTooth_Name).setOnClickListener(this);
+        findViewById(R.id.bt_clean_history).setOnClickListener(this);
+        findViewById(R.id.bt_stop_heart).setOnClickListener(this);
+        findViewById(R.id.bt_delete_data).setOnClickListener(this);
+        findViewById(R.id.bt_calculate_deplete).setOnClickListener(this);
 
         //获取上个页面传递过来的deviceBean对象
         Intent intent = getIntent();
@@ -239,6 +252,11 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
+    public void stopBloodPressure(byte b) {
+
+    }
+
+    @Override
     public void VERSION(byte b, String s) {
         postView("\n获取版本信息成功" + s);
     }
@@ -291,13 +309,22 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
-    public void setBlueToolName(byte data) {
+    public void cleanHistory(byte data) {
+        if(data == (byte) 0x01) {
+            postView("\n清除历史数据成功");
+        }
+    }
 
+    @Override
+    public void setBlueToolName(byte data) {
+        if(data == (byte) 0x01) {
+            postView("\n设置蓝牙名称成功");
+        }
     }
 
     @Override
     public void readBlueToolName(byte len, String name) {
-
+        postView("\n蓝牙名称长度：" + len + " 蓝牙名称：" + name);
     }
 
     @Override
@@ -343,12 +370,16 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 
     @Override
     public void stopHeart(byte data) {
-
+        if(data == (byte) 0x01) {
+            postView("\n停止心率成功");
+        }
     }
 
     @Override
     public void stopQ2(byte data) {
-
+        if(data == (byte) 0x01) {
+            postView("\n停止血氧成功");
+        }
     }
 
     @Override
@@ -383,17 +414,14 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 LmAPI.READ_TIME();
                 break;
             case R.id.bt_set_file:
-//                File file = new File(this.getCacheDir(), "filename.tmp");
-
-//                postView("\n开始获取HID");
-//                LmAPI.GET_HID();
-
+                //Set the firmware path for the local upgrade
                 String filePath = "/storage/emulated/0/1/ota/BCL603M1_2.4.4.11.hex16";
                 postView("\n设置文件固定路径为:" + filePath);
                 OtaApi.setUpdateFile(filePath);
                 break;
             case R.id.bt_start_update:
                 postView("\n开始升级");
+                //startUpdate
                 OtaApi.startUpdate(App.getInstance().getDeviceBean().getDevice(), App.getInstance().getDeviceBean().getRssi(), new LmOTACallback() {
                     @Override
                     public void onDeviceStateChange(int i) {
@@ -471,8 +499,8 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 });
                 break;
             case R.id.bt_heart:
-/*                postView("\n开始拿calculateSleep");
-                String formattedDateTime = "2024-10-10";
+                postView("\n开始拿calculateSleep");
+                String formattedDateTime = "2024-12-10";
                 try {
                     // 解析输入日期字符串为 LocalDate 对象
                     LocalDate localDate = LocalDate.parse(formattedDateTime);
@@ -501,9 +529,9 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 Logger.show("shuju","清醒时间戳："+ sleepBean.getEndTime() );
                 Logger.show("shuju","零星睡眠小时:："+ sleepBean.getHours() );
                 Logger.show("shuju","零星睡眠分钟："+ sleepBean.getMinutes() );
-                postView("\nsleepBean深睡:" + sleepBean.getHighTime() +" 浅睡："+ sleepBean.getLowTime() +" 清醒："+ sleepBean.getQxTime() +" 眼动："+ sleepBean.getYdTime());*/
+                postView("\nsleepBean深睡:" + sleepBean.getHighTime() +" 浅睡："+ sleepBean.getLowTime() +" 清醒："+ sleepBean.getQxTime() +" 眼动："+ sleepBean.getYdTime());
                 postView("\n开始测量心率");
-                LmAPI.GET_HEART_ROTA((byte) 0x01, (byte)0x30,new IHeartListener() {
+/*                LmAPI.GET_HEART_ROTA((byte) 0x01, (byte)0x30,new IHeartListener() {
                     @Override
                     public void progress(int progress) {
                         postView("\n测量心率进度：" + progress + "%");
@@ -533,7 +561,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                     public void success() {
                         postView("\n测量心率完成");
                     }
-                });
+                });*/
                 break;
             case R.id.bt_read_log:
                 postView("\n开始读取全部数据");
@@ -569,8 +597,6 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 //                int dayEndTime = TimeUtils.getDayEndTime();
 //                List<HistoryDataBean> historyDataBeans = DataApi.instance.queryHistoryData(dayBeginTime, dayEndTime, deviceBean.getDevice().getAddress());
 //                postView("\n本地记录内容条数:" + historyDataBeans.size());
-//                postView("\n开启DFU模式" );
-//                LmAPI.TURN_DFU();
                 break;
             case R.id.bt_unbind:
                 postView("\n解绑\n");
@@ -583,7 +609,34 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 startActivity(intent);
                 finish();
                 break;
+            case R.id.bt_set_BlueTooth_Name://Set and get a Bluetooth name
+                postView("\n设置蓝牙名称");
+                //No more than 12 bytes, can be Chinese, English, numbers, that is, 4 Chinese characters or 12 English
+                LmAPI.Set_BlueTooth_Name("Create");
 
+//                postView("\n获取蓝牙名称");
+//                LmAPI.Get_BlueTooth_Name();
+                break;
+            case R.id.bt_clean_history:
+                postView("\n清除历史数据");//The historical data inside the ring is cleared
+                LmAPI.CLEAN_HISTORY();
+                break;
+            case R.id.bt_stop_heart:
+                postView("\n停止心率");
+                LmAPI.STOP_HEART();
+
+//                postView("\n停止血氧");
+//                LmAPI.STOP_Q2();
+                break;
+            case R.id.bt_delete_data:
+                postView("\n删除本地数据库");//Delete the local database
+                DataApi.instance.deleteHistoryData();
+                break;
+            case R.id.bt_calculate_deplete:
+                postView("\n计算距离和消耗的卡路里");
+                DistanceCaloriesBean distanceCaloriesBean = LogicalApi.calculateDistance(5000,180,70);
+                postView("\n距离：" + distanceCaloriesBean.getDistance() + "  卡路里:" + distanceCaloriesBean.getKcal());
+                break;
             default:
                 break;
         }
