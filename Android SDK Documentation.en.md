@@ -851,12 +851,12 @@ Callback:
 
 ```java
 @Override
-    public void CONTROL_AUDIO(short[] bytes) {
+    public void CONTROL_AUDIO(byte[] bytes) {
         postView("\nAudio results：" + Arrays.toString(bytes));
   }
 ```
 
-**Note: The returned data is a signed short integer**
+**Note: The returned data is a byte array**
 
 #### 3.3 Firmware upgrades（OTA）
 

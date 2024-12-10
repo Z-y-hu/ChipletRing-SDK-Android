@@ -242,7 +242,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
-    public void CONTROL_AUDIO(short[] shorts) {
+    public void CONTROL_AUDIO(byte[] bytes) {
 
     }
 
