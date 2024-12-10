@@ -371,6 +371,7 @@ Return value
 | -------- | ---- | ------ | --------------------------- |
 | status   | byte | 0 or 1   | 0 represents battery level and 1 represents state of charge |
 | datum    | byte | 0-100  | Electricity                        |
+| datum    | byte | 1 | 0 Not Charged, 1 Charging, 2 Charged        |
 
 ##### 3.2.5 Read the number of steps
 

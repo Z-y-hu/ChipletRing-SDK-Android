@@ -207,6 +207,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     protected void onDestroy() {
         super.onDestroy();
         BLEUtils.disconnectBLE(this);
+        LmAPI.removeWLSCmdListener(this);
     }
 
     @Override
@@ -233,7 +234,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     @Override
     public void lmBleConnectionFailed(int i) {
         BLEUtils.setGetToken(false);
-        postView("\n连接失败");
+//        postView("\n连接失败");
     }
 
     @Override
