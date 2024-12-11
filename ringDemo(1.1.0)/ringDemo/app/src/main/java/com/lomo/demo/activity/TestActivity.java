@@ -396,13 +396,11 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
         switch (view.getId()) {
             case R.id.bt_clear_step:
                 postView("\n开始清空步数");
-                LmAPI.START_SPORT();
-//                LmAPI.CLEAR_COUNTING();
+                LmAPI.CLEAR_COUNTING();
                 break;
             case R.id.bt_sys_control:
                 postView("\n系统设置和状态");
                 LmAPI.SYSTEM_CONTROL();
-//                LmAPI.CLEAR_COUNTING();
                 break;
 
             case R.id.bt_sync_time:

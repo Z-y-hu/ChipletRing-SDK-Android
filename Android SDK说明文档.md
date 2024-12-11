@@ -498,6 +498,7 @@ iHeartListener:  此接口是测量数据的监听
  
      @Override
      public void resultData(int heart, int heartRota, int yaLi, int temp) {
+                 //心率，心率变异性，压力，温度
          if (colorFragment != null) {
              colorFragment.heartAndRota(heart, heartRota, yaLi, temp);
          }
@@ -560,6 +561,7 @@ LmAPI.GET_HEART_Q2(new IQ2Listener() {
     }
     @Override
     public void resultData(int heart, int q2, int temp) {
+        //心率，血氧，温度
         if (colorFragment != null) {
             colorFragment.updateData(heart, q2, temp);
         }

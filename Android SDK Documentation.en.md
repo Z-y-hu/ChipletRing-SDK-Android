@@ -498,6 +498,7 @@ Return value:
  
      @Override
      public void resultData(int heart, int heartRota, int yaLi, int temp) {
+                //Heart rate, heart rate variability, stress, temperature
          if (colorFragment != null) {
              colorFragment.heartAndRota(heart, heartRota, yaLi, temp);
          }
@@ -560,6 +561,7 @@ LmAPI.GET_HEART_Q2(new IQ2Listener() {
     }
     @Override
     public void resultData(int heart, int q2, int temp) {
+       //Heart rate, blood oxygen, temperature
         if (colorFragment != null) {
             colorFragment.updateData(heart, q2, temp);
         }
