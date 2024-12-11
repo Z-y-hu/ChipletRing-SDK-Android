@@ -65,6 +65,8 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 ### 1.0.18
 注释了bintray-release:0.9，解决找不到库得问题。添加客户定制接口，增加demo示例。   
 增加混淆功能
+### 1.0.19
+拆分步数接口回调
 
 # English
 ## How to use the SDK
@@ -133,3 +135,5 @@ Fixed the bug that the LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener() ca
 ### 1.0.18
 commented bintray-release:0.9 to solve the problem that the library could not be found. Add custom APIs and add demo examples   
 Added obfuscation function
+### 1.0.19
+Callback for splitting the number of steps

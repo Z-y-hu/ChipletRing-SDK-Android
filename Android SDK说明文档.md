@@ -387,13 +387,12 @@ LmAPI.STEP_COUNTING（）
 返回值
 
 ```java
-（void stepCount(byte[] bytes, byte subCmd)）
+（void stepCount(byte[] bytes)）
 ```
 
 | 参数名称 | 类型   | 示例值 | 说明                                  |
 | -------- | ------ | ------ | ------------------------------------- |
 | bytes    | byte[] | 3303   | 步数819(小端模式，由0333转10进制得到) |
-| subCmd   | byte   | 0，1   | 0代表步数 1代表清除步数成功           |
 
 ##### 3.2.6 清除步数
 
@@ -406,7 +405,15 @@ LmAPI.CLEAR_COUNTING（）
 
 注意事项：调用此接口 ，需保证与戒指处于连接状态  
 参数说明：无  
-返回值：参考上条
+返回值：  
+
+```java
+（void clearStepCount(byte data)）
+```
+
+| 参数名称 | 类型   | 示例值 | 说明                                  |
+| -------- | ------ | ------ | ------------------------------------- |
+| byte    | data | 1   | 返回1代表清除步数成功 |
 
 ##### 3.2.7 恢复出厂设置
 
@@ -499,7 +506,10 @@ iHeartListener:  此接口是测量数据的监听
      public void waveformData(byte seq, byte number, String waveData) {
                   //心率返回波形图数据分析：waveData
            }
-
+     @Override
+     public void rriData(byte seq, byte number, String data) {
+         //心率测量中的RR间期值
+     }
      @Override
      public void error(int value) {
          switch (value) {

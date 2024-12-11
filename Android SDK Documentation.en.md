@@ -387,13 +387,12 @@ Parameter description: None
 Return Value
 
 ```java
-（void stepCount(byte[] bytes, byte subCmd)）
+（void stepCount(byte[] bytes)）
 ```
 
 | The name of the parameter | Type   | Example values | illustrate                                  |
 | -------- | ------ | ------ | ------------------------------------- |
 | bytes    | byte[] | 3303   | Step 819 (little-endian mode, obtained from 0333 to decimal) |
-| subCmd   | byte   | 0，1   | 0 represents the number of steps, and 1 represents the successful clearing of the number of steps           |
 
 ##### 3.2.6 Clear the number of steps
 
@@ -406,7 +405,15 @@ LmAPI.CLEAR_COUNTING（）
 
 Note: To call this interface, you need to ensure that it is connected to the ring  
 Parameter description: None   
-Return value: Refer to the preceding paragraph
+Return value:   
+
+```java
+（void clearStepCount(byte data)）
+```
+
+| The name of the parameter | Type   | Example values | illustrate                                  |
+| -------- | ------ | ------ | ------------------------------------- |
+| byte    | data | 1   | Returning 1 indicates that the number of steps cleared was successful |
 
 ##### 3.2.7 Factory reset
 
@@ -499,7 +506,10 @@ Return value:
      public void waveformData(byte seq, byte number, String waveData) {
                   //Heart rate returns to the waveform data analysis：waveData
            }
-
+     @Override
+     public void rriData(byte seq, byte number, String data) {
+         //RR interval values in heart rate measurements
+     }
      @Override
      public void error(int value) {
          switch (value) {

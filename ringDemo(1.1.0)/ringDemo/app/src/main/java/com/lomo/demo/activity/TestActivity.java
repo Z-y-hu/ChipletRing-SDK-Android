@@ -276,13 +276,16 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
-    public void stepCount(byte[] bytes, byte subCmd) {
-        if (subCmd == 0) {
-            postView("\n获取步数成功：" + ConvertUtils.BytesToInt(bytes));
-        } else {
-            postView("\n清空步数成功");
-        }
+    public void stepCount(byte[] bytes) {
+        postView("\n获取步数成功：" + ConvertUtils.BytesToInt(bytes));
+    }
 
+    @Override
+    public void clearStepCount(byte b) {
+        if(b == 0x01){
+            postView("\n清空步数成功");
+
+        }
     }
 
     @Override
@@ -532,7 +535,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 Logger.show("shuju","零星睡眠分钟："+ sleepBean.getMinutes() );
                 postView("\nsleepBean深睡:" + sleepBean.getHighTime() +" 浅睡："+ sleepBean.getLowTime() +" 清醒："+ sleepBean.getQxTime() +" 眼动："+ sleepBean.getYdTime());
                 postView("\n开始测量心率");
-/*                LmAPI.GET_HEART_ROTA((byte) 0x01, (byte)0x30,new IHeartListener() {
+                LmAPI.GET_HEART_ROTA((byte) 0x01, (byte)0x30,new IHeartListener() {
                     @Override
                     public void progress(int progress) {
                         postView("\n测量心率进度：" + progress + "%");
@@ -562,7 +565,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                     public void success() {
                         postView("\n测量心率完成");
                     }
-                });*/
+                });
                 break;
             case R.id.bt_read_log:
                 postView("\n开始读取全部数据");
