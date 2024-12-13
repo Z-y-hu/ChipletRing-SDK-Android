@@ -962,8 +962,7 @@ List<HistoryDataBean> queryHistoryDataOrderByTimeAsc(long dayBeginTime,long d
 //查询历史数据按照步数进行倒叙
 List<HistoryDataBean> queryHistoryDataOrderByStepCountDesc(long dayBeginTime,long dayEndTime,String mac)
 ```
-
-注意事项：需开启相应权限  
+**注意事项：计算睡眠时间的接口需要先调用查询历史数据**  
 参数说明：dayBeginTime ：开始时间戳，单位：秒  
 dayEndTime ：结束时间戳，单位：秒  
 mac ：设备的MAC地址  
