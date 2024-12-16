@@ -442,13 +442,13 @@ Parameter description: colection: collection interval in seconds
 Return value:
 
 ```java
-(void collection(byte[] bytes, byte subCmd))
+(void setCollection(byte result))
 ```
 
 | The name of the parameter | type   | Example values   | illustrate                        |
 | -------- | ------ | -------- | --------------------------- |
-| bytes    | byte[] | b0040000 | 1200 S                      |
-| subCmd   | byte   | 0，1     | 0 indicates that the setting is successful, and 1 indicates that the setting fails |
+| result   | byte   | 0，1     | 0 indicates that the collection period has failed, and 1 indicates that the collection period has been set successfully |
+
 
 ##### 3.2.9 Acquisition cycle reads
 
@@ -464,13 +464,14 @@ Parameter description: None
 Return value:
 
 ```java
-(void collection(byte[] bytes, byte subCmd))
+(void getCollection(byte[] bytes))
 ```
 
 | The name of the parameter | type   | Example values   | illustrate                            |
 | -------- | ------ | -------- | ------------------------------- |
 | bytes    | byte[] | b0040000 | Acquisition time interval in seconds, such as: 1200s |
-| subCmd   | byte   | 0，1     | 0 indicates that the setting is successful, and 1 indicates that the setting fails     |
+
+**Note: In the absence of special markers, the values returned in this SDK are in little-endian mode, and the method of converting bytes to int is provided in the demo**
 
 ##### 3.2.10 Measure your heart rate
 

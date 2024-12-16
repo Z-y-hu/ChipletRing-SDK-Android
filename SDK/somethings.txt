@@ -12,6 +12,8 @@
 增加混淆，语音返回值改为byte数组，添加客户定制化接口
 1.0.19
 拆分步数接口回调
+1.0.21
+拆分采集周期接口回调
 
 
 
@@ -29,3 +31,5 @@ Fixed the bug that the LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener() ca
 Confusion is added, the voice return value is changed to byte array, and customized interfaces are added
 1.0.19
 Callback for splitting the number of steps
+1.0.21
+Callback to the API for splitting the collection cycle

@@ -308,9 +308,19 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
-    public void collection(byte[] bytes, byte subCmd) {
-        postView(subCmd==0?"\n设置采集周期成功":"\n获取采集周期成功："+ConvertUtils.bytes2HexString(new byte[]{bytes[4],bytes[5],bytes[6],bytes[7]}));
+    public void setCollection(byte result) {
+        if(result == (byte)0x00){
+            postView("\n设置采集周期失败");
+        }else if(result == (byte)0x01){
+            postView("\n设置采集周期成功");
+        }
     }
+
+    @Override
+    public void getCollection(byte[] bytes) {
+        postView("\n获取采集周期成功：" + ConvertUtils.BytesToInt(bytes));
+    }
+
 
     @Override
     public void cleanHistory(byte data) {
@@ -457,7 +467,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 break;
             case R.id.bt_collection:
                 postView("\n开始设置采集周期");
-                LmAPI.SET_COLLECTION(300);
+                LmAPI.SET_COLLECTION(1200);
                 break;
             case R.id.bt_get_collection:
                 postView("\n开始获取采集周期");
@@ -602,6 +612,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 break;
             case R.id.bt_unbind:
                 postView("\n解绑\n");
+                BLEUtils.setGetToken(false);
                 BLEUtils.disconnectBLE(this);
                 removeBond(bluetoothDevice);
                 UtilSharedPreference.saveString(TestActivity.this,"address","");

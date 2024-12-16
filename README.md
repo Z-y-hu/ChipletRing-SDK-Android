@@ -67,6 +67,9 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 增加混淆功能
 ### 1.0.19
 拆分步数接口回调
+### 1.0.21
+拆分采集周期接口回调
+
 
 # English
 ## How to use the SDK
@@ -136,4 +139,6 @@ Fixed the bug that the LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener() ca
 commented bintray-release:0.9 to solve the problem that the library could not be found. Add custom APIs and add demo examples   
 Added obfuscation function
 ### 1.0.19
-Callback for splitting the number of steps
+Callback for splitting the number of steps   
+### 1.0.21
+Callback to the API for splitting the collection cycle

@@ -442,13 +442,13 @@ LmAPI.SET_COLLECTION（collection）//采集周期，单位秒
 返回值：
 
 ```java
-(void collection(byte[] bytes, byte subCmd))
+(void setCollection(byte result))
 ```
 
 | 参数名称 | 类型   | 示例值   | 说明                        |
 | -------- | ------ | -------- | --------------------------- |
-| bytes    | byte[] | b0040000 | 1200秒                      |
-| subCmd   | byte   | 0，1     | 0代表设置成功 1代表设置失败 |
+| result   | byte   | 0，1     | 0代表设置采集周期失败 1代表设置采集周期成功 |
+
 
 ##### 3.2.9 采集周期读取
 
@@ -464,13 +464,14 @@ LmAPI.GET_COLLECTION（）//采集周期，单位秒
 返回值：
 
 ```java
-(void collection(byte[] bytes, byte subCmd))
+(void getCollection(byte[] bytes))
 ```
 
 | 参数名称 | 类型   | 示例值   | 说明                            |
 | -------- | ------ | -------- | ------------------------------- |
 | bytes    | byte[] | b0040000 | 采集时间间隔 ，单位秒 如：1200s |
-| subCmd   | byte   | 0，1     | 0代表设置成功 1代表设置失败     |
+
+**注：无特殊标记的情况下，本SDK中返回的值皆为小端模式，demo中提供bytes转int的方法**
 
 ##### 3.2.10 测量心率
 
