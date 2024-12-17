@@ -866,11 +866,14 @@ LmAPI.SET_AUDIO(byte data)
 ```java
 @Override
     public void CONTROL_AUDIO(byte[] bytes) {
-        postView("\n音频结果：" + Arrays.toString(bytes));
+        postView("\n音频结果：" + Arrays.toString(bytes));
+        byte[] adToPcm = new AdPcmTool().adpcmToPcmFromJNI(bytes);
+
+        savePcmFile(outputPath,adToPcm);
   }
 ```
 
-**注：返回的数据是有byte数组**
+**注：返回的数据是byte数组，adpcm转为pcm文件**
 
 #### 3.3 固件升级（OTA）
 

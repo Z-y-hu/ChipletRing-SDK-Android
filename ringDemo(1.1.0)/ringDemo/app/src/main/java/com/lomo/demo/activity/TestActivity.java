@@ -1,6 +1,8 @@
 package com.lomo.demo.activity;
 
 
+import static com.lomo.demo.activity.TestActivity.savePcmFile;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -41,15 +43,20 @@ import com.lm.sdk.utils.Logger;
 import com.lm.sdk.utils.StringUtils;
 import com.lm.sdk.utils.TimeUtils;
 import com.lm.sdk.utils.UtilSharedPreference;
+import com.lomo.demo.AdPcmTool;
 import com.lomo.demo.R;
 import com.lomo.demo.adapter.DeviceBean;
 import com.lomo.demo.application.App;
 import com.lomo.demo.base.BaseActivity;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 public class TestActivity extends BaseActivity implements IResponseListener, View.OnClickListener {
@@ -65,7 +72,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     private String hidDevice="0";
 
     static String mac;
-
+    String outputPath = com.lomo.demo.FileUtil.getSDPath(App.getInstance(), "保存" + ".pcm");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +97,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
         findViewById(R.id.bt_blood_oxygen).setOnClickListener(this);
         findViewById(R.id.bt_heart).setOnClickListener(this);
         findViewById(R.id.bt_read_log).setOnClickListener(this);
-        findViewById(R.id.bt_read_sql).setOnClickListener(this);
+        findViewById(R.id.bt_blood_stress).setOnClickListener(this);
         findViewById(R.id.bt_set_file).setOnClickListener(this);
         findViewById(R.id.bt_sys_control).setOnClickListener(this);
         findViewById(R.id.bt_unbind).setOnClickListener(this);
@@ -99,6 +106,10 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
         findViewById(R.id.bt_stop_heart).setOnClickListener(this);
         findViewById(R.id.bt_delete_data).setOnClickListener(this);
         findViewById(R.id.bt_calculate_deplete).setOnClickListener(this);
+        findViewById(R.id.bt_start_audio).setOnClickListener(this);
+        findViewById(R.id.bt_stop_audio).setOnClickListener(this);
+        File file=new File(outputPath);
+        file.delete();
 
         //获取上个页面传递过来的deviceBean对象
         Intent intent = getIntent();
@@ -244,9 +255,20 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 
     @Override
     public void CONTROL_AUDIO(byte[] bytes) {
+        postView("\n音频结果：" + Arrays.toString(bytes));
+        byte[] adToPcm = new AdPcmTool().adpcmToPcmFromJNI(bytes);
 
+        savePcmFile(outputPath,adToPcm);
+        postView("\n已保存：" + outputPath);
     }
-
+    public static void savePcmFile(String filePath, byte[] byteArray) {
+        try (FileOutputStream fos = new FileOutputStream(filePath,true)) {
+            fos.write(byteArray);
+            //  fos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     public void motionCalibration(byte b) {
 
@@ -602,7 +624,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 });
 
                 break;
-            case R.id.bt_read_sql:
+            case R.id.bt_blood_stress:
                 postView("\n开始获取血压数据\n");
                 LmAPI.GET_BPwaveData((byte) 20, (byte) 20, (byte) 20, (byte) 20);
 //                int dayBeginTime = TimeUtils.getDayBeginTime();
@@ -649,6 +671,14 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 postView("\n计算距离和消耗的卡路里");
                 DistanceCaloriesBean distanceCaloriesBean = LogicalApi.calculateDistance(5000,180,70);
                 postView("\n距离：" + distanceCaloriesBean.getDistance() + "  卡路里:" + distanceCaloriesBean.getKcal());
+                break;
+            case R.id.bt_start_audio:
+                postView("\n开始打开音频传输");
+                LmAPI.SET_AUDIO((byte)0x01);
+                break;
+            case R.id.bt_stop_audio:
+                postView("\n开始关闭音频传输");
+                LmAPI.SET_AUDIO((byte)0x00);
                 break;
             default:
                 break;

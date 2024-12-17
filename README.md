@@ -69,6 +69,8 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 拆分步数接口回调
 ### 1.0.21
 拆分采集周期接口回调
+### 1.0.22
+增加adpcm转pcm的示例
 
 
 # English
@@ -142,3 +144,5 @@ Added obfuscation function
 Callback for splitting the number of steps   
 ### 1.0.21
 Callback to the API for splitting the collection cycle
+### 1.0.22
+Example of adding ADPCM to PCM

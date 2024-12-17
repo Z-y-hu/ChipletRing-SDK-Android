@@ -866,11 +866,14 @@ Callback:
 ```java
 @Override
     public void CONTROL_AUDIO(byte[] bytes) {
-        postView("\nAudio results：" + Arrays.toString(bytes));
+        postView("\nAudio Results:" + Arrays.toString(bytes));
+        byte[] adToPcm = new AdPcmTool().adpcmToPcmFromJNI(bytes);
+
+        savePcmFile(outputPath,adToPcm);
   }
 ```
 
-**Note: The returned data is a byte array**
+**Note: The returned data is a byte array, and ADPCM is converted to a PCM file**
 
 #### 3.3 Firmware upgrades（OTA）
 

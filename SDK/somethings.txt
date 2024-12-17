@@ -14,6 +14,8 @@
 拆分步数接口回调
 1.0.21
 拆分采集周期接口回调
+1.0.22
+增加语音录制的adpcm转pcm的示例
 
 
 
@@ -33,3 +35,5 @@ Confusion is added, the voice return value is changed to byte array, and customi
 Callback for splitting the number of steps
 1.0.21
 Callback to the API for splitting the collection cycle
+1.0.22
+Example of adding ADPCM to PCM
