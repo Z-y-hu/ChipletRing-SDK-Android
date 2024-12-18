@@ -59,6 +59,8 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
         findViewById(R.id.bt_set_HID).setOnClickListener(this);
         findViewById(R.id.bt_get_HID).setOnClickListener(this);
         findViewById(R.id.bt_get_HID_code).setOnClickListener(this);
+        findViewById(R.id.bt_set_audio_type).setOnClickListener(this);
+        findViewById(R.id.bt_get_audio_type).setOnClickListener(this);
     }
 
     @Override
@@ -253,6 +255,25 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
             postView("\n不支持打响指（拍照）功能");
         }
     }
+
+    @Override
+    public void GET_CONTROL_AUDIO_ADPCM(byte result) {
+        if(result == (byte)0x00){
+            postView("\n音频类型：pcm");
+        }else if(result == (byte)0x01){
+            postView("\n音频类型：adpcm");
+        }
+    }
+
+    @Override
+    public void SET_AUDIO_ADPCM_AUDIO(byte result) {
+        if(result == (byte)0x00){
+            postView("\n设置音频类型失败");
+        }else if(result == (byte)0x01){
+            postView("\n设置音频类型成功");
+        }
+    }
+
     public static String byteToBitString(byte b) {
         StringBuilder bitString = new StringBuilder();
         for (int i = 7; i >= 0; i--) {
@@ -314,6 +335,12 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
                 break;
             case R.id.bt_get_HID_code:
                 LmAPI.GET_HID_CODE((byte)0x00);  //系统类型 0：安卓  1：IOS  2：windows
+                break;
+            case R.id.bt_set_audio_type:
+                LmAPI.CONTROL_AUDIO_ADPCM_AUDIO((byte)0x01); //0 pcm, 1 adpcm
+                break;
+            case R.id.bt_get_audio_type:
+                LmAPI.GET_CONTROL_AUDIO_ADPCM();
                 break;
             case R.id.bt_unpair://解绑,返回扫描界面
                 postView("\n解绑\n");

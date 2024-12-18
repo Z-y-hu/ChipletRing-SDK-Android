@@ -395,6 +395,16 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
+    public void GET_CONTROL_AUDIO_ADPCM(byte b) {
+
+    }
+
+    @Override
+    public void SET_AUDIO_ADPCM_AUDIO(byte b) {
+
+    }
+
+    @Override
     public void setAudio(short totalLength, int index, byte[] audioData) {
 
     }
