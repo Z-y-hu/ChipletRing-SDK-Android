@@ -71,6 +71,8 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 拆分采集周期接口回调
 ### 1.0.22
 增加adpcm转pcm的示例
+### 1.0.23
+增加HID功能-增加硬连接
 
 
 # English
@@ -146,3 +148,5 @@ Callback for splitting the number of steps
 Callback to the API for splitting the collection cycle
 ### 1.0.22
 Example of adding ADPCM to PCM
+### 1.0.23
+Added HID function - Added hardwire

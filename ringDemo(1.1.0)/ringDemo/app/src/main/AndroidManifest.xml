@@ -45,6 +45,9 @@
             android:name=".activity.TestActivity"
             android:exported="false" />
         <activity
+            android:name=".activity.TestActivity2"
+            android:exported="false" />
+        <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="true"

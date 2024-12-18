@@ -100,7 +100,6 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
         findViewById(R.id.bt_blood_stress).setOnClickListener(this);
         findViewById(R.id.bt_set_file).setOnClickListener(this);
         findViewById(R.id.bt_sys_control).setOnClickListener(this);
-        findViewById(R.id.bt_unbind).setOnClickListener(this);
         findViewById(R.id.bt_set_BlueTooth_Name).setOnClickListener(this);
         findViewById(R.id.bt_clean_history).setOnClickListener(this);
         findViewById(R.id.bt_stop_heart).setOnClickListener(this);
@@ -108,30 +107,26 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
         findViewById(R.id.bt_calculate_deplete).setOnClickListener(this);
         findViewById(R.id.bt_start_audio).setOnClickListener(this);
         findViewById(R.id.bt_stop_audio).setOnClickListener(this);
+        findViewById(R.id.bt_jump_page2).setOnClickListener(this);
         File file=new File(outputPath);
         file.delete();
 
         //获取上个页面传递过来的deviceBean对象
         Intent intent = getIntent();
         if (intent != null) {
-            //  deviceBean = intent.getParcelableExtra("deviceBean");
-            // bluetoothDevice = deviceBean.getDevice();
-
-//            hidDevice=deviceBean.getHidDevice();
-//            if(hidDevice == "0" || hidDevice == null){
-//                BLEUtils.isHIDDevice = false;
-//            }
-            mac = UtilSharedPreference.getStringValue(TestActivity.this,"address");
-//            DeviceBean bean = DeviceManager.deviceMap.get(mac);
-//            String hidDevice=bean.getHidDevice();
-//            if(hidDevice == "0" || hidDevice == null){
-//                BLEUtils.isHIDDevice = false;
-//            }else{
-//                BLEUtils.isHIDDevice = true;
-//            }
+              deviceBean = intent.getParcelableExtra("deviceBean");
+             bluetoothDevice = deviceBean.getDevice();
+            mac = bluetoothDevice.getAddress();
+            DeviceBean bean = DeviceManager.deviceMap.get(mac);
+            String hidDevice=bean.getHidDevice();
+            if(hidDevice == "0" || hidDevice == null){
+                BLEUtils.isHIDDevice = false;
+            }else{
+                BLEUtils.isHIDDevice = true;
+            }
 //            assert deviceBean != null;
-            //   BLEUtils.connectLockByBLE(this, deviceBean.getDevice());
-            connect(mac);
+               BLEUtils.connectLockByBLE(this, deviceBean.getDevice());
+//            connect(mac);
         } else {
             Toast.makeText(this, "未知设备，请重新选择!", Toast.LENGTH_SHORT).show();
             finish();
@@ -564,7 +559,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 Logger.show("shuju","零星睡眠小时:："+ sleepBean.getHours() );
                 Logger.show("shuju","零星睡眠分钟："+ sleepBean.getMinutes() );
                 postView("\nsleepBean深睡:" + sleepBean.getHighTime() +" 浅睡："+ sleepBean.getLowTime() +" 清醒："+ sleepBean.getQxTime() +" 眼动："+ sleepBean.getYdTime());
-                postView("\n开始测量心率");
+/*                postView("\n开始测量心率");
                 LmAPI.GET_HEART_ROTA((byte) 0x01, (byte)0x30,new IHeartListener() {
                     @Override
                     public void progress(int progress) {
@@ -595,7 +590,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                     public void success() {
                         postView("\n测量心率完成");
                     }
-                });
+                });*/
                 break;
             case R.id.bt_read_log:
                 postView("\n开始读取全部数据");
@@ -632,18 +627,6 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 //                List<HistoryDataBean> historyDataBeans = DataApi.instance.queryHistoryData(dayBeginTime, dayEndTime, deviceBean.getDevice().getAddress());
 //                postView("\n本地记录内容条数:" + historyDataBeans.size());
                 break;
-            case R.id.bt_unbind:
-                postView("\n解绑\n");
-                BLEUtils.setGetToken(false);
-                BLEUtils.disconnectBLE(this);
-                removeBond(bluetoothDevice);
-                UtilSharedPreference.saveString(TestActivity.this,"address","");
-                Intent intent = new Intent(TestActivity.this, MainActivity.class);
-                UtilSharedPreference.saveInt(TestActivity.this,LmAPI.needHardconnection,2);
-
-                startActivity(intent);
-                finish();
-                break;
             case R.id.bt_set_BlueTooth_Name://Set and get a Bluetooth name
                 postView("\n设置蓝牙名称");
                 //No more than 12 bytes, can be Chinese, English, numbers, that is, 4 Chinese characters or 12 English
@@ -679,6 +662,12 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
             case R.id.bt_stop_audio:
                 postView("\n开始关闭音频传输");
                 LmAPI.SET_AUDIO((byte)0x00);
+                break;
+            case R.id.bt_jump_page2:
+                Intent intent = new Intent();
+                intent.setClass(TestActivity.this,TestActivity2.class);
+                startActivity(intent);
+                LmAPI.removeWLSCmdListener(this);
                 break;
             default:
                 break;

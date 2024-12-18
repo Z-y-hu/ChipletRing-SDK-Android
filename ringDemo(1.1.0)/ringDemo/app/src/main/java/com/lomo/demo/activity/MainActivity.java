@@ -76,16 +76,16 @@ public class MainActivity extends BaseActivity {
                                 Toast.makeText(getApplicationContext(),"获取部分权限成功，但部分权限未正常授予",Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            String mac = UtilSharedPreference.getStringValue(MainActivity.this,"address");
-                            if(StringUtils.isEmpty(mac)){
+//                            String mac = UtilSharedPreference.getStringValue(MainActivity.this,"address");
+//                            if(StringUtils.isEmpty(mac)){
                                 searchDevice();
-                            }else{
-                                //自动重连，默认软连接
-                                UtilSharedPreference.saveInt(MainActivity.this, LmAPI.needHardconnection,0);
-                                Intent intent = new Intent(MainActivity.this, TestActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
+                            //}else{
+//                                //自动重连，默认软连接
+//                                UtilSharedPreference.saveInt(MainActivity.this, LmAPI.needHardconnection,0);
+//                                Intent intent = new Intent(MainActivity.this, TestActivity.class);
+//                                startActivity(intent);
+//                                finish();
+                           // }
 
                         }
 
@@ -111,16 +111,16 @@ public class MainActivity extends BaseActivity {
                                 Toast.makeText(getApplicationContext(),"获取部分权限成功，但部分权限未正常授予",Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            String mac = UtilSharedPreference.getStringValue(MainActivity.this,"address");
-                            if(StringUtils.isEmpty(mac)){
+//                            String mac = UtilSharedPreference.getStringValue(MainActivity.this,"address");
+//                            if(StringUtils.isEmpty(mac)){
                                 searchDevice();
-                            }else{
-                                //自动重连，默认软连接
-                                UtilSharedPreference.saveInt(MainActivity.this,LmAPI.needHardconnection,0);
-                                Intent intent = new Intent(MainActivity.this, TestActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
+                          //  }else{
+//                                //自动重连，默认软连接
+//                                UtilSharedPreference.saveInt(MainActivity.this,LmAPI.needHardconnection,0);
+//                                Intent intent = new Intent(MainActivity.this, TestActivity.class);
+//                                startActivity(intent);
+//                                finish();
+                          //  }
                         }
 
                         @Override
@@ -161,15 +161,15 @@ public class MainActivity extends BaseActivity {
         adapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(Object o, int position) {
-                //扫描的时候，默认都是软连接，设置个标志位，后续弹出硬连接
-                UtilSharedPreference.saveInt(MainActivity.this,LmAPI.needHardconnection,2);
+
 
                 DeviceBean deviceBean = (DeviceBean) o;
 
                 UtilSharedPreference.saveString(MainActivity.this,"address",deviceBean.getDevice().getAddress());
                 //关闭当前页面，跳转到TestActivity并且携带deviceBean对象
                 Intent intent = new Intent(MainActivity.this, TestActivity.class);
-                App.getInstance().setDeviceBean(deviceBean);
+//                App.getInstance().setDeviceBean(deviceBean);
+                intent.putExtra("deviceBean",deviceBean);
                 startActivity(intent);
                 finish();
             }
@@ -206,16 +206,16 @@ public class MainActivity extends BaseActivity {
             ParsedAd parsedAd1 = BleAdParse.parseScanRecodeData(parsedAd, bytes);
             List<UUID> uuids = parsedAd1.uuids;
             //  Log.e("xxxxx","deviceName  "+ device.getName()+"uuid  "+ uuids.toString());
-
-//            for (UUID uuid : uuids) {
-//                if (uuid.toString().contains("1812")) {//UUID包含1812是HID模式，走强连接模式
-//                    BLEUtils.isHIDDevice = true;
-//                    break;
-//                }
-//            }
+            boolean isHIDDevice = false;
+            for (UUID uuid : uuids) {
+                if (uuid.toString().contains("1812")) {//UUID包含1812是HID模式，走强连接模式
+                    isHIDDevice = true;
+                    break;
+                }
+            }
 
             DeviceBean bean = new DeviceBean(device, rssi);
-            //  bean.setHidDevice(BLEUtils.isHIDDevice ? "1" : "0");
+              bean.setHidDevice(isHIDDevice ? "1" : "0");
             // 存储到集合中，使用设备的 MAC 地址作为键
             DeviceManager.deviceMap.put(device.getAddress(), bean);
 

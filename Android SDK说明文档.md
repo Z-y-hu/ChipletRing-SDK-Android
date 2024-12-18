@@ -1,5 +1,7 @@
 # 安卓SDK说明文档
 
+*每次替换新的aar时首先要Sync Project with Gradle Files*
+
 ## 一、文档简介
 
 ### 文档目的
@@ -36,7 +38,7 @@
 <td align="left"></td>
 </tr>
 <tr>
-<th align="left" rowspan="13" nowrap="nowrap">通讯协议模块</th>
+<th align="left" rowspan="14" nowrap="nowrap">通讯协议模块</th>
 <td align="left">时间管理</td>
 <td align="left"></td>
 </tr>
@@ -86,6 +88,10 @@
 </tr>
 <tr>
 <td align="left">语音录制</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">HID功能</td>
 <td align="left"></td>
 </tr>
 <tr>
@@ -447,7 +453,7 @@ LmAPI.SET_COLLECTION（collection）//采集周期，单位秒
 
 | 参数名称 | 类型   | 示例值   | 说明                        |
 | -------- | ------ | -------- | --------------------------- |
-| result   | byte   | 0，1     | 0代表设置采集周期失败 1代表设置采集周期成功 |
+| result   | byte   | 0，1     | 设置采集周期失败 1代表0代表设置采集周期成功 |
 
 
 ##### 3.2.9 采集周期读取
@@ -874,6 +880,167 @@ LmAPI.SET_AUDIO(byte data)
 ```
 
 **注：返回的数据是byte数组，adpcm转为pcm文件**
+
+录音戒指灯光含义：
+* 录音的时候绿灯亮
+* 充电的时候呼吸灯
+* 蓝牙连接亮蓝灯2s
+* 断开连接闪烁3次蓝灯
+  
+##### 3.2.24 获取HID功能码
+
+接口功能：获取连接戒指支持的HID功能  
+接口声明：
+
+```java
+LmAPI.GET_HID_CODE((byte)0x00);
+```
+
+参数说明：
+
+| 参数名称 | 类型   | 示例值   | 说明                            |
+| -------- | ------ | -------- | ------------------------------- |
+| byte    | byte | 0 |系统类型：<br> 0：安卓<br> 1：IOS<br> 2：windows |
+
+回调：
+
+```java
+    @Override
+    public void GET_HID_CODE(byte[] bytes) {
+        Logger.show("getHidCode", "支持与否：" + bytes[0] + " 触摸功能：" + bytes[1] + " 空中手势：" + bytes[9] + "\n");
+
+        Logger.show("byteToBitString", byteToBitString(bytes[1]));
+        char[] touchModes = byteToBitString(bytes[1]).toCharArray();
+        char[] gestureModes = byteToBitString(bytes[9]).toCharArray();
+
+        if (bytes[0] == 0) {
+            postView("\n不支持HID功能");
+        } else {
+            postView("\n支持HID功能");
+        }
+        if ("00000000".equals(byteToBitString(bytes[1]))) {//不支持触摸功能
+            postView("\n不支持触摸功能");
+        } else {
+            postView("\n支持触摸功能");
+        }
+
+        if (touchModes[touchModes.length - 1] == '1') {//拍照
+            postView("\n支持触摸拍照功能");
+        } else {
+            postView("\n不支持触摸拍照功能");
+        }
+
+        if (touchModes[touchModes.length - 2] == '1') {//短视频
+            postView("\n支持触摸短视频功能");
+        } else {
+            postView("\n不支持触摸短视频功能");
+        }
+
+        if (touchModes[touchModes.length - 3] == '1') {//音乐
+            postView("\n支持触摸音乐功能");
+        } else {
+            postView("\n不支持触摸音乐功能");
+        }
+
+        if (touchModes[touchModes.length - 5] == '1') {//音频
+            postView("\n支持触摸音频功能");
+        } else {
+            postView("\n不支持触摸音频功能");
+        }
+
+        if ("00000000".equals(byteToBitString(bytes[9]))) {//不支持空中手势
+            postView("\n不支持空中手势功能");
+        } else {
+            postView("\n支持空中手势功能");
+        }
+
+        if (gestureModes[gestureModes.length - 1] == '1') {//拍照
+            postView("\n支持手势拍照功能");
+        } else {
+            postView("\n不支持手势拍照功能");
+        }
+
+        if (gestureModes[gestureModes.length - 2] == '1') {//短视频
+            postView("\n支持手势短视频功能");
+        } else {
+            postView("\n不支持手势短视频功能");
+        }
+
+        if (gestureModes[gestureModes.length - 3] == '1') {//音乐
+            postView("\n支持手势音乐功能");
+        } else {
+            postView("\n不支持手势音乐功能");
+        }
+
+        if (gestureModes[gestureModes.length - 5] == '1') {//打响指（拍照）
+            postView("\n支持打响指（拍照）功能");
+        } else {
+            postView("\n不支持打响指（拍照）功能");
+        }
+    }
+```
+##### 3.2.25 设置HID
+
+接口功能：设置戒指的HID模式   
+接口声明：
+
+```java
+                byte[] hidBytes = new byte[3];
+                hidBytes[0] = 0x04;             //上传实时音频
+                hidBytes[1] = (byte) 0xFF;      //关闭
+                hidBytes[2] = 0x00;             //系统类型 0：安卓  1：IOS  2：鸿蒙
+                LmAPI.SET_HID(hidBytes,TestActivity2.this);
+```
+
+参数说明：
+
+| 参数名称 | 类型   | 示例值   | 说明                            |
+| -------- | ------ | -------- | ------------------------------- |
+| byte[0]    | byte | 4 |触摸hid 模式0：刷视频模式<br>1：拍照模式<br>2：音乐模式<br>3: ppt模式<br>4：上传实时音频<br>0xFF:关闭 |
+| byte[1]    | byte | (byte)0xFF |手势hid 模式0：刷视频模式<br>1：拍照模式<br>2：音乐模式<br>3：ppt模式<br>4：打响指(拍照)模式<br>0xFF:关闭|
+| byte[2]    | byte | 0 |系统类型：<br> 0：安卓<br> 1：IOS<br> 2：鸿蒙 |
+
+返回值：
+
+```java
+   @Override
+    public void SET_HID(byte result) {
+        if(result == (byte)0x00){
+            postView("\n设置HID失败");
+        }else if(result == (byte)0x01){
+            postView("\n设置HID成功");
+        }
+    }
+```
+| 参数名称 | 类型   | 示例值   | 说明                            |
+| -------- | ------ | -------- | ------------------------------- |
+| result    | byte | 0,1 |0代表设置失败 1代表设置成功 |
+
+##### 3.2.26 获取HID
+
+接口功能：获取当前戒指的HID模式   
+接口声明：
+
+```java
+LmAPI.GET_HID();
+```
+
+参数说明：无   
+返回值：
+
+```java
+    @Override
+    public void GET_HID(byte touch, byte gesture, byte system) {
+        postView("\n当前触摸hid模式：" + touch + "\n当前手势hid模式：" + gesture + "\n当前系统：" + system);
+    }
+```
+| 参数名称 | 类型   | 示例值   | 说明                            |
+| -------- | ------ | -------- | ------------------------------- |
+| touch    | byte | 4 |触摸hid 模式0：刷视频模式<br>1：拍照模式<br>2：音乐模式<br>3：ppt模式<br>4：上传实时音频<br>0xFF:关闭|
+| gesture    | byte | -1 |手势hid 模式0：刷视频模式<br>1：拍照模式<br>2：音乐模式<br>3：ppt模式<br>4：打响指(拍照)模式<br>0xFF:关闭 |
+| system    | byte | 0|系统类型 0：安卓<br>1：IOS<br>2：WINDOWS |
+
+**注：-1和0xFF含义一样，代表关闭**
 
 #### 3.3 固件升级（OTA）
 

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activity.TestActivity">
-
+    tools:context=".activity.TestActivity2">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="45dp"
@@ -20,7 +19,7 @@
             android:textColor="@color/white"/>
     </RelativeLayout>
     <TextView
-        android:id="@+id/tv_result"
+        android:id="@+id/tv_result2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -41,30 +40,20 @@
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/bt_sys_control"
+                android:id="@+id/bt_set_HID"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="系统配置"
-                android:textSize="14sp"
-                android:textColor="@color/white"
-                android:background="@drawable/button_bg_state"/>
-
-            <Button
-                android:id="@+id/bt_sync_time"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="同步时间"
+                android:text="设置HID"
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
             <Button
-                android:id="@+id/bt_read_time"
+                android:id="@+id/bt_get_HID"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="读取时间"
+                android:text="获取HID"
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
@@ -76,29 +65,20 @@
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/bt_set_file"
+                android:id="@+id/bt_get_HID_code"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="设置路径"
+                android:text="HID功能"
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
             <Button
-                android:id="@+id/bt_set_BlueTooth_Name"
+                android:id="@+id/bt_d"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="设置蓝牙名称"
-                android:textSize="14sp"
-                android:textColor="@color/white"
-                android:background="@drawable/button_bg_state"/>
-            <Button
-                android:id="@+id/bt_start_update"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="开始升级"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
@@ -110,29 +90,20 @@
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/bt_battery"
+                android:id="@+id/bt_e"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="获取电量"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
             <Button
-                android:id="@+id/bt_clean_history"
+                android:id="@+id/bt_f"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="清除历史数据"
-                android:textSize="14sp"
-                android:textColor="@color/white"
-                android:background="@drawable/button_bg_state"/>
-            <Button
-                android:id="@+id/bt_version"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="版本信息"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
@@ -143,29 +114,20 @@
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/bt_clear_step"
+                android:id="@+id/bt_g"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="清除步数"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
             <Button
-                android:id="@+id/bt_stop_heart"
+                android:id="@+id/bt_h"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="停止心率"
-                android:textSize="14sp"
-                android:textColor="@color/white"
-                android:background="@drawable/button_bg_state"/>
-            <Button
-                android:id="@+id/bt_step"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="获取步数"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
@@ -176,29 +138,20 @@
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/bt_collection"
+                android:id="@+id/bt_I"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="采集周期"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
             <Button
-                android:id="@+id/bt_delete_data"
+                android:id="@+id/bt_J"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="删除数据库"
-                android:textSize="14sp"
-                android:textColor="@color/white"
-                android:background="@drawable/button_bg_state"/>
-            <Button
-                android:id="@+id/bt_get_collection"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="获取周期"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
@@ -209,29 +162,20 @@
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/bt_heart"
+                android:id="@+id/bt_j"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="心率测量"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
             <Button
-                android:id="@+id/bt_calculate_deplete"
+                android:id="@+id/bt_k"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="计算消耗"
-                android:textSize="14sp"
-                android:textColor="@color/white"
-                android:background="@drawable/button_bg_state"/>
-            <Button
-                android:id="@+id/bt_blood_oxygen"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="血氧测量"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
@@ -242,68 +186,33 @@
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/bt_read_log"
+                android:id="@+id/bt_l"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="读未上传记录"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
             <Button
-                android:id="@+id/bt_start_audio"
+                android:id="@+id/bt_m"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="语音录制"
-                android:textSize="14sp"
-                android:textColor="@color/white"
-                android:background="@drawable/button_bg_state"/>
-            <Button
-                android:id="@+id/bt_stop_audio"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="停止录制"
-                android:textSize="14sp"
-                android:textColor="@color/white"
-                android:background="@drawable/button_bg_state"/>
-            <Button
-                android:id="@+id/bt_blood_stress"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="血压测量"
+                android:text=" "
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
         </LinearLayout>
-
-        <LinearLayout
+        <Button
+            android:id="@+id/bt_unpair"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:orientation="horizontal">
-            <Button
-                android:id="@+id/bt_jump_page2"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="跳转页面2"
-                android:textSize="14sp"
-                android:textColor="@color/white"
-                android:background="@drawable/button_bg_state"/>
-             </LinearLayout>
-
-
-<!--        <Button-->
-<!--            android:id="@+id/bt_reset"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_marginTop="5dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="跳转页面2"-->
-<!--            android:textSize="14sp"-->
-<!--            android:textColor="@color/white"-->
-<!--            android:background="@drawable/button_bg_state"/>-->
+            android:layout_height="wrap_content"
+            android:text="解除绑定"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:background="@drawable/button_bg_state"/>
     </LinearLayout>
+
 </LinearLayout>

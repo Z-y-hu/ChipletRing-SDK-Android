@@ -1,5 +1,7 @@
 # Android SDK documentation
 
+*Each time you replace a new aar, start by syncing Project with Gradle Files*
+
 ## 一、Introduction to documentation
 
 ### Purpose of documentation
@@ -36,7 +38,7 @@ This SDK is based on Android native development, and is finally provided as a ja
 <td align="left"></td>
 </tr>
 <tr>
-<th align="left" rowspan="13" nowrap="nowrap">Communication protocol module</th>
+<th align="left" rowspan="14" nowrap="nowrap">Communication protocol module</th>
 <td align="left">time management</td>
 <td align="left"></td>
 </tr>
@@ -86,6 +88,10 @@ This SDK is based on Android native development, and is finally provided as a ja
 </tr>
 <tr>
 <td align="left">Voice recording</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">HID function</td>
 <td align="left"></td>
 </tr>
 <tr>
@@ -874,6 +880,169 @@ Callback:
 ```
 
 **Note: The returned data is a byte array, and ADPCM is converted to a PCM file**
+
+Recording ring light meaning：
+* The green light is on while recording
+* Breathe light while charging
+* Bluetooth connection lights up blue for 2s
+* Disconnect flashes blue light 3 times
+
+##### 3.2.24 Obtain the HID function code
+
+Interface function: Obtain the HID function supported by the connection ring   
+Interface Declaration:
+
+```java
+LmAPI.GET_HID_CODE((byte)0x00);
+```
+
+Parameter description:
+
+| The name of the parameter | type   | Demonstration value   | illustrate  |
+| -------- | ------ | -------- | ------------------------------- |
+| byte    | byte | 0 |System Type:<br> 0：Android<br> 1：IOS<br> 2：windows |
+
+Return value:
+
+```java
+    @Override
+    public void GET_HID_CODE(byte[] bytes) {
+        Logger.show("getHidCode", "Yes or no:" + bytes[0] + " Touch Function:" + bytes[1] + " Air Gestures:" + bytes[9] + "\n");
+
+        Logger.show("byteToBitString", byteToBitString(bytes[1]));
+        char[] touchModes = byteToBitString(bytes[1]).toCharArray();
+        char[] gestureModes = byteToBitString(bytes[9]).toCharArray();
+
+        if (bytes[0] == 0) {
+            postView("\nHID is not supported");
+        } else {
+            postView("\nSupport HID function");
+        }
+        if ("00000000".equals(byteToBitString(bytes[1]))) {
+            postView("\nSupport HID function ...");
+        } else {
+            postView("\nSupport touch function");
+        }
+
+        if (touchModes[touchModes.length - 1] == '1') {//photograph
+            postView("\nSupport touch photo function");
+        } else {
+            postView("\nThe touch camera function is not supported");
+        }
+
+        if (touchModes[touchModes.length - 2] == '1') {//Short videos
+            postView("\nSupport touch short video function");
+        } else {
+            postView("\nThe touch short video feature is not supported");
+        }
+
+        if (touchModes[touchModes.length - 3] == '1') {//Music
+            postView("\nSupport touch music function");
+        } else {
+            postView("\nThe touch music feature is not supported");
+        }
+
+        if (touchModes[touchModes.length - 5] == '1') {//audio
+            postView("\nTouch audio function is supported");
+        } else {
+            postView("\nTouch audio functionality is not supported");
+        }
+
+        if ("00000000".equals(byteToBitString(bytes[9]))) {
+            postView("\nThe air gesture feature is not supported");
+        } else {
+            postView("\nSupport air gesture function");
+        }
+
+        if (gestureModes[gestureModes.length - 1] == '1') {
+            postView("\nSupport gesture photo function");
+        } else {
+            postView("\nGesture photography is not supported");
+        }
+
+        if (gestureModes[gestureModes.length - 2] == '1') {
+            postView("\nGesture short video function is supported");
+        } else {
+            postView("\nGesture short videos are not supported");
+        }
+
+        if (gestureModes[gestureModes.length - 3] == '1') {
+            postView("\nSupport gesture music function");
+        } else {
+            postView("\nThe gesture music feature is not supported");
+        }
+
+        if (gestureModes[gestureModes.length - 5] == '1') {
+            postView("\nSupport snapping finger (photo) function");
+        } else {
+            postView("\nSnapping fingers (taking photos) is not supported");
+        }
+    }
+```
+##### 3.2.25 Set up HID
+
+Interface function: set the HID mode of the ring    
+Interface Declaration:
+
+```java
+                byte[] hidBytes = new byte[3];
+                hidBytes[0] = 0x04;             //Upload real-time audio
+                hidBytes[1] = (byte) 0xFF;      //close
+                hidBytes[2] = 0x00;             //System type 0：android  1：IOS  2：HarmonyOS
+                LmAPI.SET_HID(hidBytes,TestActivity2.this);
+```
+
+Parameter description:
+
+| The name of the parameter | type   | Demonstration value   | illustrate  |
+| -------- | ------ | -------- | ------------------------------- |
+| byte[0]    | byte | 4 | Touch HID Mode: 0: Video Mode<br>1: Camera Mode<br>2: Music Mode<br>3: PPT Mode<br>4: Upload Real-Time Audio<br>0xFF: Off |
+| byte[1]    | byte | (byte)0xFF | Gesture HID Mode: 0: Video Mode<br>1: Camera Mode<br>2: Music Mode<br>3: PPT Mode<br>4: Snap (Photo) Mode<br>0xFF: Off |
+| byte[2]    | byte | 0 | System Type: <br> 0: Android<br> 1: IOS<br> 2: HarmonyOS |
+
+
+Return value:
+
+```java
+   @Override
+    public void SET_HID(byte result) {
+        if(result == (byte)0x00){
+            postView("\nFailed to set HID");
+        }else if(result == (byte)0x01){
+            postView("\nThe HID setting is successful");
+        }
+    }
+```
+| The name of the parameter | type   | Demonstration value   | illustrate  |
+| -------- | ------ | -------- | ------------------------------- |
+| result    | byte | 0,1 |0 indicates that the setting has failed, and 1 indicates that the setting has been successful |
+
+##### 3.2.26 Get HID
+
+Interface function: get the HID mode of the current ring   
+Interface Declaration:
+
+```java
+LmAPI.GET_HID();
+```
+
+Parameter description:null  
+Return value:
+
+```java
+    @Override
+    public void GET_HID(byte touch, byte gesture, byte system) {
+        postView("\nCurrent Touch HID Mode: " + touch + "\nCurrent Gesture HID Mode: " + gesture + "\nCurrent System: " + system);
+}
+```
+
+| The name of the parameter | type   | Demonstration value   | illustrate  |
+| -------- | ------ | -------- | ------------------------------- |
+| touch    | byte | 4 | Touch HID Mode: 0: Video Mode<br>1: Camera Mode<br>2: Music Mode<br>3: PPT Mode<br>4: Upload Real-Time Audio<br>0xFF: Off |
+| gesture    | byte | -1 | Gesture HID Mode: 0: Video Mode<br>1: Camera Mode<br>2: Music Mode<br>3: PPT Mode<br>4: Snap (Photo) Mode<br>0xFF: Off |
+| system    | byte | 0 | System Type: 0: Android
+
+**Note: -1 has the same meaning as 0xFF, which means closing**
 
 #### 3.3 Firmware upgrades（OTA）
 
