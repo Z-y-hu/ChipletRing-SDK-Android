@@ -2,8 +2,6 @@ package com.lomo.demo.activity;
 
 import static com.lomo.demo.activity.TestActivity.savePcmFile;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,30 +12,18 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.lm.sdk.AdPcmTool;
 import com.lm.sdk.BLEService;
 import com.lm.sdk.LmAPI;
-import com.lm.sdk.LogicalApi;
-import com.lm.sdk.inter.IBloodPressureListener;
-import com.lm.sdk.inter.IQ2Listener;
 import com.lm.sdk.inter.IResponseListener;
-import com.lm.sdk.inter.ITempListener;
-import com.lm.sdk.mode.GreenAndIrBean;
-import com.lm.sdk.mode.SleepBean;
 import com.lm.sdk.mode.SystemControlBean;
 import com.lm.sdk.utils.BLEUtils;
-import com.lm.sdk.utils.CMDUtils;
 import com.lm.sdk.utils.Logger;
 import com.lm.sdk.utils.UtilSharedPreference;
-import com.lomo.demo.AdPcmTool;
 import com.lomo.demo.R;
-import com.lomo.demo.adapter.DeviceBean;
 import com.lomo.demo.application.App;
 import com.lomo.demo.base.BaseActivity;
 
-import java.io.File;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
 public class TestActivity2 extends BaseActivity implements IResponseListener, View.OnClickListener {

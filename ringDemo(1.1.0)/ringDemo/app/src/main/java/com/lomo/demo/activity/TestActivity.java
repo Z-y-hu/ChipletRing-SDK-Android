@@ -1,8 +1,6 @@
 package com.lomo.demo.activity;
 
 
-import static com.lomo.demo.activity.TestActivity.savePcmFile;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -23,12 +21,12 @@ import androidx.annotation.NonNull;
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
+import com.lm.sdk.AdPcmTool;
 import com.lm.sdk.BLEService;
 import com.lm.sdk.DataApi;
 import com.lm.sdk.LmAPI;
 import com.lm.sdk.LogicalApi;
 import com.lm.sdk.OtaApi;
-import com.lm.sdk.inter.IHeartListener;
 import com.lm.sdk.inter.IHistoryListener;
 import com.lm.sdk.inter.IQ2Listener;
 import com.lm.sdk.inter.IResponseListener;
@@ -41,9 +39,7 @@ import com.lm.sdk.utils.BLEUtils;
 import com.lm.sdk.utils.ConvertUtils;
 import com.lm.sdk.utils.Logger;
 import com.lm.sdk.utils.StringUtils;
-import com.lm.sdk.utils.TimeUtils;
 import com.lm.sdk.utils.UtilSharedPreference;
-import com.lomo.demo.AdPcmTool;
 import com.lomo.demo.R;
 import com.lomo.demo.adapter.DeviceBean;
 import com.lomo.demo.application.App;

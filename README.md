@@ -73,6 +73,8 @@ Project Structure→Modules→Source Compatibility and Target Ccompatibility:Jav
 增加adpcm转pcm的示例
 ### 1.0.23
 增加HID功能-增加硬连接
+### 1.0.24
+将语音所需的so文件集成到aar中
 
 
 # English
@@ -150,3 +152,5 @@ Callback to the API for splitting the collection cycle
 Example of adding ADPCM to PCM
 ### 1.0.23
 Added HID function - Added hardwire
+### 1.0.24
+Integrate the SO files required for speech into the AAR
