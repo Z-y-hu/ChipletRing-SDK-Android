@@ -636,7 +636,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
             case R.id.bt_set_BlueTooth_Name://Set and get a Bluetooth name
                 postView("\n设置蓝牙名称");
                 //No more than 12 bytes, can be Chinese, English, numbers, that is, 4 Chinese characters or 12 English
-                LmAPI.Set_BlueTooth_Name("Create");
+                LmAPI.Set_BlueTooth_Name("C6");
 
 //                postView("\n获取蓝牙名称");
 //                LmAPI.Get_BlueTooth_Name();

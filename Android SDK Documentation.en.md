@@ -1358,16 +1358,23 @@ In the data part of the broadcast data unit, the first byte represents the data 
 When you call the Bluetooth scan, you find the byte[] that is returned, which is specific here[2, 1, 6, 9, -1, 1, -1, -58, 0, 0, 17, 32, -78, 3, 3, 13, 24, 7, 9, 66, 67, 76, 54, 48, 51, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  
 Note: byte data needs to be converted to hexadecimal  
 If you know the format and meaning of the data, set the filter condition to Vendor ID == "FF01" according to the rule   
-Or directly verify the received data "01FF"（``Subsequently, it may only be necessary to identify arr[1] as FF in the broadcast``）
+Or directly verify the received data "01FF"（``Subsequent second-generation broadcasts only need to identify arr[1] as FF in the broadcast``）
 
 ##### 1.2.1 Broadcast the latest version
 
-Added broadcast UUID[1], "0018", after broadcast FF01  
-The new point is "0018", and the binary means 0000 0000 ''0001'' 1000 (little-endian mode), giving more meaning  
-Interpretation:  
-``bit[4:7]``：Protocol version number (i.e. binary 0001)  
-0:The version of the one-click access status command is not supported.  
-1:Support one-click access to the version of the status command.  
+The difference between the second-generation broadcast and the first-generation broadcast is that the vendor ID "FF01" (little-endian mode), the first byte ``FF`` remains unchanged, and the 0th byte ``01`` is no longer fixed, indicating more meaning  
+The bit of the 0th byte is described：``00000000``   
+Interpretation：  
+``bit[0:1]``：Charging indicator bit    
+``bit[2:3]``：Binding indicator bits   
+``bit[4:7]``：Protocol version number  
+| The name of the parameter | type   | Example values   | illustrate                            |
+| -------- | ------ | -------- | ------------------------------- |
+| Charging indicator bit     | bit | 1 |1: means not charged and<br>2: means charging|
+| Binding indicator bits     | bit | 2 |0:Binding and pairing are not supported (soft connection only) 1:Binding and pairing <br>2:Only pairing is supported |
+| Protocol version number    | bit | 0|0: Version 1: Version <br>1: Version that supports one-click access to status commands |
+
+ **Note: Soft connection refers to an in-app connection only；<br>Bind and pairing means that the pairing option pops up at the system level and there is a "! icon, which can be clicked;<br>Pairing only means that there is no "!" at the Bluetooth level of the system. icon** 
 
 ### 2、Problems that may be encountered
 
