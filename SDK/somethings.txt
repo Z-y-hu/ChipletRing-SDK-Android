@@ -20,6 +20,8 @@
 增加HID功能-增加硬连接
 1.0.24
 将语音所需的so文件集成到aar中
+1.0.25
+修改温度的单独接口LmAPI.READ_TEMP
 
 
 
@@ -45,3 +47,5 @@ Example of adding ADPCM to PCM
 Added HID function - Added hardwire
 1.0.24
 Integrate the SO files required for speech into the AAR
+1.0.25
+Modify the separate interface LmAPI.READ_TEMP for temperature

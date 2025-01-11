@@ -99,11 +99,11 @@
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
             <Button
-                android:id="@+id/bt_f"
+                android:id="@+id/bt_temp_test"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text=" "
+                android:text="温度测量"
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>

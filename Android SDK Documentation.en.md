@@ -607,6 +607,8 @@ LmAPI.GET_HEART_Q2(new IQ2Listener() {
 
 ##### 3.2.12 Measure the temperature
 
+###### （1）Use the blood oxygen interface to measure the temperature
+
 Interface function: Temperature measurement.  
 Interface Declaration:
 
@@ -617,6 +619,27 @@ LmAPI.GET_HEART_Q2（IQ2Listener iQ2Listener）
 Note: To call this interface, you need to ensure that it is connected to the ring  
 Parameter description:IQ2Listener: This interface is a listener for measurement data  
 Return value:Ditto. When the blood oxygen is measured, the temperature is returned at the same time
+
+**Note: There is also a separate interface for temperature, which is gradually adapted to all rings, if a separate interface is not available, then use the LmAPI.GET_HEART_Q2 interface**
+
+###### (2) Use a temperature-independent interface
+
+Interface function: Temperature measurement.  
+Interface Declaration:
+
+```java
+ LmAPI.READ_TEMP （ITempListener iTempListener）
+```
+
+Note: To call this interface, you need to ensure that it is connected to the ring    
+Parameter description: ITempListener: This interface is a monitor for measuring temperature  
+Return value：
+
+| The name of the parameter | type   | example                | illustrate       |
+| -------- | ------ | ------------------ | ---------- |
+| resultData   | int   | 3612      | The result of the temperature represents 36.12 ° C    |
+| testing   | int   | 100，200           | testing |
+| error | int | 2，3，4，5 | 2: Not worn <br>3: Busy <br>4: Charging <br>5: The temperature value is invalid |
 
 ##### 3.2.13 History management
 

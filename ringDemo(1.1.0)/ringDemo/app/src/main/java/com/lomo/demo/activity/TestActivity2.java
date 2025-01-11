@@ -16,6 +16,7 @@ import com.lm.sdk.AdPcmTool;
 import com.lm.sdk.BLEService;
 import com.lm.sdk.LmAPI;
 import com.lm.sdk.inter.IResponseListener;
+import com.lm.sdk.inter.ITempListener;
 import com.lm.sdk.mode.SystemControlBean;
 import com.lm.sdk.utils.BLEUtils;
 import com.lm.sdk.utils.Logger;
@@ -47,6 +48,7 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
         findViewById(R.id.bt_get_HID_code).setOnClickListener(this);
         findViewById(R.id.bt_set_audio_type).setOnClickListener(this);
         findViewById(R.id.bt_get_audio_type).setOnClickListener(this);
+        findViewById(R.id.bt_temp_test).setOnClickListener(this);
     }
 
     @Override
@@ -327,6 +329,25 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
                 break;
             case R.id.bt_get_audio_type:
                 LmAPI.GET_CONTROL_AUDIO_ADPCM();
+                break;
+            case R.id.bt_temp_test:
+                postView("\n开始测量温度");
+                LmAPI.READ_TEMP(new ITempListener() {
+                    @Override
+                    public void resultData(int temp) {
+                        postView("\n返回的温度：" + temp * 0.01 );
+                    }
+
+                    @Override
+                    public void testing(int num) {
+                        postView("\n测量中：" + num * 0.01 );
+                    }
+
+                    @Override
+                    public void error(int code) {
+                        postView("\n温度报错了,类型:" + code);
+                    }
+                });
                 break;
             case R.id.bt_unpair://解绑,返回扫描界面
                 postView("\n解绑\n");

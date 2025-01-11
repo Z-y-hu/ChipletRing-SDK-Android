@@ -17,11 +17,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
-import com.lm.sdk.AdPcmTool;
 import com.lm.sdk.BLEService;
 import com.lm.sdk.DataApi;
 import com.lm.sdk.LmAPI;
@@ -246,11 +244,11 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 
     @Override
     public void CONTROL_AUDIO(byte[] bytes) {
-        postView("\n音频结果：" + Arrays.toString(bytes));
-        byte[] adToPcm = new AdPcmTool().adpcmToPcmFromJNI(bytes);
-
-        savePcmFile(outputPath,adToPcm);
-        postView("\n已保存：" + outputPath);
+//        postView("\n音频结果：" + Arrays.toString(bytes));
+//        byte[] adToPcm = new AdPcmTool().adpcmToPcmFromJNI(bytes);
+//
+//        savePcmFile(outputPath,adToPcm);
+//        postView("\n已保存：" + outputPath);
     }
     public static void savePcmFile(String filePath, byte[] byteArray) {
         try (FileOutputStream fos = new FileOutputStream(filePath,true)) {
