@@ -226,7 +226,7 @@ private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapt
 ```
 
 注意事项：1.保证蓝牙设备有电  
-2.如要筛选蓝牙设备（厂商ID == 0xFF01），具体请参考四、其他，筛选相关
+2.如要筛选蓝牙设备（厂商ID == 0xFF01），二代协议厂商标志会改变，具体请参考四、其他，筛选相关
 
 ##### 3.1.2 停止搜索
 
@@ -1061,7 +1061,17 @@ LmAPI.GET_HID();
 | gesture    | byte | -1 |手势hid 模式0：刷视频模式<br>1：拍照模式<br>2：音乐模式<br>3：ppt模式<br>4：打响指(拍照)模式<br>0xFF:关闭 |
 | system    | byte | 0|系统类型 0：安卓<br>1：IOS<br>2：WINDOWS |
 
-**注：-1和0xFF含义一样，代表关闭**
+**注：-1和0xFF含义一样，代表关闭**  
+
+##### 3.2.27 获取RSSI
+
+RSSI是信号强度的意思  
+
+```java
+    BLEService.readRomoteRssi();
+    Log.i(TAG, "rssi = "+ BLEService.RSSI);
+```
+需要注意rssi变化略微延迟，数字越大，信号越强，如 -52 > -60
 
 #### 3.3 固件升级（OTA）
 
@@ -1380,6 +1390,7 @@ public class HistoryDataBean{
 
 ##### 1.2.1 广播最新版本（二代协议）
 
+检测方法：用manudata里面的固定位置检测``FF``，如 arr[1] = ``FF``   
 二代广播和一代广播的不同在于厂商ID"FF01"（小端模式），第1个字节``FF``不变，第0个字节``01``不再固定，表示更多含义  
 第0个字节的bit表示：``00000000``   
 释意：  

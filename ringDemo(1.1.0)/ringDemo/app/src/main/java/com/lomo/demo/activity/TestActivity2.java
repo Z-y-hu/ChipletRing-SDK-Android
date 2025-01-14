@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -49,6 +50,7 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
         findViewById(R.id.bt_set_audio_type).setOnClickListener(this);
         findViewById(R.id.bt_get_audio_type).setOnClickListener(this);
         findViewById(R.id.bt_temp_test).setOnClickListener(this);
+        findViewById(R.id.bt_get_rssi).setOnClickListener(this);
     }
 
     @Override
@@ -118,6 +120,24 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
 
     @Override
     public void getCollection(byte[] data) {
+
+    }
+
+    /**
+     * 获取序列号，私版
+     * @param bytes
+     */
+    @Override
+    public void getSerialNum(byte[] bytes) {
+
+    }
+
+    /**
+     * 设置序列号，私版
+     * @param b
+     */
+    @Override
+    public void setSerialNum(byte b) {
 
     }
 
@@ -359,6 +379,10 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
 
                 startActivity(intent);
                 finish();
+                break;
+            case R.id.bt_get_rssi://获取信号强度,略微有点延迟；信号强度-60 > -70
+                BLEService.readRomoteRssi();
+                postView("\nrssi == "+ BLEService.RSSI);
                 break;
             default:
                 break;

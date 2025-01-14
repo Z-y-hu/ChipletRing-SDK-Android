@@ -25,6 +25,7 @@ import com.lm.sdk.DataApi;
 import com.lm.sdk.LmAPI;
 import com.lm.sdk.LogicalApi;
 import com.lm.sdk.OtaApi;
+import com.lm.sdk.inter.BluetoothConnectCallback;
 import com.lm.sdk.inter.IHistoryListener;
 import com.lm.sdk.inter.IQ2Listener;
 import com.lm.sdk.inter.IResponseListener;
@@ -330,6 +331,24 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     @Override
     public void getCollection(byte[] bytes) {
         postView("\n获取采集周期成功：" + ConvertUtils.BytesToInt(bytes));
+    }
+
+    /**
+     * 获取序列号，私版
+     * @param bytes
+     */
+    @Override
+    public void getSerialNum(byte[] bytes) {
+
+    }
+
+    /**
+     * 设置序列号，私版
+     * @param b
+     */
+    @Override
+    public void setSerialNum(byte b) {
+
     }
 
 

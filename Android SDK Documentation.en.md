@@ -226,7 +226,7 @@ private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapt
 ```
 
 Precautions: 1. Make sure the Bluetooth device is powered  
-2.If you want to filter Bluetooth devices (manufacturer ID == 0xFF01), please refer to 4. Others
+2.If you want to filter Bluetooth devices (manufacturer ID == 0xFF01),The second-generation protocol vendor logo will change, please refer to 4. Others
 
 ##### 3.1.2 Stop searching
 
@@ -1067,6 +1067,16 @@ Return value:
 
 **Note: -1 has the same meaning as 0xFF, which means closing**
 
+##### 3.2.27 获取RSSI
+
+RSSI stands for Signal Strength  
+
+```java
+    BLEService.readRomoteRssi();
+    Log.i(TAG, "rssi = "+ BLEService.RSSI);
+```
+Note that the RSSI changes are slightly delayed, and the higher the number, the stronger the signal, such as -52 > -60
+
 #### 3.3 Firmware upgrades（OTA）
 
 ![alt text](image/f66e099fc52821fbc43ecd7803e0633.png)   
@@ -1385,6 +1395,7 @@ Or directly verify the received data "01FF"（``Subsequent second-generation bro
 
 ##### 1.2.1 Broadcast the latest version
 
+Detection method: Detect "FF" with the fixed position in manudata，example arr[1] = ``FF``  
 The difference between the second-generation broadcast and the first-generation broadcast is that the vendor ID "FF01" (little-endian mode), the first byte ``FF`` remains unchanged, and the 0th byte ``01`` is no longer fixed, indicating more meaning  
 The bit of the 0th byte is described：``00000000``   
 Interpretation：  
