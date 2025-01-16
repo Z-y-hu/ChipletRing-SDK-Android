@@ -197,6 +197,8 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 
 This class is a public class that uses Bluetooth to search, connect, and disconnect, all fed back by the IResponseListener interface. or a separate interface (will be explained)
 
+**绑定与解绑：**<span style="color:yellow;">ChipletRing的逻辑：绑定戒指即账户首次连接戒指时，调用清除历史数据接口，同步时间接口，获取软硬件版本号接口，链式调用，每个接口在上一个完成后等待1s调用<br>解绑是指账户解除和戒指的绑定，解绑时只需要断开蓝牙即可</span>
+
 ##### 3.1.1 Search for the device
 
 Interface function: Turn on the Bluetooth search function to search for surrounding Bluetooth devices.
@@ -273,6 +275,10 @@ public void lmBleConnectionFailed(int code) {
 }
 ```
 
+**重要：ChipletRing的逻辑，及时同步，**<span style="color:pink;">连接设备成功后，等待1s去同步时间，保证戒指时间正常</span>   
+**刷新操作：ChipletRing的逻辑，**<span style="color:pink;">刷新时需要去同步历史数据，刷新图表视图</span>
+
+
 ##### 3.1.4 Disconnect Bluetooth
 
 Interface function: disconnect the device.  
@@ -285,6 +291,31 @@ BLEUtils.disconnectBLE(Context context);
 Note: To call this interface, you need to ensure that it is connected to the ring  
 Parameter description:context：context  
 Return value: None
+
+##### 3.1.5 重连戒指
+
+接口功能：在戒指连接断开时，重连设备  
+接口声明：
+
+```java
+        BluetoothDevice remote  = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
+                DeviceBean bean = DeviceManager.deviceMap.get(mac);
+                String hidDevice=bean.getHidDevice();
+                if(hidDevice == "0" || hidDevice == null){
+                    BLEUtils.isHIDDevice = false;
+                }else{
+                    BLEUtils.isHIDDevice = true;
+                }
+
+                if(remote != null){
+                    BLEUtils.connectLockByBLE(this,remote);
+                }
+```
+
+注意事项：调用此接口 ，需保证与戒指处于连接状态  
+参数说明：mac：戒指mac地址   
+返回值：无    
+**重连操作：ChipletRing的逻辑，**<span style="color:pink;">戒指断开后立即调用，重连后同步时间，获取软硬件版本号，获取历史数据，链式操作</span>
 
 #### 3.2 Command function（LmAPI）
 

@@ -26,6 +26,7 @@ import com.lm.sdk.LmAPI;
 import com.lm.sdk.LogicalApi;
 import com.lm.sdk.OtaApi;
 import com.lm.sdk.inter.BluetoothConnectCallback;
+import com.lm.sdk.inter.IHeartListener;
 import com.lm.sdk.inter.IHistoryListener;
 import com.lm.sdk.inter.IQ2Listener;
 import com.lm.sdk.inter.IResponseListener;
@@ -235,7 +236,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     @Override
     public void lmBleConnectionFailed(int i) {
         BLEUtils.setGetToken(false);
-//        postView("\n连接失败");
+        postView("\n连接失败");
     }
 
     @Override
@@ -449,8 +450,10 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 LmAPI.CLEAR_COUNTING();
                 break;
             case R.id.bt_sys_control:
-                postView("\n系统设置和状态");
-                LmAPI.SYSTEM_CONTROL();
+                BLEService.readRomoteRssi();
+                postView("\nrssi == "+ BLEService.RSSI);
+//                postView("\n系统设置和状态");
+//                LmAPI.SYSTEM_CONTROL();
                 break;
 
             case R.id.bt_sync_time:
@@ -551,38 +554,38 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 });
                 break;
             case R.id.bt_heart:
-                postView("\n开始拿calculateSleep");
-                String formattedDateTime = "2024-12-10";
-                try {
-                    // 解析输入日期字符串为 LocalDate 对象
-                    LocalDate localDate = LocalDate.parse(formattedDateTime);
-
-                    // 转换为 LocalDateTime 对象，设置时间为午夜
-                    LocalDateTime localDateTime = localDate.atTime(0, 0);
-
-                    // 定义输出格式
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                    formattedDateTime = localDateTime.format(formatter);
-
-                    // 输出结果
-                    System.out.println("Formatted date and time: " + formattedDateTime);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                SleepBean sleepBean = LogicalApi.calculateSleep(formattedDateTime,App.getInstance().getDeviceBean().getDevice().getAddress(),1);
-                Logger.show("shuju","sleepBean深睡:" + sleepBean.getHighTime() );
-                Logger.show("shuju","浅睡："+ sleepBean.getLowTime() );
-                Logger.show("shuju","清醒："+ sleepBean.getQxTime() );
-                Logger.show("shuju","眼动："+ sleepBean.getYdTime() );
-                Logger.show("shuju","全部睡眠小时:" + sleepBean.getAllHours());
-                Logger.show("shuju","全部睡眠分钟："+ sleepBean.getAllMinutes());
-                Logger.show("shuju","入睡时间戳："+ sleepBean.getStartTime() );
-                Logger.show("shuju","清醒时间戳："+ sleepBean.getEndTime() );
-                Logger.show("shuju","零星睡眠小时:："+ sleepBean.getHours() );
-                Logger.show("shuju","零星睡眠分钟："+ sleepBean.getMinutes() );
-                postView("\nsleepBean深睡:" + sleepBean.getHighTime() +" 浅睡："+ sleepBean.getLowTime() +" 清醒："+ sleepBean.getQxTime() +" 眼动："+ sleepBean.getYdTime());
-/*                postView("\n开始测量心率");
+//                postView("\n开始拿calculateSleep");
+//                String formattedDateTime = "2024-12-10";
+//                try {
+//                    // 解析输入日期字符串为 LocalDate 对象
+//                    LocalDate localDate = LocalDate.parse(formattedDateTime);
+//
+//                    // 转换为 LocalDateTime 对象，设置时间为午夜
+//                    LocalDateTime localDateTime = localDate.atTime(0, 0);
+//
+//                    // 定义输出格式
+//                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//                    formattedDateTime = localDateTime.format(formatter);
+//
+//                    // 输出结果
+//                    System.out.println("Formatted date and time: " + formattedDateTime);
+//
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                SleepBean sleepBean = LogicalApi.calculateSleep(formattedDateTime,App.getInstance().getDeviceBean().getDevice().getAddress(),1);
+//                Logger.show("shuju","sleepBean深睡:" + sleepBean.getHighTime() );
+//                Logger.show("shuju","浅睡："+ sleepBean.getLowTime() );
+//                Logger.show("shuju","清醒："+ sleepBean.getQxTime() );
+//                Logger.show("shuju","眼动："+ sleepBean.getYdTime() );
+//                Logger.show("shuju","全部睡眠小时:" + sleepBean.getAllHours());
+//                Logger.show("shuju","全部睡眠分钟："+ sleepBean.getAllMinutes());
+//                Logger.show("shuju","入睡时间戳："+ sleepBean.getStartTime() );
+//                Logger.show("shuju","清醒时间戳："+ sleepBean.getEndTime() );
+//                Logger.show("shuju","零星睡眠小时:："+ sleepBean.getHours() );
+//                Logger.show("shuju","零星睡眠分钟："+ sleepBean.getMinutes() );
+//                postView("\nsleepBean深睡:" + sleepBean.getHighTime() +" 浅睡："+ sleepBean.getLowTime() +" 清醒："+ sleepBean.getQxTime() +" 眼动："+ sleepBean.getYdTime());
+                postView("\n开始测量心率");
                 LmAPI.GET_HEART_ROTA((byte) 0x01, (byte)0x30,new IHeartListener() {
                     @Override
                     public void progress(int progress) {
@@ -613,7 +616,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                     public void success() {
                         postView("\n测量心率完成");
                     }
-                });*/
+                });
                 break;
             case R.id.bt_read_log:
                 postView("\n开始读取全部数据");

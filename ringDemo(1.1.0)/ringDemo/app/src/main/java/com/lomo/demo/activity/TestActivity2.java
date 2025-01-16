@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import com.lm.sdk.AdPcmTool;
 import com.lm.sdk.BLEService;
 import com.lm.sdk.LmAPI;
+import com.lm.sdk.inter.IHeartListener;
 import com.lm.sdk.inter.IResponseListener;
 import com.lm.sdk.inter.ITempListener;
 import com.lm.sdk.mode.SystemControlBean;
@@ -51,6 +52,8 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
         findViewById(R.id.bt_get_audio_type).setOnClickListener(this);
         findViewById(R.id.bt_temp_test).setOnClickListener(this);
         findViewById(R.id.bt_get_rssi).setOnClickListener(this);
+        findViewById(R.id.bt_heart).setOnClickListener(this);
+
     }
 
     @Override
@@ -383,6 +386,39 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
             case R.id.bt_get_rssi://获取信号强度,略微有点延迟；信号强度-60 > -70
                 BLEService.readRomoteRssi();
                 postView("\nrssi == "+ BLEService.RSSI);
+                break;
+            case R.id.bt_heart:
+                postView("\n开始测量心率");
+                LmAPI.GET_HEART_ROTA((byte) 0x00, (byte)0x30,new IHeartListener() {
+                    @Override
+                    public void progress(int progress) {
+                        postView("\n测量心率进度：" + progress + "%");
+                    }
+
+                    @Override
+                    public void resultData(int heart, int heartRota, int yaLi, int temp) {
+//                        postView("\n测量心率数据：" + heart);
+                    }
+
+                    @Override
+                    public void waveformData(byte seq, byte number, String waveData) {
+                    }
+
+                    @Override
+                    public void rriData(byte seq, byte number, String data) {
+                        postView("\ndata的值是：" + data);
+                    }
+
+                    @Override
+                    public void error(int code) {
+                        postView("\n测量心率错误：" + code);
+                    }
+
+                    @Override
+                    public void success() {
+                        postView("\n测量心率完成");
+                    }
+                });
                 break;
             default:
                 break;
