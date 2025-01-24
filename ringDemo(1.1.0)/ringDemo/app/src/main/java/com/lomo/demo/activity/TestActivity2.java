@@ -53,7 +53,9 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
         findViewById(R.id.bt_temp_test).setOnClickListener(this);
         findViewById(R.id.bt_get_rssi).setOnClickListener(this);
         findViewById(R.id.bt_heart).setOnClickListener(this);
-
+        findViewById(R.id.bt_app_bind).setOnClickListener(this);
+        findViewById(R.id.bt_connect).setOnClickListener(this);
+        findViewById(R.id.bt_refresh).setOnClickListener(this);
     }
 
     @Override
@@ -332,6 +334,22 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
     }
 
     @Override
+    public void appBind(SystemControlBean systemControlBean) {
+        postView("\nappBind："+systemControlBean.toString());
+    }
+
+    @Override
+    public void appConnect(SystemControlBean systemControlBean) {
+        postView("\nappConnect："+systemControlBean.toString());
+    }
+
+    @Override
+    public void appRefresh(SystemControlBean systemControlBean) {
+        postView("\nappRefresh："+systemControlBean.toString());
+    }
+
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.bt_set_HID:
@@ -419,6 +437,16 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
                         postView("\n测量心率完成");
                     }
                 });
+                break;
+            case R.id.bt_app_bind:
+                LmAPI.APP_BIND();
+
+                break;
+            case R.id.bt_connect:
+                LmAPI.APP_CONNECT();
+                break;
+            case R.id.bt_refresh:
+                LmAPI.APP_REFRESH();
                 break;
             default:
                 break;

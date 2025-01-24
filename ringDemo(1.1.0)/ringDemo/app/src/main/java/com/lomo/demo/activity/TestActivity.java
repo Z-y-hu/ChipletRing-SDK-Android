@@ -443,6 +443,21 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
     @Override
+    public void appBind(SystemControlBean systemControlBean) {
+
+    }
+
+    @Override
+    public void appConnect(SystemControlBean systemControlBean) {
+
+    }
+
+    @Override
+    public void appRefresh(SystemControlBean systemControlBean) {
+
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.bt_clear_step:

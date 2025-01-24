@@ -138,20 +138,20 @@
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/bt_I"
+                android:id="@+id/bt_app_bind"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text=" "
+                android:text="二代绑定指令"
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
             <Button
-                android:id="@+id/bt_J"
+                android:id="@+id/bt_connect"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text=" "
+                android:text="二代连接指令"
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
@@ -162,11 +162,11 @@
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/bt_j"
+                android:id="@+id/bt_refresh"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text=" "
+                android:text="二代刷新指令"
                 android:textSize="14sp"
                 android:textColor="@color/white"
                 android:background="@drawable/button_bg_state"/>
