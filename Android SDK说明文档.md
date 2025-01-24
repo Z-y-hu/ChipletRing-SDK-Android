@@ -1124,6 +1124,126 @@ RSSI是信号强度的意思
 ```
 需要注意rssi变化略微延迟，数字越大，信号越强，如 -52 > -60
 
+##### 3.2.28 二代协议
+
+二代协议是一个协议，返回多个指令，大大加快了连接速度，二代协议只有支持的设备才能发送，判断设备是否支持的代码如下：
+```java
+    public static DeviceBean getInfoByByte(byte[] scanRecord) {
+        byte[] bytes = ParseLeAdvData.adv_report_parse(ParseLeAdvData.BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, scanRecord);
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+
+        String hexString = ConvertUtils.bytes2HexString(bytes);
+        if (hexString.length() < 5) {
+            return null;
+        }
+
+        DeviceBean bean = new DeviceBean(null, 0);
+     
+
+        if((bytes[0]&0x03)==0x1)//15
+        {
+            //未充电
+            bean.setChargingIndicator(1);
+        }else{
+            //充电中
+            bean.setChargingIndicator(2);
+        }
+
+        if((bytes[0]&0x0C)==0)//15
+        {
+            //不支持配对绑定
+            bean.setBindingIndicatorBit(0);
+        }else if((bytes[0]&0x0C) == 0x04)//15
+        {
+            //支持配对绑定
+            bean.setBindingIndicatorBit(1);
+        }else if((bytes[0]&0x0C) == 0x08)//15
+        {
+            //支持配对
+            bean.setBindingIndicatorBit(2);
+        }
+
+        if((bytes[0]&0xf0)==0x0)//15
+        {
+            //版本0
+            bean.setCommunicationProtocolVersion(1);
+        }else if((bytes[0]&0xf0)==0x10)//15
+        {
+            //版本1
+            bean.setCommunicationProtocolVersion(2);
+        }
+
+        return bean;
+    }
+```
+在获取蓝牙广播的回调方法里调用：
+```java
+private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+
+        @Override
+        public void onLeScan(BluetoothDevice device, int rssi, byte[] bytes) {
+```
+绑定指令:（绑定指令是在设备绑定后调用，是复合操作，戒指收到这条指令执行，恢复出厂设置（清空历史记录，清除步数)，同步时间，HID功能获取。）
+```java
+    LmAPI.APP_BIND();
+```
+回调：
+```java
+ @Override
+    public void appBind(SystemControlBean systemControlBean) {
+        postView("\nappBind："+systemControlBean.toString());
+    }
+```
+连接指令:（连接指令是在设备连接后调用，是复合操作，戒指收到这条指令执行，自动上传未上传数据，同步时间，HID功能获取）
+```java
+    LmAPI.APP_CONNECT();
+```
+回调：
+```java
+ @Override
+    public void appConnect(SystemControlBean systemControlBean) {
+        postView("\nappConnect："+systemControlBean.toString());
+    }
+```
+刷新指令:（刷新指令是需要刷新戒指指令时调用，是复合操作，戒指收到这条指令执行，自动上传未上传数据，同步时间。）
+```java
+    LmAPI.APP_REFRESH();
+```
+回调：
+```java
+     @Override
+    public void appRefresh(SystemControlBean systemControlBean) {
+        postView("\nappRefresh："+systemControlBean.toString());
+    }
+```
+
+实体类字段意义：
+```java
+public class SystemControlBean {
+    private String firmwareVersion;//固件版本号
+    private String hardwareVersion;//硬件版本号
+    private byte battery;//电量
+    private byte chargingStatus;//充电状态
+    private String collectionInterval;//当前采集间隔
+    private byte[] HID_CODE;//当前HID功能码
+    private byte[] HID_MODE;//当前HID模式
+    private byte heartRate;//心率曲线支持
+    private byte blood;//血氧曲线支持
+    private byte variability;//变异性曲线支持
+    private byte pressure;//压力曲线支持
+    private byte temperature;//温度曲线支持
+    private byte womenHealth;//女性健康支持
+    private byte vibration;//震动闹钟支持
+    private byte electrocardiogram;//心电图功能支持
+    private byte microphone;//麦克风支持
+    private byte sport;//运动模式支持
+    private int stepCounting;//当前计步
+    private int keyTest;//自检标识
+```
+
+
 #### 3.3 固件升级（OTA）
 
 ![alt text](image/f66e099fc52821fbc43ecd7803e0633.png)
