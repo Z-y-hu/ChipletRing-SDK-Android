@@ -1,5 +1,6 @@
 package com.lomo.demo.activity;
 
+import static com.lomo.demo.activity.TestActivity.mac;
 import static com.lomo.demo.activity.TestActivity.savePcmFile;
 
 import android.content.Intent;
@@ -16,9 +17,11 @@ import androidx.annotation.Nullable;
 import com.lm.sdk.AdPcmTool;
 import com.lm.sdk.BLEService;
 import com.lm.sdk.LmAPI;
+import com.lm.sdk.LogicalApi;
 import com.lm.sdk.inter.IHeartListener;
 import com.lm.sdk.inter.IResponseListener;
 import com.lm.sdk.inter.ITempListener;
+import com.lm.sdk.mode.SleepBean;
 import com.lm.sdk.mode.SystemControlBean;
 import com.lm.sdk.utils.BLEUtils;
 import com.lm.sdk.utils.Logger;
@@ -27,6 +30,9 @@ import com.lomo.demo.R;
 import com.lomo.demo.application.App;
 import com.lomo.demo.base.BaseActivity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
 public class TestActivity2 extends BaseActivity implements IResponseListener, View.OnClickListener {
@@ -448,6 +454,42 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
             case R.id.bt_refresh:
                 LmAPI.APP_REFRESH();
                 break;
+            case R.id.bt_calculate_sleep:
+                postView("\n开始拿calculateSleep");
+                String formattedDateTime = "2025-01-11";
+                try {
+                    // 解析输入日期字符串为 LocalDate 对象
+                    LocalDate localDate = LocalDate.parse(formattedDateTime);
+
+                    // 转换为 LocalDateTime 对象，设置时间为午夜
+                    LocalDateTime localDateTime = localDate.atTime(0, 0);
+
+                    // 定义输出格式
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    formattedDateTime = localDateTime.format(formatter);
+
+                    // 输出结果
+                    System.out.println("Formatted date and time: " + formattedDateTime);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+//                SleepBean sleepBean = LogicalApi.calculateSleep(formattedDateTime, App.getInstance().getDeviceBean().getDevice().getAddress(),1);
+                SleepBean sleepBean = LogicalApi.calculateSleep(formattedDateTime, mac,1);
+                Logger.show("shuju","sleepBean深睡:" + sleepBean.getHighTime() );
+                Logger.show("shuju","浅睡："+ sleepBean.getLowTime() );
+                Logger.show("shuju","清醒："+ sleepBean.getQxTime() );
+                Logger.show("shuju","眼动："+ sleepBean.getYdTime() );
+                Logger.show("shuju","全部睡眠小时:" + sleepBean.getAllHours());
+                Logger.show("shuju","全部睡眠分钟："+ sleepBean.getAllMinutes());
+                Logger.show("shuju","入睡时间戳："+ sleepBean.getStartTime() );
+                Logger.show("shuju","清醒时间戳："+ sleepBean.getEndTime() );
+                Logger.show("shuju","零星睡眠小时:："+ sleepBean.getHours() );
+                Logger.show("shuju","零星睡眠分钟："+ sleepBean.getMinutes() );
+                postView("\nsleepBean深睡:" + sleepBean.getHighTime() +" \n浅睡："+ sleepBean.getLowTime() +" \n清醒："+ sleepBean.getQxTime() +" \n眼动："+ sleepBean.getYdTime());
+
+                break;
+
             default:
                 break;
         }
