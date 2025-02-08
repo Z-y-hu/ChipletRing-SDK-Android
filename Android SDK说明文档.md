@@ -111,10 +111,11 @@
 第—步：集成 SDK  
 第二步：初始化 SDK  
 第三步：使用 SDK  
-
+### ChipletRing公版app蓝牙操作流程
+ChipletRing公版app已经将sdk指令完整集成，现在将流程图提供给开发者，方便集成时参考
 ### 流程图
 
-![SDK使用流程图](image/6c11b5d52a1e57b9efaaa88560714bd.png)
+![SDK使用流程图](image/ChipletRing公版app蓝牙操作流程.png)
 
 ## 三、集成ChipletRing APP SDK
 
