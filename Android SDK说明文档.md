@@ -365,6 +365,179 @@ public class ParseLeAdvData {
     }
 }
 ```
+ParsedAd.java和BleAdParse.java
+```java
+public class ParsedAd {
+    public byte flags;
+
+    public List<UUID> uuids = new ArrayList<>();
+
+    public String localName;
+
+    public String diyInfo;
+
+    public short manufacturer;
+}
+
+public class BleAdParse {
+
+
+
+    public static String byte2hex(byte[] b) {
+        StringBuilder hs = new StringBuilder();
+        String stmp;
+        for (int i = 0; i < b.length; i++) {
+            stmp = Integer.toHexString(b[i] & 0xFF).toUpperCase();
+            if (stmp.length() == 1) {
+                hs.append("0").append(stmp);
+            } else {
+                hs.append(stmp);
+            }
+        }
+        return hs.toString();
+    }
+
+
+    public static ParsedAd parseScanRecodeData(ParsedAd parsedAd ,byte[] adv_data) {
+
+        ByteBuffer buffer = ByteBuffer.wrap(adv_data).order(ByteOrder.LITTLE_ENDIAN);
+
+        while (buffer.remaining() > 2) {
+
+            byte length = buffer.get();
+
+            if (length == 0)
+
+                break;
+
+            if (length>buffer.remaining())
+
+                break;
+
+            byte type = buffer.get();
+
+            length -= 1;
+
+            switch (type) {
+
+                case 0x01: // Flags
+
+                    parsedAd.flags = buffer.get();
+
+                    length--;
+
+                    break;
+
+                case 0x02: // Partial list of 16-bit UUIDs
+
+                case 0x03: // Complete list of 16-bit UUIDs
+
+                case 0x14: // List of 16-bit Service Solicitation UUIDs
+
+                    while (length >= 2) {
+
+                        parsedAd.uuids.add(UUID.fromString(String.format(
+
+                                "%08x-0000-1000-8000-00805f9b34fb", buffer.getShort())));
+
+                        length -= 2;
+
+                    }
+
+                    break;
+
+                case 0x04: // Partial list of 32 bit service UUIDs
+
+                case 0x05: // Complete list of 32 bit service UUIDs
+
+                    while (length >= 4) {
+
+                        parsedAd.uuids.add(UUID.fromString(String.format(
+
+                                "%08x-0000-1000-8000-00805f9b34fb", buffer.getInt())));
+
+                        length -= 4;
+
+                    }
+
+                    break;
+
+                case 0x06: // Partial list of 128-bit UUIDs
+
+                case 0x07: // Complete list of 128-bit UUIDs
+
+                case 0x15: // List of 128-bit Service Solicitation UUIDs
+
+                    while (length >= 16) {
+
+                        long lsb = buffer.getLong();
+
+                        long msb = buffer.getLong();
+
+                        UUID uuid=new UUID(msb, lsb);
+
+                        parsedAd.uuids.add(uuid);
+
+                        length -= 16;
+
+                    }
+
+                    break;
+
+                case 0x08: // Short local device name
+
+                case 0x09: // Complete local device name
+
+                    byte sb[] = new byte[length];
+
+                    buffer.get(sb, 0, length);
+
+                    length = 0;
+
+                    parsedAd.localName = new String(sb).trim();
+
+                    break;
+
+                case (byte) 0xFF: // Manufacturer Specific Data
+
+                    byte sb2[] = new byte[length];
+
+                    buffer.get(sb2, 0, length);
+
+                    length = 0;
+
+                    parsedAd.diyInfo = byte2hex(sb2);;
+
+                    break;
+
+                default: // skip
+
+                    break;
+
+            }
+
+            if (length > 0) {
+
+                if ((buffer.position()+length)<buffer.capacity()){
+
+                    buffer.position(buffer.position() + length);
+
+                }else {
+
+                    buffer.position(buffer.capacity());
+
+                }
+
+            }
+
+        }
+
+        return parsedAd;
+
+    }
+
+}
+```
 
 ## 三、集成ChipletRing APP SDK
 
@@ -459,12 +632,12 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 
 ![重连](image/重连.png)
 
-**重连操作：ChipletRing的逻辑，**<span style="color:pink;">戒指断开后立即调用，重连后同步时间，获取软硬件版本号，获取历史数据，链式操作</span>
+**重连操作：ChipletRing的逻辑，**<span style="color:pink;">戒指断开后立即调用，一代协议戒指，重连后同步时间，获取软硬件版本号，获取历史数据，链式操作。二代协议戒指重连后直接调用LmAPI.APP_CONNECT()</span>
 
 #### 3.0.1 刷新流程图
 
 ![刷新](image/刷新.png)   
-**重要：ChipletRing的逻辑，及时同步，**<span style="color:pink;">连接设备成功后，等待1s去同步时间，保证戒指时间正常</span>   
+**重要：ChipletRing的逻辑，及时同步，**<span style="color:pink;">连接设备成功后，一代协议戒指，等待1s去同步时间，保证戒指时间正常，二代协议戒指调用LmAPI.APP_REFRESH()</span>   
 **刷新操作：ChipletRing的逻辑，**<span style="color:pink;">刷新时需要去同步历史数据，刷新图表视图</span>
 
 #### 3.1 蓝牙操作（BLEUtils）
