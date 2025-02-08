@@ -117,6 +117,255 @@ ChipletRing公版app已经将sdk指令完整集成，现在将流程图提供给
 
 ![SDK使用流程图](image/ChipletRing公版app蓝牙操作流程.png)
 
+### 广播相关代码
+```java
+BLEUtils.startLeScan(this, leScanCallback);
+
+
+ private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+
+        @Override
+        public void onLeScan(BluetoothDevice device, int rssi, byte[] bytes) {
+            if (device == null || StringUtils.isEmpty(device.getName())) {
+                return;
+            }
+            ParsedAd parsedAd = new ParsedAd();
+            ParsedAd parsedAd1 = BleAdParse.parseScanRecodeData(parsedAd, bytes);
+            List<UUID> uuids = parsedAd1.uuids;
+            //  Log.e("xxxxx","deviceName  "+ device.getName()+"，uuid  "+ uuids.toString());
+
+            boolean isHIDDevice = false;
+            for (UUID uuid : uuids) {
+                if (uuid.toString().contains("1812")) {//UUID包含1812是HID模式，走强连接模式
+                    isHIDDevice = true;
+                    break;
+                }
+            }
+            DeviceBean bean = new DeviceBean(device, rssi);
+            bean.setHidDevice(isHIDDevice ? "1" : "0");
+
+            if (BluetoothState.isNeedRing(bytes)) {
+
+                DeviceBean bean1 = BluetoothState.getInfoByByte(bytes);
+                if (bean1 != null) {
+
+                    bean.setCommunicationProtocolVersion(bean1.getCommunicationProtocolVersion());
+                    bean.setBindingIndicatorBit(bean1.getBindingIndicatorBit());
+                    bean.setChargingIndicator(bean1.getChargingIndicator());
+                }
+
+
+                if (dataEntityList.contains(device)) {
+                    return;
+                }
+                if (!macList.contains(device.getAddress())) {
+                    macList.add(device.getAddress());
+                    dataEntityList.add(device);
+                    adapter.updateData(bean);
+//                    adapter.setOnItemClickListener(SearchActivity.this);
+                }
+            }
+        }
+    };
+
+ public static DeviceBean getInfoByByte(byte[] scanRecord) {
+        byte[] bytes = ParseLeAdvData.adv_report_parse(ParseLeAdvData.BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, scanRecord);
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+
+        String hexString = ConvertUtils.bytes2HexString(bytes);
+        if (hexString.length() < 5) {
+            return null;
+        }
+
+        DeviceBean bean = new DeviceBean(null, 0);
+        if((bytes[0]&0x03)==0x1)
+        {
+            //未充电
+            bean.setChargingIndicator(1);
+        }else{
+            //充电中
+            bean.setChargingIndicator(2);
+        }
+
+        if((bytes[0]&0x0C)==0)
+        {
+            //不支持配对绑定
+            bean.setBindingIndicatorBit(0);
+        }else if((bytes[0]&0x0C) == 0x04)
+        {
+            //支持配对绑定
+            bean.setBindingIndicatorBit(1);
+        }else if((bytes[0]&0x0C) == 0x08)//15
+        {
+            //支持配对
+            bean.setBindingIndicatorBit(2);
+        }
+
+        if((bytes[0]&0xf0)==0x0)
+        {
+            //不支持二代指令协议
+            bean.setCommunicationProtocolVersion(1);
+        }else if((bytes[0]&0xf0)==0x10)
+        {
+            //支持二代指令协议
+            bean.setCommunicationProtocolVersion(2);
+        }
+
+        return bean;
+    }
+
+    public static boolean isNeedRing(byte[] scanRecord) {
+        byte[] bytes = ParseLeAdvData.adv_report_parse(ParseLeAdvData.BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, scanRecord);
+        if (bytes == null || bytes.length == 0) {
+            return false;
+        }
+        String hexString = ConvertUtils.bytes2HexString(bytes);
+
+        if (hexString.length() < 5) {
+            return false;
+        }
+        return "FF".equals(hexString.substring(2, 4));
+    }
+
+```
+ParseLeAdvData.java
+```java
+public class ParseLeAdvData {
+    private final static String TAG = "ParseLeAdvData";
+    //LE 广播包数据类型
+    public static final short BLE_GAP_AD_TYPE_FLAGS = 0x01;
+    /**
+     * < Flags for discoverability.
+     */
+    public static final short BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE = 0x02;
+    /**
+     * < Partial list of 16 bit service UUIDs.
+     */
+    public static final short BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_COMPLETE = 0x03;
+    /**
+     * < Complete list of 16 bit service UUIDs.
+     */
+    public static final short BLE_GAP_AD_TYPE_32BIT_SERVICE_UUID_MORE_AVAILABLE = 0x04;
+    /**
+     * < Partial list of 32 bit service UUIDs.
+     */
+    public static final short BLE_GAP_AD_TYPE_32BIT_SERVICE_UUID_COMPLETE = 0x05;
+    /**
+     * < Complete list of 32 bit service UUIDs.
+     */
+    public static final short BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE = 0x06;
+    /**
+     * < Partial list of 128 bit service UUIDs.
+     */
+    public static final short BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_COMPLETE = 0x07;
+    /**
+     * < Complete list of 128 bit service UUIDs.
+     */
+    public static final short BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME = 0x08;
+    /**
+     * < Short local device name.
+     */
+    public static final short BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME = 0x09;
+    /**
+     * < Complete local device name.
+     */
+    public static final short BLE_GAP_AD_TYPE_TX_POWER_LEVEL = 0x0A;
+    /**
+     * < Transmit power level.
+     */
+    public static final short BLE_GAP_AD_TYPE_CLASS_OF_DEVICE = 0x0D;
+    /**
+     * < Class of device.
+     */
+    public static final short BLE_GAP_AD_TYPE_SIMPLE_PAIRING_HASH_C = 0x0E;
+    /**
+     * < Simple Pairing Hash C.
+     */
+    public static final short BLE_GAP_AD_TYPE_SIMPLE_PAIRING_RANDOMIZER_R = 0x0F;
+    /**
+     * < Simple Pairing Randomizer R.
+     */
+    public static final short BLE_GAP_AD_TYPE_SECURITY_MANAGER_TK_VALUE = 0x10;
+    /**
+     * < Security Manager TK Value.
+     */
+    public static final short BLE_GAP_AD_TYPE_SECURITY_MANAGER_OOB_FLAGS = 0x11;
+    /**
+     * < Security Manager Out Of Band Flags.
+     */
+    public static final short BLE_GAP_AD_TYPE_SLAVE_CONNECTION_INTERVAL_RANGE = 0x12;
+    /**
+     * < Slave Connection Interval Range.
+     */
+    public static final short BLE_GAP_AD_TYPE_SOLICITED_SERVICE_UUIDS_16BIT = 0x14;
+    /**
+     * < List of 16-bit Service Solicitation UUIDs.
+     */
+    public static final short BLE_GAP_AD_TYPE_SOLICITED_SERVICE_UUIDS_128BIT = 0x15;
+    /**
+     * < List of 128-bit Service Solicitation UUIDs.
+     */
+    public static final short BLE_GAP_AD_TYPE_SERVICE_DATA = 0x16;
+    /**
+     * < Service Data.
+     */
+    public static final short BLE_GAP_AD_TYPE_PUBLIC_TARGET_ADDRESS = 0x17;
+    /**
+     * < Public Target Address.
+     */
+    public static final short BLE_GAP_AD_TYPE_RANDOM_TARGET_ADDRESS = 0x18;
+    /**
+     * < Random Target Address.
+     */
+    public static final short BLE_GAP_AD_TYPE_APPEARANCE = 0x19;
+    /**
+     * < Appearance.
+     */
+    public static final short BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA = 0xFF;
+
+    /**
+     * < Manufacturer Specific Data.
+     */
+    public ParseLeAdvData() {
+        Log.d(TAG, "ParseLeAdvData init....");
+    }
+
+    ///////解析广播数据/////////////////////////
+    public static final byte[] adv_report_parse(short type, byte[] adv_data) {
+        int index = 0;
+        int length;
+        byte[] data;
+        byte field_type = 0;
+        byte field_length = 0;
+        length = adv_data.length;
+        while (index < length) {
+            try {
+                field_length = adv_data[index];
+                field_type = adv_data[index + 1];
+            } catch (Exception e) {
+                Log.d(TAG, "There is a exception here.");
+                return null;
+            }
+            if (field_type == (byte) type) {
+                data = new byte[field_length - 1];
+                byte i;
+                for (i = 0; i < field_length - 1; i++) {
+                    data[i] = adv_data[index + 2 + i];
+                }
+                return data;
+            }
+            index += field_length + 1;
+            if (index >= adv_data.length) {
+                return null;
+            }
+        }
+        return null;
+    }
+}
+```
+
 ## 三、集成ChipletRing APP SDK
 
 ### 1.集成ChipletRing APP SDK
@@ -200,7 +449,7 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 
 ![解绑](image/解绑.png)
 
-**绑定与解绑：**<span style="color:yellow;">ChipletRing的逻辑：绑定戒指即账户首次连接戒指时，调用清除历史数据接口，同步时间接口，获取软硬件版本号接口，链式调用，每个接口在上一个完成后等待1s调用<br>解绑是指账户解除和戒指的绑定，解绑时只需要断开蓝牙即可</span>
+**绑定与解绑：**<span style="color:yellow;">ChipletRing的逻辑：绑定戒指即账户首次连接戒指时，戒指支持一代协议，需要调用清除历史数据接口，同步时间接口，获取软硬件版本号接口，链式调用，每个接口在上一个完成后等待一定时间调用。戒指支持二代协议，调用LmAPI.APP_BIND()，复合操作，戒指收到这条指令执行，恢复出厂设置（清空历史记录，清除步数)，同步时间，HID功能获取。<br>解绑是指账户解除和戒指的绑定，解绑时只需要断开蓝牙即可</span>
 
 #### 3.0.1 连接流程图
 
