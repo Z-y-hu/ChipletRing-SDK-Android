@@ -640,11 +640,11 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 
 #### 3.1 蓝牙操作（BLEUtils）
 
-此类是使用蓝牙搜索、连接、 断开的公共类 ，统— 由IResponseListener接口反馈。或者单独的接口（会有说明）   
+此类是使用蓝牙搜索、连接、 断开的公共类 ，统— 由IResponseListener接口反馈。 
 
 ##### 3.1.1 搜索设备
 
-接口功能：开启蓝牙搜索功能 ，搜索周围的蓝牙设备。
+接口功能：开启蓝牙搜索功能 ，搜索周围的蓝牙设备，根据广播数据，判断是否是符合条件的戒指，以及从广播数据中获取戒指配置。
 接口声明：
 
 ```java
@@ -655,7 +655,7 @@ BLEUtils.startLeScan(Context context, BluetoothAdapter.LeScanCallback leScanC
 返回值
 
 ```jave
-（void onLeScan(BluetoothDevice device, intrssi, byte[] bytes)）
+（void onLeScan(BluetoothDevice device, int rssi, byte[] bytes)）
 ```
 
 该接口的返回值说明如下：
@@ -671,18 +671,17 @@ private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapt
 ```
 
 注意事项：1.保证蓝牙设备有电  
-2.如要筛选蓝牙设备（厂商ID == 0xFF01），二代协议厂商标志会改变，具体请参考四、其他，筛选相关
+2.如要筛选蓝牙设备（厂商ID == 0xFF01），二代协议厂商标志会改变，具体请参考《四、其他，筛选相关》或者公版app提供的样例代码
 
 ##### 3.1.2 停止搜索
 
-接口功能：关闭蓝牙搜索功能。  
+接口功能：蓝牙连接以后，可以关闭蓝牙搜索功能。  
 接口声明：
 
 ```java
 BLEUtils.stopLeScan(Context context, BluetoothAdapter.LeScanCallback leScanCallback);
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态  
 参数说明：context：上下文    leScanCallback：蓝牙搜索的回调  
 返回值：无
 
@@ -694,9 +693,6 @@ BLEUtils.stopLeScan(Context context, BluetoothAdapter.LeScanCallback leScanCa
 ```java
 BLEUtils.connectLockByBLE(Context context, BluetoothDevice bluetoothDevice);
 ```
-
-注意事项：1.调用此接口 ，需保证与戒指处于连接状态  
-2.扫描连接时会自动判断是否为长连接，在已经长连接下去重连时，需手动输入bool值确认是否重连（demo里有示例）  
 参数说明：context：上下文  
 bluetoothDevice ：蓝牙设备  
 返回值：
@@ -726,8 +722,7 @@ public void lmBleConnectionFailed(int code) {
 ```java
 BLEUtils.disconnectBLE(Context context);
 ```
-
-注意事项：调用此接口 ，需保证与戒指处于连接状态  
+ 
 参数说明：context：上下文  
 返回值：无
 
@@ -738,14 +733,6 @@ BLEUtils.disconnectBLE(Context context);
 
 ```java
         BluetoothDevice remote  = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
-                DeviceBean bean = DeviceManager.deviceMap.get(mac);
-                String hidDevice=bean.getHidDevice();
-                if(hidDevice == "0" || hidDevice == null){
-                    BLEUtils.isHIDDevice = false;
-                }else{
-                    BLEUtils.isHIDDevice = true;
-                }
-
                 if(remote != null){
                     BLEUtils.connectLockByBLE(this,remote);
                 }
@@ -974,9 +961,7 @@ iHeartListener:  此接口是测量数据的监听
      @Override
      public void resultData(int heart, int heartRota, int yaLi, int temp) {
                  //心率，心率变异性，压力，温度
-         if (colorFragment != null) {
-             colorFragment.heartAndRota(heart, heartRota, yaLi, temp);
-         }
+        
      }
      @Override
      public void waveformData(byte seq, byte number, String waveData) {
@@ -990,15 +975,12 @@ iHeartListener:  此接口是测量数据的监听
      public void error(int value) {
          switch (value) {
              case 0:
-                 dismissProgressDialog();
                  ToastUtils.show("未佩戴");
                  break;
              case 2:
-                 dismissProgressDialog();
                  ToastUtils.show("充电中不允许采集");
                  break;
              case 4:
-                 dismissProgressDialog();
                  ToastUtils.show("繁忙，不执行");
                  break;
              default:
@@ -1008,7 +990,6 @@ iHeartListener:  此接口是测量数据的监听
  
      @Override
      public void success() {
-         dismissProgressDialog();
      }
  });
 ```
@@ -1037,9 +1018,7 @@ LmAPI.GET_HEART_Q2(new IQ2Listener() {
     @Override
     public void resultData(int heart, int q2, int temp) {
         //心率，血氧，温度
-        if (colorFragment != null) {
-            colorFragment.updateData(heart, q2, temp);
-        }
+       
     }
 
     @Override
@@ -1050,15 +1029,12 @@ LmAPI.GET_HEART_Q2(new IQ2Listener() {
     public void error(int value) {
         switch (value) {
             case 0:
-                dismissProgressDialog();
                 ToastUtils.show("未佩戴");
                 break;
             case 2:
-                dismissProgressDialog();
                 ToastUtils.show("充电中不允许采集");
                 break;
             case 4:
-                dismissProgressDialog();
                 ToastUtils.show("繁忙，不执行");
                 break;
             default:
@@ -1068,7 +1044,6 @@ LmAPI.GET_HEART_Q2(new IQ2Listener() {
 
     @Override
     public void success() {
-        dismissProgressDialog();
     }
 });
 ```
@@ -1166,9 +1141,9 @@ LmAPI.CLEAN_HISTORY（）
 参数说明：无  
 返回值：无
 
-##### 3.2.15 血压测试算法
+##### 3.2.15 血压测试
 
-接口功能：清空历史数据。  
+接口功能：血压测试。  
 接口声明：
 
 ```java
@@ -1232,7 +1207,7 @@ LmAPI.GET_REAL_TIME_BP((byte) 0x30, (byte) 1, (byte) 1, new IRealTimePPGB
 ```java
 LmAPI.STOP_REAL_TIME_BP()
 ```
-
+注意事项：戒指固件必须支持，否则无法使用。调用此接口 ，需保证与戒指处于连接状态  
 参数说明：无  
 回调：
 
@@ -1297,7 +1272,7 @@ LmAPI.Get_BlueTooth_Name()
 ```java
 LmAPI.STOP_HEART()
 ```
-
+注意事项：戒指固件必须支持，否则无法使用。调用此接口 ，需保证与戒指处于连接状态  
 参数说明：无  
 回调：
 
@@ -1316,7 +1291,7 @@ LmAPI.STOP_HEART()
 ```java
 LmAPI.STOP_Q2()
 ```
-
+注意事项：戒指固件必须支持，否则无法使用。调用此接口 ，需保证与戒指处于连接状态  
 参数说明：无  
 回调：
 
@@ -1329,7 +1304,7 @@ LmAPI.STOP_Q2()
 
 ##### 3.2.22 一键获取状态
 
-接口功能：一键获取系统支持的功能，简化版的接口集合，会返回电量、固件版本、采集周期等  
+接口功能：一键获取系统支持的功能，简化版的接口集合，会返回电量、固件版本、采集周期等(已被二代协议替代，参考3.2.28 二代协议)  
 接口声明：
 
 ```java
@@ -1368,7 +1343,7 @@ LmAPI.SET_AUDIO(byte data)
   }
 ```
 
-**注：返回的数据是byte数组，adpcm转为pcm文件**
+**注：返回的数据是byte数组，adpcm格式转为pcm格式，保存到文件中**
 
 录音戒指灯光含义：
 * 录音的时候绿灯亮
@@ -1378,7 +1353,7 @@ LmAPI.SET_AUDIO(byte data)
   
 ##### 3.2.24 获取HID功能码
 
-接口功能：获取连接戒指支持的HID功能  
+接口功能：获取连接戒指支持的HID功能，只有支持的功能，才能通过(3.2.25 设置HID)进行设置
 接口声明：
 
 ```java
@@ -1475,8 +1450,8 @@ LmAPI.GET_HID_CODE((byte)0x00);
 
 ```java
                 byte[] hidBytes = new byte[3];
-                hidBytes[0] = 0x04;             //上传实时音频
-                hidBytes[1] = (byte) 0xFF;      //关闭
+                hidBytes[0] = 0x04;             //触摸功能，样例是上传实时音频(其他的参考参数说明，设置0x01,0x02,(byte) 0xFF等)
+                hidBytes[1] = (byte) 0xFF;      //手势功能，样例是关闭(其他的参考参数说明，设置0x01,0x02,(byte) 0xFF等)
                 hidBytes[2] = 0x00;             //系统类型 0：安卓  1：IOS  2：鸿蒙
                 LmAPI.SET_HID(hidBytes,TestActivity2.this);
 ```
@@ -1507,7 +1482,7 @@ LmAPI.GET_HID_CODE((byte)0x00);
 
 ##### 3.2.26 获取HID
 
-接口功能：获取当前戒指的HID模式   
+接口功能：获取当前戒指的HID模式，触摸各功能和手势各功能的开关状态  
 接口声明：
 
 ```java
@@ -1533,11 +1508,25 @@ LmAPI.GET_HID();
 
 ##### 3.2.27 获取RSSI
 
-RSSI是信号强度的意思  
+RSSI是信号强度的意思，一般用于ota升级前对戒指的信号检测，建议<= -70  
 
 ```java
     BLEService.readRomoteRssi();
     Log.i(TAG, "rssi = "+ BLEService.RSSI);
+```
+会有一点延时，在Activity里注册个回调获取
+```java
+BLEService.setCallback(new BluetoothConnectCallback() {
+            @Override
+            public void onConnectReceived(String data) {
+             
+            }
+
+            @Override
+            public void onGetRssi(int rssi) {
+                App.getInstance().getDeviceBean().setRssi(rssi);
+            }
+        });
 ```
 需要注意rssi变化略微延迟，数字越大，信号越强，如 -52 > -60
 
@@ -1712,7 +1701,7 @@ OtaApi.checkVersion(version, new VersionCallback() {
 void startUpdate(BluetoothDevice bluetoothDevice, int rssi, LmOTACallback otaCallback)
 ```
 
-注意事项：调用此接口 ，需保证与戒指处于连接状态  
+注意事项：调用此接口 ，需保证与戒指处于连接状态,建议rssi <= -71(参考3.2.27 获取RSSI)并且电量>50  
 参数说明：bluetoothDevice： 当前要升级的设备  
 rssi：设备信号值  
 otaCallback：升级回调  
