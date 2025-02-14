@@ -86,6 +86,18 @@
 <td align="left"></td>
 </tr>
 <tr>
+<td align="left">获取RSSI</td>
+<td align="left"></td>
+</tr>
+ <tr>
+<td align="left">二代协议</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">心电图</td>
+<td align="left"></td>
+</tr>
+<tr>
 <td align="left">OTA升级</td>
 <td align="left"></td>
 </tr>
@@ -97,7 +109,7 @@
 ### 1.环境要求
 * SDK库格式：AAR
 * 开发语言：JAVA
-* Android系统环境 ，系统版本>=8.0
+* Android系统环境 ，系统版本>=6.0
 * 必须支持蓝牙5.0
 ### 2.公版APP
 ChipletRing公版APP已经在应用宝上架，此版本将sdk指令完整集成，开发流程图如下，同时也推荐开发者先详细看一下此流程图：
@@ -143,6 +155,7 @@ ChipletRing公版APP已经在应用宝上架，此版本将sdk指令完整集成
 ```java
 LmAPI.init(this);
 LmAPI.setDebug(true);
+LmLibrary.init(this);
 ```
 2.在BaseActivity类中启用监听，该监听用于监听蓝牙连接状态和戒指的应答
 **注：若重复调用监听LmAPI.addWLSCmdListener(this, this)会出现重复现象**
@@ -260,343 +273,20 @@ BLEUtils.disconnectBLE(Context context);
 此类是使用戒指功能的公共类，戒指的功能通过该类直接调用即可,数据反馈除了特殊说明外 统一由IResponseListener接口反馈。
 调用此类的接口 ，需保证与戒指处于连接状态  
 ##### 3.2.0 广播解析
+sdk封装根据蓝牙扫描广播，获取是否符合条件的戒指，并返回该戒指的设备信息的方法LogicalApi.getBleDeviceInfoWhenBleScan，设备信息包括是否HID戒指(hidDevice:1是0非，兼容老版本戒指)，是否支持二代协议(communicationProtocolVersion:1不支持2支持)，是否支持绑定(bindingIndicatorBit,0不支持绑定、配对(仅软连接) 1绑定和配对 2仅支持配对)，充电指示位(chargingIndicator,1代表未充电 2代表充电中)
 ```java
 BLEUtils.startLeScan(this, leScanCallback);
  private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] bytes) {
-            if (device == null || StringUtils.isEmpty(device.getName())) {
+            if (device == null || TextUtils.isEmpty(device.getName())) {
                 return;
             }
-            ParsedAd parsedAd = new ParsedAd();
-            ParsedAd parsedAd1 = BleAdParse.parseScanRecodeData(parsedAd, bytes);
-            List<UUID> uuids = parsedAd1.uuids;
-            //  Log.e("xxxxx","deviceName  "+ device.getName()+"，uuid  "+ uuids.toString());
-
-            boolean isHIDDevice = false;
-            for (UUID uuid : uuids) {
-                if (uuid.toString().contains("1812")) {//UUID包含1812是HID模式，走强连接模式
-                    isHIDDevice = true;
-                    break;
-                }
-            }
-            DeviceBean bean = new DeviceBean(device, rssi);
-            bean.setHidDevice(isHIDDevice ? "1" : "0");
-            if (BluetoothState.isNeedRing(bytes)) {
-                DeviceBean bean1 = BluetoothState.getInfoByByte(bytes);
-                if (bean1 != null) {
-                    bean.setCommunicationProtocolVersion(bean1.getCommunicationProtocolVersion());
-                    bean.setBindingIndicatorBit(bean1.getBindingIndicatorBit());
-                    bean.setChargingIndicator(bean1.getChargingIndicator());
-                }
-                if (dataEntityList.contains(device)) {
-                    return;
-                }
-                if (!macList.contains(device.getAddress())) {
-                    macList.add(device.getAddress());
-                    dataEntityList.add(device);
-                    adapter.updateData(bean);
-//                    adapter.setOnItemClickListener(SearchActivity.this);
-                }
-            }
+            //是否符合条件，符合条件，会返回戒指设备信息
+            BleDeviceInfo bleDeviceInfo = LogicalApi.getBleDeviceInfoWhenBleScan(device, rssi, bytes);
+           
         }
     };
-
- public static DeviceBean getInfoByByte(byte[] scanRecord) {
-        byte[] bytes = ParseLeAdvData.adv_report_parse(ParseLeAdvData.BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, scanRecord);
-        if (bytes == null || bytes.length == 0) {
-            return null;
-        }
-
-        String hexString = ConvertUtils.bytes2HexString(bytes);
-        if (hexString.length() < 5) {
-            return null;
-        }
-
-        DeviceBean bean = new DeviceBean(null, 0);
-        if((bytes[0]&0x03)==0x1)
-        {
-            //未充电
-            bean.setChargingIndicator(1);
-        }else{
-            //充电中
-            bean.setChargingIndicator(2);
-        }
-
-        if((bytes[0]&0x0C)==0)
-        {
-            //不支持配对绑定
-            bean.setBindingIndicatorBit(0);
-        }else if((bytes[0]&0x0C) == 0x04)
-        {
-            //支持配对绑定
-            bean.setBindingIndicatorBit(1);
-        }else if((bytes[0]&0x0C) == 0x08)//15
-        {
-            //支持配对
-            bean.setBindingIndicatorBit(2);
-        }
-
-        if((bytes[0]&0xf0)==0x0)
-        {
-            //不支持二代指令协议
-            bean.setCommunicationProtocolVersion(1);
-        }else if((bytes[0]&0xf0)==0x10)
-        {
-            //支持二代指令协议
-            bean.setCommunicationProtocolVersion(2);
-        }
-        return bean;
-    }
-
-    public static boolean isNeedRing(byte[] scanRecord) {
-        byte[] bytes = ParseLeAdvData.adv_report_parse(ParseLeAdvData.BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, scanRecord);
-        if (bytes == null || bytes.length == 0) {
-            return false;
-        }
-        String hexString = ConvertUtils.bytes2HexString(bytes);
-        if (hexString.length() < 5) {
-            return false;
-        }
-        return "FF".equals(hexString.substring(2, 4));
-    }
-
-```
-ParseLeAdvData.java
-```java
-public class ParseLeAdvData {
-    private final static String TAG = "ParseLeAdvData";
-    //LE 广播包数据类型
-    public static final short BLE_GAP_AD_TYPE_FLAGS = 0x01;
-    /**
-     * < Flags for discoverability.
-     */
-    public static final short BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE = 0x02;
-    /**
-     * < Partial list of 16 bit service UUIDs.
-     */
-    public static final short BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_COMPLETE = 0x03;
-    /**
-     * < Complete list of 16 bit service UUIDs.
-     */
-    public static final short BLE_GAP_AD_TYPE_32BIT_SERVICE_UUID_MORE_AVAILABLE = 0x04;
-    /**
-     * < Partial list of 32 bit service UUIDs.
-     */
-    public static final short BLE_GAP_AD_TYPE_32BIT_SERVICE_UUID_COMPLETE = 0x05;
-    /**
-     * < Complete list of 32 bit service UUIDs.
-     */
-    public static final short BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE = 0x06;
-    /**
-     * < Partial list of 128 bit service UUIDs.
-     */
-    public static final short BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_COMPLETE = 0x07;
-    /**
-     * < Complete list of 128 bit service UUIDs.
-     */
-    public static final short BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME = 0x08;
-    /**
-     * < Short local device name.
-     */
-    public static final short BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME = 0x09;
-    /**
-     * < Complete local device name.
-     */
-    public static final short BLE_GAP_AD_TYPE_TX_POWER_LEVEL = 0x0A;
-    /**
-     * < Transmit power level.
-     */
-    public static final short BLE_GAP_AD_TYPE_CLASS_OF_DEVICE = 0x0D;
-    /**
-     * < Class of device.
-     */
-    public static final short BLE_GAP_AD_TYPE_SIMPLE_PAIRING_HASH_C = 0x0E;
-    /**
-     * < Simple Pairing Hash C.
-     */
-    public static final short BLE_GAP_AD_TYPE_SIMPLE_PAIRING_RANDOMIZER_R = 0x0F;
-    /**
-     * < Simple Pairing Randomizer R.
-     */
-    public static final short BLE_GAP_AD_TYPE_SECURITY_MANAGER_TK_VALUE = 0x10;
-    /**
-     * < Security Manager TK Value.
-     */
-    public static final short BLE_GAP_AD_TYPE_SECURITY_MANAGER_OOB_FLAGS = 0x11;
-    /**
-     * < Security Manager Out Of Band Flags.
-     */
-    public static final short BLE_GAP_AD_TYPE_SLAVE_CONNECTION_INTERVAL_RANGE = 0x12;
-    /**
-     * < Slave Connection Interval Range.
-     */
-    public static final short BLE_GAP_AD_TYPE_SOLICITED_SERVICE_UUIDS_16BIT = 0x14;
-    /**
-     * < List of 16-bit Service Solicitation UUIDs.
-     */
-    public static final short BLE_GAP_AD_TYPE_SOLICITED_SERVICE_UUIDS_128BIT = 0x15;
-    /**
-     * < List of 128-bit Service Solicitation UUIDs.
-     */
-    public static final short BLE_GAP_AD_TYPE_SERVICE_DATA = 0x16;
-    /**
-     * < Service Data.
-     */
-    public static final short BLE_GAP_AD_TYPE_PUBLIC_TARGET_ADDRESS = 0x17;
-    /**
-     * < Public Target Address.
-     */
-    public static final short BLE_GAP_AD_TYPE_RANDOM_TARGET_ADDRESS = 0x18;
-    /**
-     * < Random Target Address.
-     */
-    public static final short BLE_GAP_AD_TYPE_APPEARANCE = 0x19;
-    /**
-     * < Appearance.
-     */
-    public static final short BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA = 0xFF;
-
-    /**
-     * < Manufacturer Specific Data.
-     */
-    public ParseLeAdvData() {
-        Log.d(TAG, "ParseLeAdvData init....");
-    }
-
-    ///////解析广播数据/////////////////////////
-    public static final byte[] adv_report_parse(short type, byte[] adv_data) {
-        int index = 0;
-        int length;
-        byte[] data;
-        byte field_type = 0;
-        byte field_length = 0;
-        length = adv_data.length;
-        while (index < length) {
-            try {
-                field_length = adv_data[index];
-                field_type = adv_data[index + 1];
-            } catch (Exception e) {
-                Log.d(TAG, "There is a exception here.");
-                return null;
-            }
-            if (field_type == (byte) type) {
-                data = new byte[field_length - 1];
-                byte i;
-                for (i = 0; i < field_length - 1; i++) {
-                    data[i] = adv_data[index + 2 + i];
-                }
-                return data;
-            }
-            index += field_length + 1;
-            if (index >= adv_data.length) {
-                return null;
-            }
-        }
-        return null;
-    }
-}
-```
-ParsedAd.java和BleAdParse.java
-```java
-public class ParsedAd {
-    public byte flags;
-
-    public List<UUID> uuids = new ArrayList<>();
-
-    public String localName;
-
-    public String diyInfo;
-
-    public short manufacturer;
-}
-
-public class BleAdParse {
-    public static String byte2hex(byte[] b) {
-        StringBuilder hs = new StringBuilder();
-        String stmp;
-        for (int i = 0; i < b.length; i++) {
-            stmp = Integer.toHexString(b[i] & 0xFF).toUpperCase();
-            if (stmp.length() == 1) {
-                hs.append("0").append(stmp);
-            } else {
-                hs.append(stmp);
-            }
-        }
-        return hs.toString();
-    }
-
-
-    public static ParsedAd parseScanRecodeData(ParsedAd parsedAd ,byte[] adv_data) {
-        ByteBuffer buffer = ByteBuffer.wrap(adv_data).order(ByteOrder.LITTLE_ENDIAN);
-        while (buffer.remaining() > 2) {
-            byte length = buffer.get();
-            if (length == 0)
-                break;
-            if (length>buffer.remaining())
-                break;
-
-            byte type = buffer.get();
-            length -= 1;
-            switch (type) {
-                case 0x01: // Flags
-                    parsedAd.flags = buffer.get();
-                    length--;
-                    break;
-                case 0x02: // Partial list of 16-bit UUIDs
-                case 0x03: // Complete list of 16-bit UUIDs
-                case 0x14: // List of 16-bit Service Solicitation UUIDs
-                    while (length >= 2) {
-                        parsedAd.uuids.add(UUID.fromString(String.format("%08x-0000-1000-8000-00805f9b34fb", buffer.getShort())));
-                        length -= 2;
-                    }
-                    break;
-                case 0x04: // Partial list of 32 bit service UUIDs
-                case 0x05: // Complete list of 32 bit service UUIDs
-                    while (length >= 4) {
-                        parsedAd.uuids.add(UUID.fromString(String.format("%08x-0000-1000-8000-00805f9b34fb", buffer.getInt())));
-                        length -= 4;
-                    }
-                    break;
-                case 0x06: // Partial list of 128-bit UUIDs
-                case 0x07: // Complete list of 128-bit UUIDs
-                case 0x15: // List of 128-bit Service Solicitation UUIDs
-                    while (length >= 16) {
-                        long lsb = buffer.getLong();
-                        long msb = buffer.getLong();
-                        UUID uuid=new UUID(msb, lsb);
-                        parsedAd.uuids.add(uuid);
-                        length -= 16;
-                    }
-                    break;
-                case 0x08: // Short local device name
-                case 0x09: // Complete local device name
-                    byte sb[] = new byte[length];
-                    buffer.get(sb, 0, length);
-                    length = 0;
-                    parsedAd.localName = new String(sb).trim();
-                    break;
-                case (byte) 0xFF: // Manufacturer Specific Data
-                    byte sb2[] = new byte[length];
-                    buffer.get(sb2, 0, length);
-                    length = 0;
-                    parsedAd.diyInfo = byte2hex(sb2);;
-                    break;
-                default: // skip
-                    break;
-            }
-
-            if (length > 0) {
-                if ((buffer.position()+length)<buffer.capacity()){
-                    buffer.position(buffer.position() + length);
-                }else {
-                    buffer.position(buffer.capacity());
-                }
-            }
-        }
-        return parsedAd;
-    }
-}
 ```
 ##### 3.2.1 同步时间
 接口功能：调用此接口会获取手机当前时间同步给戒指。  
@@ -1225,65 +915,8 @@ BLEService.setCallback(new BluetoothConnectCallback() {
 ```
 需要注意rssi变化略微延迟，数字越大，信号越强，如 -52 > -60
 ##### 3.2.28 二代协议
-二代协议是一个协议，返回多个指令，大大加快了连接速度，二代协议只有支持的设备才能发送，判断设备是否支持的代码如下：
-```java
-    public static DeviceBean getInfoByByte(byte[] scanRecord) {
-        byte[] bytes = ParseLeAdvData.adv_report_parse(ParseLeAdvData.BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, scanRecord);
-        if (bytes == null || bytes.length == 0) {
-            return null;
-        }
+二代协议是一个协议，返回多个指令，大大加快了连接速度，二代协议只有支持的设备才能发送，判断设备是否支持参考(3.2.0 广播解析)：
 
-        String hexString = ConvertUtils.bytes2HexString(bytes);
-        if (hexString.length() < 5) {
-            return null;
-        }
-
-        DeviceBean bean = new DeviceBean(null, 0);
-     
-
-        if((bytes[0]&0x03)==0x1)//15
-        {
-            //未充电
-            bean.setChargingIndicator(1);
-        }else{
-            //充电中
-            bean.setChargingIndicator(2);
-        }
-
-        if((bytes[0]&0x0C)==0)//15
-        {
-            //不支持配对绑定
-            bean.setBindingIndicatorBit(0);
-        }else if((bytes[0]&0x0C) == 0x04)//15
-        {
-            //支持配对绑定
-            bean.setBindingIndicatorBit(1);
-        }else if((bytes[0]&0x0C) == 0x08)//15
-        {
-            //支持配对
-            bean.setBindingIndicatorBit(2);
-        }
-
-        if((bytes[0]&0xf0)==0x0)//15
-        {
-            //版本0
-            bean.setCommunicationProtocolVersion(1);
-        }else if((bytes[0]&0xf0)==0x10)//15
-        {
-            //版本1
-            bean.setCommunicationProtocolVersion(2);
-        }
-
-        return bean;
-    }
-```
-在获取蓝牙广播的回调方法里调用：
-```java
-private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
-
-        @Override
-        public void onLeScan(BluetoothDevice device, int rssi, byte[] bytes) {
-```
 绑定指令:（绑定指令是在设备绑定后调用，是复合操作，戒指收到这条指令执行，恢复出厂设置（清空历史记录，清除步数)，同步时间，HID功能获取。）
 ```java
     LmAPI.APP_BIND();
@@ -1341,9 +974,21 @@ public class SystemControlBean {
     private int stepCounting;//当前计步
     private int keyTest;//自检标识
 ```
+##### 3.2.29 心电图
+心电图功能只支持心电戒指，可以通过BLEUtils.isSupportElectrocardiogram()判断是否支持,可以通过
+```java
+LogicalApi.startECGActivity(TestActivity2.this);
+```
+查看心电图样例，可以直接使用，如需定制化，可以参考项目中的(SourceCode/心电图相关)
 
+对应的指令是：
+```java
+ LmAPI.STAR_ELEC()//开启心电测量
+LmAPI.STOP_ELECTROCARDIOGRAM();//结束心电测量
+```
 
 #### 3.3 固件升级（OTA）
+**注：目前不建议使用，可以参考四、升级服务里的OTA升级**
 ![alt text](image/f66e099fc52821fbc43ecd7803e0633.png)
 **注：这是phyOTA流程，其它芯片使用官方库**
 [Nordic Android库链接](https://github.com/NordicSemiconductor/Android-DFU-Library)
@@ -1417,7 +1062,7 @@ List<HistoryDataBean> queryHistoryDataOrderByTimeAsc(long dayBeginTime,long d
 //查询历史数据按照步数进行倒叙
 List<HistoryDataBean> queryHistoryDataOrderByStepCountDesc(long dayBeginTime,long dayEndTime,String mac)
 ```
-**注意事项：计算睡眠时间的接口需要先调用查询历史数据**  
+**注意事项：计算睡眠时间的接口需要先调用查询历史数据（睡眠时间建议使用升级服务，参照：四、升级服务）**  
 参数说明：dayBeginTime ：开始时间戳，单位：秒  
 dayEndTime ：结束时间戳，单位：秒  
 mac ：设备的MAC地址  
@@ -1577,7 +1222,167 @@ public class HistoryDataBean{
     private byte[] rrBytes;
  }
 ```
-## 四、其他
+## 四、升级服务
+### 1、服务介绍
+为了进一步简化用户对接流程，提高算法质量，共享固件资源，将公版app所用的服务进行共享，仅需要3个步骤，就可以使用升级服务
+### 1、申请key
+合作方可以联系我们，提供贵公司的名称，我们分配调用服务的key
+### 2、申请token
+根据key，和使用sdk的用户的手机号或者邮箱，就可以申请token，token会自动保存在本地，不需要用户保存
+使用服务之前，需要在 Application的onCreate()方法里LmLibrary.init(this);参照(三、2.初始化库)
+```java
+ LoginByCompany loginByCompany=new LoginByCompany();
+        loginByCompany.setApiKey(key);
+        loginByCompany.setUsername(phone/email);
+        LogicalApi.createToken(loginByCompany, new ICreateToken() {
+            @Override
+            public void getTokenSuccess() {
+
+            }
+
+            @Override
+            public void error(String msg) {
+
+            }
+        });
+```
+### 3、调用服务
+根据token，调用服务，目前提供获取用户睡眠数据的服务，ota升级服务
+### 4、支持的服务
+##### 1、睡眠数据
+可以根据开始时间和结束时间，获取当前用户的睡眠数据，系统根据历史数据，自动区分一代睡眠和二代睡眠，调用该服务的前提，是需要在获取戒指历史数据的时候，将历史数据上传，否则无法计算
+```java
+   //如需使用更精准的睡眠算法，获取戒指历史数据时，请调用该指令(LmAPI.READ_HISTORY不支持上传服务器操作)
+   LmAPI.READ_HISTORY_UPDATE_TO_SERVER((byte) 0x01,  mac, new IHistoryListener() {
+                    @Override
+                    public void error(int code) {
+                        if (code == 3) {
+                            postView("\n出现了BIX的问题");
+                        }
+                        setMessage(TestActivity.this, "\n出现了BIX的问题");
+                    }
+
+                    @Override
+                    public void success() {
+                        postView("\n读取记录完成");
+
+                    }
+
+                    @Override
+                    public void progress(double progress, HistoryDataBean historyDataBean) {
+                        if (historyDataBean != null) {
+                            postView("\n读取记录进度:" + progress + "%");
+                            postView("\n记录内容:" + historyDataBean.toString());
+                        }
+
+                    }
+                }, new IWebHistoryResult() {
+                    @Override
+                    public void updateHistoryFinish() {
+                        postView("\n历史数据上传服务器完成");
+                    }
+                });
+```
+获取睡眠数据
+```java
+                postView("\n从云端计算睡眠");
+                String dateTimeString = "2025-02-12 23:59:59";
+                /**
+                 * 需要在application里调用 LmLibrary.init(this);初始化一下
+                 */
+
+                LogicalApi.getSleepDataFromService( dateTimeString, new IWebSleepResult() {
+                    @Override
+                    public void sleepDataSuccess(Sleep2thBean sleep2thBean) {
+                        // 定义日期时间格式
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        // 将时间戳转换为 Date 对象
+                        Date startDate = new Date(sleep2thBean.getStartTime()*1000);
+                        // 将时间戳转换为 Date 对象
+                        Date endDate = new Date(sleep2thBean.getEndTime()*1000);
+                        postView("\n入睡时间:" + sdf.format(startDate)+"\n清醒时间:" +sdf.format(endDate)+"\n睡眠小时:" + sleep2thBean.getHours()+"\n睡眠分钟:" + sleep2thBean.getMinutes() );
+
+                    }
+
+                    @Override
+                    public void error(String message) {
+
+                    }
+
+                });
+```
+##### 2、ota升级
+该服务支持从云端拉取最新的固件，根据不用的戒指，自动使用phyOTA升级，阿波罗升级，dfu升级，不需要用户干预，只需要调用简单接口即可，需保证与戒指处于连接状态,建议rssi <= -71(参考3.2.27 获取RSSI)并且电量>50 ，目前提供三个接口，根据不同情况调用
+OtaApi.otaUpdateWithCheckVersion 该接口包含了检查版本号version(调用 LmAPI.GET_VERSION((byte) 0x00)获取)，从云端拉取最新固件，自动升级功能
+```java
+OtaApi.otaUpdateWithCheckVersion(version, TestActivity.this, App.getInstance().getDeviceBean().getDevice(), App.getInstance().getDeviceBean().getRssi(), new LmOtaProgressListener() {
+                    @Override
+                    public void error(String message) {
+                        postView("\nota升级出错："+message);
+                    }
+
+                    @Override
+                    public void onProgress(int i) {
+                      //  postView("\nota升级进度:"+i);
+                        Logger.show("OTA","OTA升级"+i);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        postView("\nota升级结束");
+                        OtaApi.destoryOta(TestActivity.this);
+                    }
+
+                    @Override
+                    public void isLatestVersion() {
+                        postView("\n已是最新版本");
+                    }
+                });
+```
+OtaApi.checkCurrentVersionNeedUpdate，检查当前硬件版本是否需要更新，用于在页面上需要显示更新信息的需求
+```java
+   OtaApi.checkCurrentVersionNeedUpdate(version, TestActivity.this, new ICheckOtaVersion() {
+                    @Override
+                    public void checkVersionResult(boolean needUpdate) {
+                        
+                    }
+                });
+```
+OtaApi.checkCurrentVersionNeedUpdate，检查当前硬件版本是否需要更新，用于在页面上需要显示更新信息的需求
+```java
+   OtaApi.checkCurrentVersionNeedUpdate(version, TestActivity.this, new ICheckOtaVersion() {
+                    @Override
+                    public void checkVersionResult(boolean needUpdate) {
+                        
+                    }
+                });
+```
+OtaApi.otaUpdateWithVersion是在调用OtaApi.checkCurrentVersionNeedUpdate后，需要更新固件时调用，去掉了检查是否更新的步骤
+```java
+ OtaApi.otaUpdateWithVersion(version, App.getInstance().getDeviceBean().getDevice(), App.getInstance().getDeviceBean().getRssi(), new LmOtaProgressListener() {
+                    @Override
+                    public void error(String message) {
+                        
+                    }
+
+                    @Override
+                    public void onProgress(int i) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+
+                    @Override
+                    public void isLatestVersion() {
+
+                    }
+                });
+```
+
+## 五、其他
 **注：使用戒指API前，应先查看戒指状态**
 ### 1、筛选相关
 血氧戒指设备以XXXXXX的名字进行广播。XXX为任何字符，广播间隔为500ms。本例中XXX为BCL603。  
