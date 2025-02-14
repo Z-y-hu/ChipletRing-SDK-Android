@@ -159,7 +159,6 @@ ChipletRing公版APP已经在应用宝上架，此版本将sdk指令完整集成
 ```java
 LmAPI.init(this);
 LmAPI.setDebug(true);
-LmLibrary.init(this);
 ```
 2.在BaseActivity类中启用监听，该监听用于监听蓝牙连接状态和戒指的应答
 **注：若重复调用监听LmAPI.addWLSCmdListener(this, this)会出现重复现象**
@@ -1234,7 +1233,6 @@ public class HistoryDataBean{
 合作方可以联系我们，提供贵公司的名称，我们分配调用服务的key
 ### 2、申请token
 根据key，和使用sdk的用户的手机号或者邮箱，就可以申请token，token会自动保存在本地，不需要用户保存
-使用服务之前，需要在 Application的onCreate()方法里LmLibrary.init(this);参照(三、2.初始化库)
 ```java
  LoginByCompany loginByCompany=new LoginByCompany();
         loginByCompany.setApiKey(key);
@@ -1292,9 +1290,6 @@ public class HistoryDataBean{
 ```java
                 postView("\n从云端计算睡眠");
                 String dateTimeString = "2025-02-12 23:59:59";
-                /**
-                 * 需要在application里调用 LmLibrary.init(this);初始化一下
-                 */
 
                 LogicalApi.getSleepDataFromService( dateTimeString, new IWebSleepResult() {
                     @Override
