@@ -1234,10 +1234,7 @@ public class HistoryDataBean{
 ### 2、申请token
 根据key，和使用sdk的用户的手机号或者邮箱，就可以申请token，token会自动保存在本地，不需要用户保存
 ```java
- LoginByCompany loginByCompany=new LoginByCompany();
-        loginByCompany.setApiKey(key);
-        loginByCompany.setUsername(phone/email);
-        LogicalApi.createToken(loginByCompany, new ICreateToken() {
+ LogicalApi.createToken("","", new ICreateToken() {
             @Override
             public void getTokenSuccess() {
 
