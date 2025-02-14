@@ -94,15 +94,15 @@
 <td align="left"></td>
 </tr>
 <tr>
-<td align="left">心电图</td>
+<th align="left">心电图</th>
 <td align="left"></td>
 </tr>
 <tr>
-<td align="left">OTA升级</td>
+<th align="left">OTA升级</th>
 <td align="left"></td>
 </tr>
  <tr>
-<td align="left">升级服务</td>
+<th align="left">升级服务</th>
 <td align="left"></td>
 </tr>
 <tr>
