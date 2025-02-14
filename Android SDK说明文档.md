@@ -29,7 +29,7 @@
 <td align="left"></td>
 </tr>
 <tr>
-<th align="left" rowspan="15" nowrap="nowrap">戒指通讯协议</th>
+<th align="left" rowspan="16" nowrap="nowrap">戒指通讯协议</th>
 <td align="left">时间管理</td>
 <td align="left"></td>
 </tr>
@@ -99,6 +99,10 @@
 </tr>
 <tr>
 <td align="left">OTA升级</td>
+<td align="left"></td>
+</tr>
+ <tr>
+<td align="left">升级服务</td>
 <td align="left"></td>
 </tr>
 <tr>
@@ -1062,7 +1066,7 @@ List<HistoryDataBean> queryHistoryDataOrderByTimeAsc(long dayBeginTime,long d
 //查询历史数据按照步数进行倒叙
 List<HistoryDataBean> queryHistoryDataOrderByStepCountDesc(long dayBeginTime,long dayEndTime,String mac)
 ```
-**注意事项：计算睡眠时间的接口需要先调用查询历史数据（睡眠时间建议使用升级服务，参照：四、升级服务）**  
+**注意事项：计算睡眠时间的接口需要先调用查询历史数据**  
 参数说明：dayBeginTime ：开始时间戳，单位：秒  
 dayEndTime ：结束时间戳，单位：秒  
 mac ：设备的MAC地址  
@@ -1139,6 +1143,7 @@ public class DistanceCaloriesBean {
 }
 ```
 ##### 3.5.2 计算睡眠数据
+**注：建议使用四、升级服务中的睡眠数据**
 接口功能：计算指定时间睡眠数据。  
 接口声明：
 ```java
@@ -1336,15 +1341,6 @@ OtaApi.otaUpdateWithCheckVersion(version, TestActivity.this, App.getInstance().g
                     @Override
                     public void isLatestVersion() {
                         postView("\n已是最新版本");
-                    }
-                });
-```
-OtaApi.checkCurrentVersionNeedUpdate，检查当前硬件版本是否需要更新，用于在页面上需要显示更新信息的需求
-```java
-   OtaApi.checkCurrentVersionNeedUpdate(version, TestActivity.this, new ICheckOtaVersion() {
-                    @Override
-                    public void checkVersionResult(boolean needUpdate) {
-                        
                     }
                 });
 ```
