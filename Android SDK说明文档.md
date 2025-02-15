@@ -154,6 +154,16 @@ ChipletRing公版APP已经在应用宝上架，此版本将sdk指令完整集成
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
+3.目前只提供离线sdk，所以需要用户手动添加一些依赖，后期会做优化
+```java
+ implementation('androidx.core:core:1.9.0'){
+        exclude group: 'com.android.support', module: 'support-v4'
+    }
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    api 'org.ligboy.retrofit2:converter-fastjson-android:2.1.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.3.0'
+```
 ### 2.初始化库
 1.在Application的onCreate方法中进行初始化
 ```java
