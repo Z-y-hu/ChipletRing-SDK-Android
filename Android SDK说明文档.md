@@ -1310,7 +1310,7 @@ public class HistoryDataBean{
 ```
 ##### 2、ota升级
 该服务支持从云端拉取最新的固件，根据不用的戒指，自动使用phyOTA升级，阿波罗升级，dfu升级，不需要用户干预，只需要调用简单接口即可，需保证与戒指处于连接状态,建议rssi <= -71(参考3.2.27 获取RSSI)并且电量>50 ，目前提供三个接口，根据不同情况调用
-OtaApi.otaUpdateWithCheckVersion 该接口包含了检查版本号version(调用 LmAPI.GET_VERSION((byte) 0x00)获取)，从云端拉取最新固件，自动升级功能
+OtaApi.otaUpdateWithCheckVersion 该接口包含了检查版本号version(调用 LmAPI.GET_VERSION((byte) 0x00)获取)，从云端拉取最新固件，自动升级功能，ota升级完成以后，要延时3s重连一下戒指
 ```java
 OtaApi.otaUpdateWithCheckVersion(version, TestActivity.this, App.getInstance().getDeviceBean().getDevice(), App.getInstance().getDeviceBean().getRssi(), new LmOtaProgressListener() {
                     @Override
