@@ -154,7 +154,7 @@ ChipletRing公版APP已经在应用宝上架，此版本将sdk指令完整集成
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
-3.目前只提供离线sdk，所以需要用户手动添加一些依赖，后期会做优化
+3.目前只提供离线sdk，所以需要用户手动添加一些依赖，后期会做优化，版本号可以使用自己工程里的
 ```java
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'org.greenrobot:greendao:3.3.0'
