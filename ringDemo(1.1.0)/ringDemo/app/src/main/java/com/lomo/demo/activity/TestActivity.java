@@ -26,6 +26,7 @@ import com.lm.sdk.LmAPI;
 import com.lm.sdk.LogicalApi;
 import com.lm.sdk.OtaApi;
 import com.lm.sdk.inter.BluetoothConnectCallback;
+import com.lm.sdk.inter.ICreateToken;
 import com.lm.sdk.inter.IHeartListener;
 import com.lm.sdk.inter.IHistoryListener;
 import com.lm.sdk.inter.IQ2Listener;
@@ -114,13 +115,14 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
              bluetoothDevice = deviceBean.getDevice();
             mac = bluetoothDevice.getAddress();
             DeviceBean bean = DeviceManager.deviceMap.get(mac);
-            String hidDevice=bean.getHidDevice();
-            if(hidDevice == "0" || hidDevice == null){
-                BLEUtils.isHIDDevice = false;
-            }else{
-                BLEUtils.isHIDDevice = true;
-            }
+//            String hidDevice=bean.getHidDevice();
+//            if(hidDevice == "0" || hidDevice == null){
+//                BLEUtils.isHIDDevice = false;
+//            }else{
+//                BLEUtils.isHIDDevice = true;
+//            }
 //            assert deviceBean != null;
+            App.getInstance().setDeviceBean(deviceBean);
                BLEUtils.connectLockByBLE(this, deviceBean.getDevice());
 //            connect(mac);
         } else {
@@ -128,6 +130,17 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
             finish();
         }
 
+        LogicalApi.createToken("76d07e37bfe341b1a25c76c0e25f457a","1204491582@qq.com", new ICreateToken() {
+            @Override
+            public void getTokenSuccess() {
+
+            }
+
+            @Override
+            public void error(String msg) {
+
+            }
+        });
     }
 
 

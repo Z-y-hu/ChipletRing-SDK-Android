@@ -22,6 +22,8 @@ import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 import com.lm.sdk.BLEService;
 import com.lm.sdk.LmAPI;
+import com.lm.sdk.LogicalApi;
+import com.lm.sdk.mode.BleDeviceInfo;
 import com.lm.sdk.utils.BLEUtils;
 import com.lm.sdk.utils.StringUtils;
 import com.lm.sdk.utils.UtilSharedPreference;
@@ -202,22 +204,21 @@ public class MainActivity extends BaseActivity {
             if (device == null || TextUtils.isEmpty(device.getName())) {
                 return;
             }
-            ParsedAd parsedAd=new ParsedAd();
-            ParsedAd parsedAd1 = BleAdParse.parseScanRecodeData(parsedAd, bytes);
-            List<UUID> uuids = parsedAd1.uuids;
-            //  Log.e("xxxxx","deviceName  "+ device.getName()+"uuid  "+ uuids.toString());
-            boolean isHIDDevice = false;
-            for (UUID uuid : uuids) {
-                if (uuid.toString().contains("1812")) {//UUID包含1812是HID模式，走强连接模式
-                    isHIDDevice = true;
-                    break;
-                }
+            //是否符合条件，符合条件，会返回戒指设备信息
+            BleDeviceInfo bleDeviceInfo = LogicalApi.getBleDeviceInfoWhenBleScan(device, rssi, bytes);
+            if(bleDeviceInfo==null){
+                return;
             }
-
-            DeviceBean bean = new DeviceBean(device, rssi);
-              bean.setHidDevice(isHIDDevice ? "1" : "0");
+            DeviceBean deviceBean=new DeviceBean(device,rssi);
+            deviceBean.setDevice(bleDeviceInfo.getDevice());
+            deviceBean.setHidDevice(bleDeviceInfo.getHidDevice());
+            deviceBean.setRssi(bleDeviceInfo.getRssi());
+            deviceBean.setBindingIndicatorBit(bleDeviceInfo.getBindingIndicatorBit());
+            deviceBean.setChargingIndicator(bleDeviceInfo.getChargingIndicator());
+            deviceBean.setCommunicationProtocolVersion(bleDeviceInfo.getCommunicationProtocolVersion());
+            deviceBean.setSystemBind(bleDeviceInfo.isSystemBind());
             // 存储到集合中，使用设备的 MAC 地址作为键
-            DeviceManager.deviceMap.put(device.getAddress(), bean);
+            DeviceManager.deviceMap.put(device.getAddress(), deviceBean);
 
             if (macList.contains(device.getAddress())) {
                 return;

@@ -18,9 +18,16 @@ import com.lm.sdk.AdPcmTool;
 import com.lm.sdk.BLEService;
 import com.lm.sdk.LmAPI;
 import com.lm.sdk.LogicalApi;
+import com.lm.sdk.OtaApi;
 import com.lm.sdk.inter.IHeartListener;
+import com.lm.sdk.inter.IHistoryListener;
 import com.lm.sdk.inter.IResponseListener;
 import com.lm.sdk.inter.ITempListener;
+import com.lm.sdk.inter.IWebHistoryResult;
+import com.lm.sdk.inter.IWebSleepResult;
+import com.lm.sdk.inter.LmOtaProgressListener;
+import com.lm.sdk.mode.HistoryDataBean;
+import com.lm.sdk.mode.Sleep2thBean;
 import com.lm.sdk.mode.SleepBean;
 import com.lm.sdk.mode.SystemControlBean;
 import com.lm.sdk.utils.BLEUtils;
@@ -30,10 +37,12 @@ import com.lomo.demo.R;
 import com.lomo.demo.application.App;
 import com.lomo.demo.base.BaseActivity;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Date;
 
 public class TestActivity2 extends BaseActivity implements IResponseListener, View.OnClickListener {
 
@@ -62,6 +71,11 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
         findViewById(R.id.bt_app_bind).setOnClickListener(this);
         findViewById(R.id.bt_connect).setOnClickListener(this);
         findViewById(R.id.bt_refresh).setOnClickListener(this);
+        findViewById(R.id.bt_ecg_demo).setOnClickListener(this);
+        findViewById(R.id.bt_sleep_sevice).setOnClickListener(this);
+        findViewById(R.id.btn_upload_history).setOnClickListener(this);
+        findViewById(R.id.btn_ota).setOnClickListener(this);
+
     }
 
     @Override
@@ -487,6 +501,125 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
                 Logger.show("shuju","零星睡眠小时:："+ sleepBean.getHours() );
                 Logger.show("shuju","零星睡眠分钟："+ sleepBean.getMinutes() );
                 postView("\nsleepBean深睡:" + sleepBean.getHighTime() +" \n浅睡："+ sleepBean.getLowTime() +" \n清醒："+ sleepBean.getQxTime() +" \n眼动："+ sleepBean.getYdTime());
+
+                break;
+            case R.id.bt_ecg_demo:
+                LogicalApi.startECGActivity(TestActivity2.this);
+                break;
+            case R.id.bt_sleep_sevice:
+                String dateTimeString = "2025-02-15 23:59:59";
+                LogicalApi.getSleepDataFromService( dateTimeString, new IWebSleepResult() {
+                    @Override
+                    public void sleepDataSuccess(Sleep2thBean sleep2thBean) {
+                        // 定义日期时间格式
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        // 将时间戳转换为 Date 对象
+                        Date startDate = new Date(sleep2thBean.getStartTime()*1000);
+                        // 将时间戳转换为 Date 对象
+                        Date endDate = new Date(sleep2thBean.getEndTime()*1000);
+                        postView("\n入睡时间:" + sdf.format(startDate)+"\n清醒时间:" +sdf.format(endDate)+"\n睡眠小时:" + sleep2thBean.getHours()+"\n睡眠分钟:" + sleep2thBean.getMinutes() );
+
+                    }
+
+                    @Override
+                    public void error(String message) {
+
+                    }
+
+                });
+                break;
+            case R.id.btn_upload_history:
+                LmAPI.READ_HISTORY_UPDATE_TO_SERVER((byte) 0x01,  mac, new IHistoryListener() {
+                    @Override
+                    public void error(int code) {
+                        if (code == 3) {
+                            postView("\n出现了BIX的问题");
+                        }
+                    }
+
+                    @Override
+                    public void success() {
+                        postView("\n读取记录完成");
+
+                    }
+
+                    @Override
+                    public void progress(double progress, HistoryDataBean historyDataBean) {
+                        if (historyDataBean != null) {
+                            postView("\n读取记录进度:" + progress + "%");
+                            postView("\n记录内容:" + historyDataBean.toString());
+                        }
+
+                    }
+                }, new IWebHistoryResult() {
+                    @Override
+                    public void updateHistoryFinish() {
+                        postView("\n历史数据上传服务器完成");
+                    }
+                });
+
+                break;
+            case R.id.btn_ota:
+                //提供给第三方使用的ota升级，已包含检查当前版本号是否需要更新
+                OtaApi.otaUpdateWithCheckVersion("7.1.1.6Z3A", TestActivity2.this, App.getInstance().getDeviceBean().getDevice(), App.getInstance().getDeviceBean().getRssi(), new LmOtaProgressListener() {
+                    @Override
+                    public void error(String message) {
+                        postView("\nota升级出错："+message);
+                    }
+
+                    @Override
+                    public void onProgress(int i) {
+                        //  postView("\nota升级进度:"+i);
+                        Logger.show("OTA","OTA升级"+i);
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                      //  postView("\nota升级结束");
+                        Logger.show("OTA","nota升级结束");
+                        OtaApi.destoryOta(TestActivity2.this);
+                        //需要延时调用蓝牙重连
+//                        BLEUtils.disconnectBLE(TestActivity2.this);
+//                        BLEUtils.connectLockByBLE(TestActivity2.this,App.getInstance().getDeviceBean().getDevice());
+
+
+                    }
+
+                    @Override
+                    public void isLatestVersion() {
+                        postView("\n已是最新版本");
+                    }
+                });
+//                //检查当前硬件版本是否需要更新，用于第三方公司，页面上显示更新信息
+//                OtaApi.checkCurrentVersionNeedUpdate("", TestActivity.this, new ICheckOtaVersion() {
+//                    @Override
+//                    public void checkVersionResult(boolean needUpdate) {
+//
+//                    }
+//                });
+                //
+//                OtaApi.otaUpdateWithVersion("", App.getInstance().getDeviceBean().getDevice(), App.getInstance().getDeviceBean().getRssi(), new LmOtaProgressListener() {
+//                    @Override
+//                    public void error(String message) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onProgress(int i) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//
+//                    }
+//
+//                    @Override
+//                    public void isLatestVersion() {
+//
+//                    }
+//                });
 
                 break;
 

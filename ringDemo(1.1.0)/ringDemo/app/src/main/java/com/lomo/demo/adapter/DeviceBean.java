@@ -17,6 +17,10 @@ public class DeviceBean implements Parcelable {
     private BluetoothDevice device;
     private int rssi = 0;
     private String hidDevice;
+    private int chargingIndicator;//充电指示位
+    private int bindingIndicatorBit;//绑定指示位
+    private int communicationProtocolVersion;//通讯协议版本号
+    private boolean systemBind;//是否系统已绑定
     public DeviceBean(BluetoothDevice device, int rssi) {
         this.device = device;
         this.rssi = rssi;
@@ -38,6 +42,30 @@ public class DeviceBean implements Parcelable {
             return new DeviceBean[size];
         }
     };
+
+    public int getChargingIndicator() {
+        return chargingIndicator;
+    }
+
+    public void setChargingIndicator(int chargingIndicator) {
+        this.chargingIndicator = chargingIndicator;
+    }
+
+    public int getBindingIndicatorBit() {
+        return bindingIndicatorBit;
+    }
+
+    public void setBindingIndicatorBit(int bindingIndicatorBit) {
+        this.bindingIndicatorBit = bindingIndicatorBit;
+    }
+
+    public int getCommunicationProtocolVersion() {
+        return communicationProtocolVersion;
+    }
+
+    public void setCommunicationProtocolVersion(int communicationProtocolVersion) {
+        this.communicationProtocolVersion = communicationProtocolVersion;
+    }
 
     public BluetoothDevice getDevice() {
         return device;
@@ -67,5 +95,25 @@ public class DeviceBean implements Parcelable {
     public void writeToParcel(@NonNull Parcel parcel, int i) {
         parcel.writeParcelable(device, i);
         parcel.writeInt(rssi);
+    }
+
+    public boolean isSystemBind() {
+        return systemBind;
+    }
+
+    public void setSystemBind(boolean systemBind) {
+        this.systemBind = systemBind;
+    }
+
+    @Override
+    public String toString() {
+        return "DeviceBean{" +
+                "device=" + device +
+                ", rssi=" + rssi +
+                ", hidDevice='" + hidDevice + '\'' +
+                ", chargingIndicator=" + chargingIndicator +
+                ", bindingIndicatorBit=" + bindingIndicatorBit +
+                ", communicationProtocolVersion=" + communicationProtocolVersion +
+                '}';
     }
 }
