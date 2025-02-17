@@ -284,7 +284,7 @@ BLEUtils.disconnectBLE(Context context);
 参数说明：mac：戒指mac地址   
 返回值：无    
 #### 3.2 通讯协议
-此类是使用戒指功能的公共类，戒指的功能通过该类直接调用即可,数据反馈除了特殊说明外 统一由IResponseListener接口反馈。
+此类是使用戒指功能的公共类，戒指的功能通过该类直接调用即可,数据反馈除了特殊说明外 统一由IResponseListener接口反馈。(1.0.35版本后新增简化版本，入参和返回都做了封装，不再使用byte类型，通过LmAPILite调用，并且将指令返回接口按照功能分成多个小接口，职责更清晰，回调更少)
 调用此类的接口 ，需保证与戒指处于连接状态  
 ##### 3.2.0 广播解析
 sdk封装根据蓝牙扫描广播，获取是否符合条件的戒指，并返回该戒指的设备信息的方法LogicalApi.getBleDeviceInfoWhenBleScan，设备信息包括是否HID戒指(hidDevice:1是0非，兼容老版本戒指)，是否支持二代协议(communicationProtocolVersion:1不支持2支持)，是否支持绑定(bindingIndicatorBit,0不支持绑定、配对(仅软连接) 1绑定和配对 2仅支持配对)，充电指示位(chargingIndicator,1代表未充电 2代表充电中)
@@ -335,6 +335,16 @@ LmAPI.READ_TIME();
 | datum    | byte   | 0或1                                                | 0代表同步成功 1代表读取时间                            |
 | time     | byte[] | [48, -23, -1, 83, -111, 1, 0, 0, 8] = 1723691166000 | 读取时间成功，需转化为时间戳(小端模式，最后一位为时区) |
 
+简化版本
+```java
+public static void SYNC_TIME(ISyncTimeListenerLite listenerLite)
+
+public interface ISyncTimeListenerLite {
+
+    void syncTime(boolean updateTime,long timeStamp);
+}
+```
+
 ##### 3.2.3 版本信息
 接口功能：版本信息 ，获取戒指的版本信息。  
 接口声明：
@@ -350,6 +360,17 @@ LmAPI.GET_VERSION((byte) 0x00);  //0x00获取软件版本，0x01获取硬件�
 | -------- | ------ | ------- | ------------------------------- |
 | type     | byte   | 0或1    | 0代表软件版本号 1代表硬件版本号 |
 | version  | String | 1.0.0.1 | 版本号                          |
+
+简化版本
+```java
+public static void GET_VERSION(boolean softVersion,IVersionListenerLite listenerLite)
+
+public interface IVersionListenerLite {
+    void versionResult( String softwareVersion,String hardwareVersion);
+}
+
+```
+
 ##### 3.2.4 电池电量
 接口功能：获取电池电量、 电池状态。  
 接口声明：
@@ -366,6 +387,22 @@ LmAPI.GET_BATTERY((byte) 0x00);  //0x00获取电量，0x01获取充电状态
 | status   | byte | 0或1   | 0代表电池电量 1代表充电状态 |
 | datum    | byte | 0-100  | 电量                        |
 | datum    | byte | 1 | 0未充电 1充电中 2充满        |
+
+简化版本
+```java
+//type 电池类型，0读取电量(充电中和充电完成，电量无效) 1充电状态，电量无效
+static void GET_BATTERY(int type, IBatteryListenerLite listenerLite)
+
+public interface IBatteryListenerLite {
+    /**
+     * 电量
+     * @param chargingStatus 充电状态
+     * @param electricity 电量百分比
+     */
+    void battery(String chargingStatus, int electricity);
+}
+```
+
 ##### 3.2.5 读取步数
 接口功能：获取当天累计步数。  
 接口声明：
@@ -380,6 +417,26 @@ LmAPI.STEP_COUNTING（）
 | 参数名称 | 类型   | 示例值 | 说明                                  |
 | -------- | ------ | ------ | ------------------------------------- |
 | bytes    | byte[] | 3303   | 步数819(小端模式，由0333转10进制得到) |
+
+简化版本
+```java
+public static void STEP_COUNTING(IStepListenerLite listenerLite)
+
+public interface IStepListenerLite {
+    /**
+     * 计步
+     *
+     * @param steps 步数
+     */
+    void stepCount(int steps);
+
+    /**
+     * 清除步数
+     * @param
+     */
+    void clearStepCount();
+}
+```
 ##### 3.2.6 清除步数
 接口功能：清除步数。  
 接口声明：
@@ -394,6 +451,11 @@ LmAPI.CLEAR_COUNTING（）
 | 参数名称 | 类型   | 示例值 | 说明                                  |
 | -------- | ------ | ------ | ------------------------------------- |
 | byte    | data | 1   | 返回1代表清除步数成功 |
+
+简化版本
+```java
+ public static void CLEAR_COUNTING(IStepListenerLite listenerLite)
+```
 ##### 3.2.7 恢复出厂设置
 接口功能：恢复出厂设置  
 接口声明：
@@ -402,6 +464,51 @@ LmAPI.RESET（）
 ```
 参数说明：无  
 返回值：无 ，有回调reset方法即认为成功
+简化版本
+```java
+ public static void RESET(ISystemControlListenerLite listenerLite)
+
+public interface ISystemControlListenerLite {
+    /**
+     * 恢复出厂设置
+     */
+    void reset();
+
+    /**
+     * 设置采集周期
+     */
+    void setCollection(boolean success);
+
+    /**
+     * 获取采集周期
+     */
+    void getCollection(int data);
+
+    /**
+     * 获取序列号
+     * @param serial
+     */
+    void getSerialNum(String serial);
+
+    /**
+     * 设置序列号
+
+     */
+    void setSerialNum(boolean success);
+
+    /**
+     * 设置蓝牙名称
+     */
+    void setBlueToolName(boolean success);
+
+    /**
+     * 读取蓝牙名称
+     * @param len 蓝牙名称长度
+     * @param name 蓝牙名称
+     */
+    void readBlueToolName(int len,String name);
+}
+```
 ##### 3.2.8 采集周期设置
 接口功能：采集周期设置  
 接口声明：
@@ -417,6 +524,12 @@ LmAPI.SET_COLLECTION（collection）//采集周期，单位秒
 | 参数名称 | 类型   | 示例值   | 说明                        |
 | -------- | ------ | -------- | --------------------------- |
 | result   | byte   | 0，1     | 设置采集周期失败 1代表0代表设置采集周期成功 |
+
+简化版本
+```java
+  public static void SET_COLLECTION(int parseInt,ISystemControlListenerLite listenerLite) 
+```
+
 ##### 3.2.9 采集周期读取
 接口功能：采集周期读取  
 接口声明：
@@ -432,6 +545,11 @@ LmAPI.GET_COLLECTION（）//采集周期，单位秒
 | 参数名称 | 类型   | 示例值   | 说明                            |
 | -------- | ------ | -------- | ------------------------------- |
 | bytes    | byte[] | b0040000 | 采集时间间隔 ，单位秒 如：1200s |
+
+简化版本
+```java
+   public static void GET_COLLECTION(ISystemControlListenerLite listenerLite) 
+```
 
 **注：无特殊标记的情况下，本SDK中返回的值皆为小端模式，demo中提供bytes转int的方法**
 ##### 3.2.10 测量心率
@@ -485,6 +603,23 @@ iHeartListener:  此接口是测量数据的监听
      }
  });
 ```
+简化版本
+```java
+   public static void GET_HEART_ROTA(int waveForm,int acqTime,IHeartListenerLite listenerLite)
+
+   public interface IHeartListenerLite {
+      void progress(int progress);
+      void resultData(int heart,int heartRota,int yaLi,int temp);
+      void waveformData(int serialNumber,int numberOfData,String waveData);
+      void rriData(byte seq,byte number,String data);
+      void error(int code,String message);
+      void success();
+      void stopHeart();
+ }
+
+
+
+```
 ##### 3.2.11 测量血氧
 接口功能：测量血氧。  
 接口声明：
@@ -531,6 +666,20 @@ LmAPI.GET_HEART_Q2(new IQ2Listener() {
     }
 });
 ```
+简化版本
+```java
+   public static void GET_HEART_Q2(byte waveForm,IBloodOxygenListenerLite listenerLite)
+
+   public interface IBloodOxygenListenerLite {
+       void progress(int progress);
+       void resultData(int heartRate,int bloodOxygen,int temperature);
+       //seq 序号，number数量，波形图
+       void waveformData(int serialNumber,int numberOfData,String waveformData);
+       void error(int code,String message);
+       void success();
+       void stopQ2();
+   }
+```
 ##### 3.2.12 测量温度
 ###### (1) 使用血氧接口测温度
 接口功能： 测量温度。  
@@ -542,6 +691,22 @@ LmAPI.GET_HEART_Q2（IQ2Listener iQ2Listener）
 参数说明：IQ2Listener: 此接口是测量数据的监听  
 返回值：同上。测量血氧时同时会返回温度
 **注：温度也有单独的接口，在逐步适配所有戒指，如果单独接口不可用，再使用LmAPI.GET_HEART_Q2接口**
+
+简化版本
+```java
+   public static void GET_HEART_Q2(byte waveForm,IBloodOxygenListenerLite listenerLite)
+
+   public interface IBloodOxygenListenerLite {
+       void progress(int progress);
+       void resultData(int heartRate,int bloodOxygen,int temperature);
+       //seq 序号，number数量，波形图
+       void waveformData(int serialNumber,int numberOfData,String waveformData);
+       void error(int code,String message);
+       void success();
+       void stopQ2();
+   }
+```
+
 ###### (2) 使用温度单独接口
 接口功能： 测量温度。  
 接口声明：
@@ -555,6 +720,19 @@ LmAPI.GET_HEART_Q2（IQ2Listener iQ2Listener）
 | resultData   | int   | 3612      | 温度的结果，代表36.12℃    |
 | testing   | int   | 100，200           | 测量中 |
 | error | int | 2，3，4，5 | 2：未佩戴<br>3：繁忙<br>4：充电中<br>5：温度值无效 |
+
+简化版本
+```java
+   public static void READ_TEMP(ITempListenerLite listenerLite)
+
+   public interface ITempListenerLite {
+  
+      void resultData(int temp);
+      void testing(int num);
+  
+      void error(int code);
+  }
+```
 ##### 3.2.13 历史记录管理
 接口功能：读取历史记录。  
 接口声明：
@@ -593,6 +771,19 @@ LmAPI.READ_HISTORY(type, new IHistoryListener() {
     }
 });
 ```
+
+简化版本
+```java
+   public static void READ_HISTORY(byte type, IHistoryListenerLite listenerLite)
+
+   public interface IHistoryListenerLite {
+    void error(int code);
+    void success();
+    void progress(double progress, HistoryDataBean historyDataBean);
+    void clearHistory();
+}
+```
+
 ##### 3.2.14 清空历史数据
 接口功能：清空历史数据。  
 接口声明：
@@ -601,6 +792,11 @@ LmAPI.CLEAN_HISTORY（）
 ```
 参数说明：无  
 返回值：无
+
+简化版本
+```java
+   public static void CLEAN_HISTORY()
+```
 ##### 3.2.15 血压测试
 接口功能：血压测试。  
 接口声明：
@@ -618,6 +814,23 @@ LmAPI.GET_BPwaveData()
 | seq      | byte   | 0                                                                                 | 序号0      |
 | number   | byte   | 10                                                                                | 有10个数据 |
 | waveDate | String | green/绿光:14289393 ir/红外:10108995 cur_green/绿光电流:4704 cur_ir/红外电流:4704 | 光和电流值 |
+
+简化版本
+```java
+   public static void GET_BPwaveData(int time,int ledGreen1,int ledGreen2,int ledIr,IBloodPressureTestListenerLite listenerLite)
+   public interface IBloodPressureTestListenerLite {
+       /**
+        * 血压测试算法
+        *
+        * @param seq 顺序
+        * @param dataNumber 数据个数
+        * @param waveDate data
+        */
+       void BPwaveformData(int seq,int dataNumber,String waveDate);
+   }
+
+```
+
 ##### 3.2.16 实时PPG血压测量
 接口功能：实时测量血压值和500hz的原始波形  
 接口声明：
@@ -648,6 +861,26 @@ LmAPI.GET_REAL_TIME_BP((byte) 0x30, (byte) 1, (byte) 1, new IRealTimePPGB
                     }
              });
 ```
+简化版本
+```java
+   public static void GET_REAL_TIME_BP(int time,int isWave,int isProgress,IRealTimePPGBpListenerLite iRealTimePPGBpListener)
+   public interface IRealTimePPGBpListenerLite {
+    void progress(int progress);
+    /**
+     * 血压响应
+     * @param bloodPressureType 0：舒张压，1：收缩压
+     */
+    void bpResult(int bloodPressureType);
+    /**
+     * 血压算法响应
+     * @param bpData 响应数据
+     */
+    void resultData(String bpData);
+
+    void  stopRealTimeBP();
+}
+```
+
 ##### 3.2.17 实时PPG血压停止采集
 接口功能：停止采集  
 接口声明：
@@ -665,6 +898,12 @@ LmAPI.STOP_REAL_TIME_BP()
         }
   }
 ```
+简化版本
+```java
+  public static void STOP_REAL_TIME_BP(IRealTimePPGBpListenerLite iRealTimePPGBpListener)
+
+```
+
 ##### 3.2.18 设置蓝牙名称
 接口功能：设置蓝牙名称  
 接口声明：
@@ -685,6 +924,11 @@ Name:蓝牙名称，不超过12个字节，可以为中文、英文、数字，�
         }
   }
 ```
+简化版本
+```java
+ public static void Set_BlueTooth_Name(String name,ISystemControlListenerLite listenerLite) 
+```
+
 ##### 3.2.19 获取蓝牙名称
 接口功能：设置蓝牙名称  
 接口声明：
@@ -700,6 +944,11 @@ LmAPI.Get_BlueTooth_Name()
         Logger.show("TAG","蓝牙名称长度：" + len + " 蓝牙名称：" + name);
   }
 ```
+简化版本
+```java
+ public static void Get_BlueTooth_Name(ISystemControlListenerLite listenerLite)
+```
+
 ##### 3.2.20 心率测量停止
 接口功能：停止正在测量的心率  
 接口声明：
@@ -715,6 +964,11 @@ LmAPI.STOP_HEART()
         Logger.show("TAG","stop success");
   }
 ```
+简化版本
+```java
+ public static void STOP_HEART(IHeartListenerLite iHeartListener)
+```
+
 ##### 3.2.21 血氧测量停止
 
 接口功能：停止正在测量的血氧  
@@ -731,6 +985,10 @@ LmAPI.STOP_Q2()
     public void stopQ2(byte data) {
         Logger.show("TAG","stop success");
   }
+```
+简化版本
+```java
+ public static void STOP_Q2(IBloodOxygenListenerLite iq2Listener)
 ```
 ##### 3.2.22 一键获取状态
 接口功能：一键获取系统支持的功能，简化版的接口集合，会返回电量、固件版本、采集周期等(已被二代协议替代，参考3.2.28 二代协议)  
@@ -764,6 +1022,29 @@ LmAPI.SET_AUDIO(byte data)
   }
 ```
 **注：返回的数据是byte数组，adpcm格式转为pcm格式，保存到文件中**
+
+简化版本
+```java
+ public static void CONTROL_AUDIO_ADPCM(int control,IAudioListenerLite listenerLite)
+ public interface IAudioListenerLite {
+     /**
+      *控制音频传输
+      * @param bytes
+      */
+     void controlAudioResult(byte[] bytes);
+ 
+     /**
+      *获取主动推送音频信息
+      */
+     void getControlAudioAdpcmResult(boolean adpcm);
+ 
+     /**
+      *获取主动推送音频信息
+      */
+     void pushAudioInformationResult(boolean success);
+ }
+```
+
 录音戒指灯光含义：
 * 录音的时候绿灯亮
 * 充电的时候呼吸灯
@@ -855,6 +1136,36 @@ LmAPI.GET_HID_CODE((byte)0x00);
         }
     }
 ```
+
+简化版本
+```java
+  public static void GET_HID_CODE(int system,IHIDListenerLite listenerLite){
+  public interface IHIDListenerLite {
+ 
+     /**
+      * 设置HID模式  0代表失败，1代表成功
+      */
+     void setHIDResut(boolean success);
+ 
+     /**
+      * 获取HID模式
+      * @param touchMode  手势
+      * @param gestureMode   触控
+      * @param system  系统
+      */
+     void getHIDInfo(int touchMode,int gestureMode,int system);
+ 
+     /**
+      * 获取HID功能码
+      * @param HIDSupport HID功能支持
+      * @param touchSupport 触摸功能
+      *  @param gestureSupport 手势功能
+      */
+     void getHidCode(boolean HIDSupport, TouchSupport touchSupport, GestureSupport gestureSupport);
+ 
+ }
+```
+
 ##### 3.2.25 设置HID
 接口功能：设置戒指的HID模式   
 接口声明：
@@ -886,6 +1197,31 @@ LmAPI.GET_HID_CODE((byte)0x00);
 | 参数名称 | 类型   | 示例值   | 说明                            |
 | -------- | ------ | -------- | ------------------------------- |
 | result    | byte | 0,1 |0代表设置失败 1代表设置成功 |
+
+简化版本
+```java
+  /**
+     * 设置HID
+     * @param touchMode  触摸hid 模式
+     * 0：刷视频模式
+     * 1：拍照模式
+     * 2：音乐模式
+     * 3: ppt模式
+     * 4：上传实时音频
+     * 255:关闭
+     * @param gestureMode 手势hid 模式
+     * 0：刷视频模式
+     * 1：拍照模式
+     * 2：音乐模式
+     * 3：ppt模式
+     * 4：打响指(拍照)模式
+     * 255:关闭
+     * @param context
+     * @param listenerLite
+     */
+    public static void SET_HID(int touchMode,int gestureMode, Context context,IHIDListenerLite listenerLite)
+```
+
 ##### 3.2.26 获取HID
 接口功能：获取当前戒指的HID模式，触摸各功能和手势各功能的开关状态  
 接口声明：
@@ -907,6 +1243,12 @@ LmAPI.GET_HID();
 | system    | byte | 0|系统类型 0：安卓<br>1：IOS<br>2：WINDOWS |
 
 **注：-1和0xFF含义一样，代表关闭**  
+
+简化版本
+```java
+ public static void GET_HID(IHIDListenerLite listenerLite)
+```
+
 ##### 3.2.27 获取RSSI
 RSSI是信号强度的意思，一般用于ota升级前对戒指的信号检测，建议<= -70  
 ```java
@@ -988,6 +1330,19 @@ public class SystemControlBean {
     private int stepCounting;//当前计步
     private int keyTest;//自检标识
 ```
+简化版本
+```java
+ public static void APP_BIND(IBindConnectRefreshListenerLite listenerLite)
+ public static void APP_CONNECT(IBindConnectRefreshListenerLite listenerLite)
+ public static void APP_REFRESH(IBindConnectRefreshListenerLite listenerLite)
+
+ public interface IBindConnectRefreshListenerLite {
+     void appBind(SystemControlBean systemControlBean);
+     void appConnect(SystemControlBean systemControlBean);
+     void appRefresh(SystemControlBean systemControlBean);
+ }
+```
+
 ##### 3.2.29 心电图
 心电图功能只支持心电戒指，可以通过BLEUtils.isSupportElectrocardiogram()判断是否支持,可以通过
 ```java
@@ -998,7 +1353,18 @@ LogicalApi.startECGActivity(TestActivity2.this);
 对应的指令是：
 ```java
  LmAPI.STAR_ELEC()//开启心电测量
-LmAPI.STOP_ELECTROCARDIOGRAM();//结束心电测量
+ LmAPI.STOP_ELECTROCARDIOGRAM();//结束心电测量
+```
+简化版本
+```java
+ public static void STAR_ELEC(IECGListenerLite mIecgListener)
+ public static void STOP_ELECTROCARDIOGRAM()
+
+ public interface IECGListenerLite {
+     void result(int HRValue,int[] ecgValues);
+     void error(int code);
+ }
+
 ```
 
 #### 3.3 固件升级（OTA）
@@ -1239,7 +1605,7 @@ public class HistoryDataBean{
 ```
 ## 四、升级服务
 ### 1、服务介绍
-为了进一步简化用户对接流程，提高算法质量，共享固件资源，将公版app所用的服务进行共享，仅需要3个步骤，就可以使用升级服务
+为了进一步简化用户对接流程，提高算法质量，共享固件资源，将公版app所用的服务进行共享(1.0.34版本后新增)，仅需要3个步骤，就可以使用升级服务
 ### 1、申请key
 合作方可以联系我们，提供贵公司的名称，我们分配调用服务的key
 ### 2、申请token
