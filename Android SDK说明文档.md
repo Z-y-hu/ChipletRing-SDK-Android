@@ -154,12 +154,22 @@ ChipletRing公版APP已经在应用宝上架，此版本将sdk指令完整集成
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
+3.目前只提供离线sdk，所以需要用户手动添加一些依赖，后期会做优化
+```java
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'org.greenrobot:greendao:3.3.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    implementation 'org.ligboy.retrofit2:converter-fastjson-android:2.1.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.3.0'
+    implementation 'org.jetbrains:annotations:15.0'
+    implementation  'com.google.code.gson:gson:2.11.0'
+    implementation 'com.zhy:okhttputils:2.6.2'
+```
 ### 2.初始化库
 1.在Application的onCreate方法中进行初始化
 ```java
 LmAPI.init(this);
 LmAPI.setDebug(true);
-LmLibrary.init(this);
 ```
 2.在BaseActivity类中启用监听，该监听用于监听蓝牙连接状态和戒指的应答
 **注：若重复调用监听LmAPI.addWLSCmdListener(this, this)会出现重复现象**
@@ -1234,12 +1244,8 @@ public class HistoryDataBean{
 合作方可以联系我们，提供贵公司的名称，我们分配调用服务的key
 ### 2、申请token
 根据key，和使用sdk的用户的手机号或者邮箱，就可以申请token，token会自动保存在本地，不需要用户保存
-使用服务之前，需要在 Application的onCreate()方法里LmLibrary.init(this);参照(三、2.初始化库)
 ```java
- LoginByCompany loginByCompany=new LoginByCompany();
-        loginByCompany.setApiKey(key);
-        loginByCompany.setUsername(phone/email);
-        LogicalApi.createToken(loginByCompany, new ICreateToken() {
+ LogicalApi.createToken("","", new ICreateToken() {
             @Override
             public void getTokenSuccess() {
 
@@ -1292,9 +1298,6 @@ public class HistoryDataBean{
 ```java
                 postView("\n从云端计算睡眠");
                 String dateTimeString = "2025-02-12 23:59:59";
-                /**
-                 * 需要在application里调用 LmLibrary.init(this);初始化一下
-                 */
 
                 LogicalApi.getSleepDataFromService( dateTimeString, new IWebSleepResult() {
                     @Override
@@ -1318,7 +1321,7 @@ public class HistoryDataBean{
 ```
 ##### 2、ota升级
 该服务支持从云端拉取最新的固件，根据不用的戒指，自动使用phyOTA升级，阿波罗升级，dfu升级，不需要用户干预，只需要调用简单接口即可，需保证与戒指处于连接状态,建议rssi <= -71(参考3.2.27 获取RSSI)并且电量>50 ，目前提供三个接口，根据不同情况调用
-OtaApi.otaUpdateWithCheckVersion 该接口包含了检查版本号version(调用 LmAPI.GET_VERSION((byte) 0x00)获取)，从云端拉取最新固件，自动升级功能
+OtaApi.otaUpdateWithCheckVersion 该接口包含了检查版本号version(调用 LmAPI.GET_VERSION((byte) 0x00)获取)，从云端拉取最新固件，自动升级功能，ota升级完成以后，要延时3s重连一下戒指
 ```java
 OtaApi.otaUpdateWithCheckVersion(version, TestActivity.this, App.getInstance().getDeviceBean().getDevice(), App.getInstance().getDeviceBean().getRssi(), new LmOtaProgressListener() {
                     @Override
