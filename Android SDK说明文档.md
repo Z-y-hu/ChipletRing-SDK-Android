@@ -318,6 +318,17 @@ LmAPI.SYNC_TIME();
 | -------- | ------ | ------ | --------------------------- |
 | datum    | byte   | 0或1   | 0代表同步成功 1代表读取时间 |
 | time     | byte[] | null   | 同步时间不会返回byte[]      |
+
+简化版本
+```java
+public static void SYNC_TIME(ISyncTimeListenerLite listenerLite)
+
+public interface ISyncTimeListenerLite {
+
+    void syncTime(boolean updateTime,long timeStamp);
+}
+```
+
 ##### 3.2.2 读取时间
 接口功能：调用此接口会获取戒指当前时间。一般情况下用不到。
 接口声明：  
@@ -337,7 +348,7 @@ LmAPI.READ_TIME();
 
 简化版本
 ```java
-public static void SYNC_TIME(ISyncTimeListenerLite listenerLite)
+ public static void READ_TIME(ISyncTimeListenerLite listenerLite) 
 
 public interface ISyncTimeListenerLite {
 
@@ -455,6 +466,20 @@ LmAPI.CLEAR_COUNTING（）
 简化版本
 ```java
  public static void CLEAR_COUNTING(IStepListenerLite listenerLite)
+ public interface IStepListenerLite {
+    /**
+     * 计步
+     *
+     * @param steps 步数
+     */
+    void stepCount(int steps);
+
+    /**
+     * 清除步数
+     * @param
+     */
+    void clearStepCount();
+}
 ```
 ##### 3.2.7 恢复出厂设置
 接口功能：恢复出厂设置  
@@ -527,7 +552,47 @@ LmAPI.SET_COLLECTION（collection）//采集周期，单位秒
 
 简化版本
 ```java
-  public static void SET_COLLECTION(int parseInt,ISystemControlListenerLite listenerLite) 
+  public static void SET_COLLECTION(int parseInt,ISystemControlListenerLite listenerLite)
+  public interface ISystemControlListenerLite {
+    /**
+     * 恢复出厂设置
+     */
+    void reset();
+
+    /**
+     * 设置采集周期
+     */
+    void setCollection(boolean success);
+
+    /**
+     * 获取采集周期
+     */
+    void getCollection(int data);
+
+    /**
+     * 获取序列号
+     * @param serial
+     */
+    void getSerialNum(String serial);
+
+    /**
+     * 设置序列号
+
+     */
+    void setSerialNum(boolean success);
+
+    /**
+     * 设置蓝牙名称
+     */
+    void setBlueToolName(boolean success);
+
+    /**
+     * 读取蓝牙名称
+     * @param len 蓝牙名称长度
+     * @param name 蓝牙名称
+     */
+    void readBlueToolName(int len,String name);
+}
 ```
 
 ##### 3.2.9 采集周期读取
@@ -548,7 +613,47 @@ LmAPI.GET_COLLECTION（）//采集周期，单位秒
 
 简化版本
 ```java
-   public static void GET_COLLECTION(ISystemControlListenerLite listenerLite) 
+   public static void GET_COLLECTION(ISystemControlListenerLite listenerLite)
+   public interface ISystemControlListenerLite {
+    /**
+     * 恢复出厂设置
+     */
+    void reset();
+
+    /**
+     * 设置采集周期
+     */
+    void setCollection(boolean success);
+
+    /**
+     * 获取采集周期
+     */
+    void getCollection(int data);
+
+    /**
+     * 获取序列号
+     * @param serial
+     */
+    void getSerialNum(String serial);
+
+    /**
+     * 设置序列号
+
+     */
+    void setSerialNum(boolean success);
+
+    /**
+     * 设置蓝牙名称
+     */
+    void setBlueToolName(boolean success);
+
+    /**
+     * 读取蓝牙名称
+     * @param len 蓝牙名称长度
+     * @param name 蓝牙名称
+     */
+    void readBlueToolName(int len,String name);
+}
 ```
 
 **注：无特殊标记的情况下，本SDK中返回的值皆为小端模式，demo中提供bytes转int的方法**
@@ -901,7 +1006,21 @@ LmAPI.STOP_REAL_TIME_BP()
 简化版本
 ```java
   public static void STOP_REAL_TIME_BP(IRealTimePPGBpListenerLite iRealTimePPGBpListener)
+  public interface IRealTimePPGBpListenerLite {
+    void progress(int progress);
+    /**
+     * 血压响应
+     * @param bloodPressureType 0：舒张压，1：收缩压
+     */
+    void bpResult(int bloodPressureType);
+    /**
+     * 血压算法响应
+     * @param bpData 响应数据
+     */
+    void resultData(String bpData);
 
+    void  stopRealTimeBP();
+}
 ```
 
 ##### 3.2.18 设置蓝牙名称
@@ -926,7 +1045,47 @@ Name:蓝牙名称，不超过12个字节，可以为中文、英文、数字，�
 ```
 简化版本
 ```java
- public static void Set_BlueTooth_Name(String name,ISystemControlListenerLite listenerLite) 
+ public static void Set_BlueTooth_Name(String name,ISystemControlListenerLite listenerLite)
+ public interface ISystemControlListenerLite {
+    /**
+     * 恢复出厂设置
+     */
+    void reset();
+
+    /**
+     * 设置采集周期
+     */
+    void setCollection(boolean success);
+
+    /**
+     * 获取采集周期
+     */
+    void getCollection(int data);
+
+    /**
+     * 获取序列号
+     * @param serial
+     */
+    void getSerialNum(String serial);
+
+    /**
+     * 设置序列号
+
+     */
+    void setSerialNum(boolean success);
+
+    /**
+     * 设置蓝牙名称
+     */
+    void setBlueToolName(boolean success);
+
+    /**
+     * 读取蓝牙名称
+     * @param len 蓝牙名称长度
+     * @param name 蓝牙名称
+     */
+    void readBlueToolName(int len,String name);
+}
 ```
 
 ##### 3.2.19 获取蓝牙名称
@@ -947,6 +1106,46 @@ LmAPI.Get_BlueTooth_Name()
 简化版本
 ```java
  public static void Get_BlueTooth_Name(ISystemControlListenerLite listenerLite)
+ public interface ISystemControlListenerLite {
+    /**
+     * 恢复出厂设置
+     */
+    void reset();
+
+    /**
+     * 设置采集周期
+     */
+    void setCollection(boolean success);
+
+    /**
+     * 获取采集周期
+     */
+    void getCollection(int data);
+
+    /**
+     * 获取序列号
+     * @param serial
+     */
+    void getSerialNum(String serial);
+
+    /**
+     * 设置序列号
+
+     */
+    void setSerialNum(boolean success);
+
+    /**
+     * 设置蓝牙名称
+     */
+    void setBlueToolName(boolean success);
+
+    /**
+     * 读取蓝牙名称
+     * @param len 蓝牙名称长度
+     * @param name 蓝牙名称
+     */
+    void readBlueToolName(int len,String name);
+}
 ```
 
 ##### 3.2.20 心率测量停止
@@ -967,6 +1166,15 @@ LmAPI.STOP_HEART()
 简化版本
 ```java
  public static void STOP_HEART(IHeartListenerLite iHeartListener)
+ public interface IHeartListenerLite {
+      void progress(int progress);
+      void resultData(int heart,int heartRota,int yaLi,int temp);
+      void waveformData(int serialNumber,int numberOfData,String waveData);
+      void rriData(byte seq,byte number,String data);
+      void error(int code,String message);
+      void success();
+      void stopHeart();
+ }
 ```
 
 ##### 3.2.21 血氧测量停止
@@ -989,6 +1197,15 @@ LmAPI.STOP_Q2()
 简化版本
 ```java
  public static void STOP_Q2(IBloodOxygenListenerLite iq2Listener)
+  public interface IBloodOxygenListenerLite {
+       void progress(int progress);
+       void resultData(int heartRate,int bloodOxygen,int temperature);
+       //seq 序号，number数量，波形图
+       void waveformData(int serialNumber,int numberOfData,String waveformData);
+       void error(int code,String message);
+       void success();
+       void stopQ2();
+   }
 ```
 ##### 3.2.22 一键获取状态
 接口功能：一键获取系统支持的功能，简化版的接口集合，会返回电量、固件版本、采集周期等(已被二代协议替代，参考3.2.28 二代协议)  
