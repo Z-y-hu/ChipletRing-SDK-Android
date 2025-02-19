@@ -405,12 +405,13 @@ LmAPI.GET_BATTERY((byte) 0x00);  //0x00获取电量，0x01获取充电状态
 static void GET_BATTERY(int type, IBatteryListenerLite listenerLite)
 
 public interface IBatteryListenerLite {
-    /**
+  /**
      * 电量
-     * @param chargingStatus 充电状态
+     * @param type 获取电量还是获取充电状态 0是电量，1是充电状态
+     * @param chargingStatus 充电状态描述
      * @param electricity 电量百分比
      */
-    void battery(String chargingStatus, int electricity);
+    void battery(int type,String chargingStatus, int electricity);
 }
 ```
 
