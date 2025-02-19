@@ -880,7 +880,7 @@ LmAPI.READ_HISTORY(type, new IHistoryListener() {
 
 简化版本
 ```java
-   public static void READ_HISTORY(byte type, IHistoryListenerLite listenerLite)
+   public static void READ_HISTORY(int type, IHistoryListenerLite listenerLite)
 
    public interface IHistoryListenerLite {
     void error(int code);
