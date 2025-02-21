@@ -1740,7 +1740,7 @@ public class DistanceCaloriesBean {
 }
 ```
 ##### 3.5.2 计算睡眠数据
-**注：建议使用四、升级服务中的睡眠数据**
+**注：建议使用四、升级服务中的睡眠结果数据**
 接口功能：计算指定时间睡眠数据。  
 接口声明：
 ```java
@@ -1847,8 +1847,8 @@ public class HistoryDataBean{
 ### 3、调用服务
 根据token，调用服务，目前提供获取用户睡眠数据的服务，ota升级服务
 ### 4、支持的服务
-##### 1、睡眠数据
-可以根据开始时间和结束时间，获取当前用户的睡眠数据，系统根据历史数据，自动区分一代睡眠和二代睡眠，调用该服务的前提，是需要在获取戒指历史数据的时候，将历史数据上传，否则无法计算
+##### 1、睡眠结果数据
+可以根据开始时间和结束时间，获取当前用户的睡眠结果数据，系统根据历史数据，自动区分一代睡眠和二代睡眠，调用该服务的前提，是需要在获取戒指历史数据的时候，将历史数据上传，否则无法计算
 ```java
    //如需使用更精准的睡眠算法，获取戒指历史数据时，请调用该指令(LmAPI.READ_HISTORY不支持上传服务器操作)
    LmAPI.READ_HISTORY_UPDATE_TO_SERVER((byte) 0x01,  mac, new IHistoryListener() {
@@ -1907,7 +1907,7 @@ public class HistoryDataBean{
                 });
 ```
 ##### 2、ota升级
-该服务支持从云端拉取最新的固件，根据不用的戒指，自动使用phyOTA升级，阿波罗升级，dfu升级，不需要用户干预，只需要调用简单接口即可，需保证与戒指处于连接状态,建议rssi <= -71(参考3.2.27 获取RSSI)并且电量>50 ，目前提供三个接口，根据不同情况调用
+该服务支持从云端拉取最新的固件，需保证与戒指处于连接状态,建议rssi <= -71(参考3.2.27 获取RSSI)并且电量>50 ，目前提供三个接口，根据不同情况调用
 OtaApi.otaUpdateWithCheckVersion 该接口包含了检查版本号version(调用 LmAPI.GET_VERSION((byte) 0x00)获取)，从云端拉取最新固件，自动升级功能，ota升级完成以后，要延时3s重连一下戒指
 ```java
 OtaApi.otaUpdateWithCheckVersion(version, TestActivity.this, App.getInstance().getDeviceBean().getDevice(), App.getInstance().getDeviceBean().getRssi(), new LmOtaProgressListener() {
