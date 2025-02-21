@@ -848,7 +848,7 @@ LmAPI.GET_HEART_Q2（IQ2Listener iQ2Listener）
 ```java
 LmAPI.READ_HISTORY（int type,IHistoryListener iHistoryListener）
 ```
-参数说明：type: 1,获取全部历史记录；0，获取未上传的历史记录  
+参数说明：type: 1,获取全部历史记录；0，获取未上传的历史记录。读取过为上传历史记录，下次读取的时候，就会从上次读取时间以后算起，如果想要将之前的数据也拿到，可以在 progress自己记录，本地数据库也保存了数据，也可以通过DataApi.instance.queryHistoryData查询到
 返回值：
 ```java
 LmAPI.READ_HISTORY(type, new IHistoryListener() {
