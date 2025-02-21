@@ -1471,7 +1471,7 @@ LmAPI.GET_HID();
 ```
 
 ##### 3.2.27 获取RSSI
-RSSI是信号强度的意思，一般用于ota升级前对戒指的信号检测，建议<= -70  
+RSSI是信号强度的意思，一般用于ota升级前对戒指的信号检测，建议 > -70  
 ```java
     BLEService.readRomoteRssi();
     Log.i(TAG, "rssi = "+ BLEService.RSSI);
@@ -1907,7 +1907,7 @@ public class HistoryDataBean{
                 });
 ```
 ##### 2、ota升级
-该服务支持从云端拉取最新的固件，需保证与戒指处于连接状态,建议rssi <= -71(参考3.2.27 获取RSSI)并且电量>50 ，目前提供三个接口，根据不同情况调用
+该服务支持从云端拉取最新的固件，需保证与戒指处于连接状态,建议rssi > -70(参考3.2.27 获取RSSI)并且电量>50 ，目前提供三个接口，根据不同情况调用
 OtaApi.otaUpdateWithCheckVersion 该接口包含了检查版本号version(调用 LmAPI.GET_VERSION((byte) 0x00)获取)，从云端拉取最新固件，自动升级功能，ota升级完成以后，要延时3s重连一下戒指
 ```java
 OtaApi.otaUpdateWithCheckVersion(version, TestActivity.this, App.getInstance().getDeviceBean().getDevice(), App.getInstance().getDeviceBean().getRssi(), new LmOtaProgressListener() {
