@@ -1505,6 +1505,10 @@ BLEService.setCallback(new BluetoothConnectCallback() {
         postView("\nappBind："+systemControlBean.toString());
     }
 ```
+因为APP_CONNECT和appRefresh会自动上传未上传数据，需要在页面进行监听，否则会报错
+```java
+LmAPI.READ_HISTORY_AUTO(IHistoryListener iHistoryListener)
+```
 连接指令:（连接指令是在设备连接后调用，是复合操作，戒指收到这条指令执行，自动上传未上传数据，同步时间，HID功能获取）
 ```java
     LmAPI.APP_CONNECT();
