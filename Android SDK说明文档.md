@@ -266,6 +266,27 @@ public void lmBleConnectionFailed(int code) {
     //连接失败
 }
 ```
+为了保证断连后重连，需要在以上回调里，设置一些属性
+```java
+@Override
+public void lmBleConnecting(int code) {
+    //正在连接
+  BLEUtils.setConnecting(true);//连接中，防止重复连接
+}
+@Override
+public void lmBleConnectionSucceeded(int code) {
+    //连接成功
+   BLEUtils.setConnecting(false);
+}
+@Override
+public void lmBleConnectionFailed(int code) {
+    //连接失败
+  BLEUtils.setGetToken(false);//连接失败
+  BLEUtils.setConnecting(false);
+}
+```
+BLEUtils.setConnecting//蓝牙是否在连接中，防止重复连接
+BLEUtils.setGetToken//是否已连接到蓝牙，这个按自己项目需求调用，公版app是在连接过后，指令走完，才算连接成功
 ##### 3.1.4 断开蓝牙
 接口功能：断开设备。  
 接口声明：
