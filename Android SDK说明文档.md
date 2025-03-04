@@ -306,7 +306,19 @@ BLEUtils.disconnectBLE(Context context);
                 }
 ```
 参数说明：mac：戒指mac地址   
-返回值：无    
+返回值：无  
+##### 3.1.6 前台服务
+目前蓝牙连接服务是后台的，存在息屏状态下，或者app进入后台，蓝牙断连的问题，好处就是功耗低。如果需要将服务做成前台服务，可以在Application的onCreate()里设置
+```java
+       BLEUtils.contentTitle = "自己想要展示在app前台服务里的内容"
+```
+这个需要自己在合适的时机，比如app退到后台时，5分钟后，调用
+
+```java
+BLEUtils.disconnectBLE(Context context);
+```
+断开连接，否则蓝牙一直连接，功耗很大，电量消耗很快
+
 #### 3.2 通讯协议
 此类是使用戒指功能的公共类，戒指的功能通过该类直接调用即可,数据反馈除了特殊说明外 统一由IResponseListener接口反馈。(1.0.35版本后新增简化版本，入参和返回都做了封装，不再使用byte类型，通过LmAPILite调用，并且将指令返回接口按照功能分成多个小接口，职责更清晰，回调更少，之前监听LmAPI的地方换成LmAPILite即可)
 调用此类的接口 ，需保证与戒指处于连接状态  
