@@ -47,7 +47,7 @@ import java.util.Date;
 public class TestActivity2 extends BaseActivity implements IResponseListener, View.OnClickListener {
 
     TextView tv_result2;
-    Button bt_calculate_sleep;
+//    Button bt_calculate_sleep;
     Button bt_open_audio;
     Button bt_close_audio;
     private Handler handler = new Handler();  // 创建一个 Handler 实例
@@ -75,7 +75,7 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
         findViewById(R.id.bt_sleep_sevice).setOnClickListener(this);
         findViewById(R.id.btn_upload_history).setOnClickListener(this);
         findViewById(R.id.btn_ota).setOnClickListener(this);
-
+        findViewById(R.id.bt_calculate_sleep).setOnClickListener(this);
     }
 
     @Override
@@ -470,7 +470,7 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
                 break;
             case R.id.bt_calculate_sleep:
                 postView("\n开始拿calculateSleep");
-                String formattedDateTime = "2025-01-11";
+                String formattedDateTime = "2025-03-5";
                 try {
                     // 解析输入日期字符串为 LocalDate 对象
                     LocalDate localDate = LocalDate.parse(formattedDateTime);
