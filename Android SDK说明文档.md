@@ -759,7 +759,20 @@ iHeartListener:  此接口是测量数据的监听
       void stopHeart();
  }
 
+主动测量以后，如果立刻从戒指读取未上传数据，有可能读取不到最新结果，因为戒指保存会有延迟，用户可以延时几秒获取，或者把测量数据保存到本地数据库，本地数据库已做去重操作，不用担心后续未上传数据上传以后，有重复数据的情况
+以下是样例：
+```java
+  HistoryDataBean entity = new HistoryDataBean();
+                entity.setMac(BLEUtils.mac);
+                entity.setTime(System.currentTimeMillis() / 1000);
+                entity.setHeartRate(heart);
+                entity.setHeartRateVariability(heartRota);
+                entity.setStressIndex(yaLi);
+                entity.setTemperature(temp);
+                entity.setSleepType(0);
+                DataApi.instance.insertBatch(entity);
 
+```
 
 ```
 ##### 3.2.11 测量血氧
