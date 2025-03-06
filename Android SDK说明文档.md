@@ -338,6 +338,7 @@ BLEUtils.startLeScan(this, leScanCallback);
         }
     };
 ```
+如果是HID戒指，需要设置BLEUtils.isHIDDevice为false，可以走强连接模式连接蓝牙，保证稳定性
 ##### 3.2.1 同步时间
 接口功能：调用此接口会获取手机当前时间同步给戒指。  
 接口声明：
