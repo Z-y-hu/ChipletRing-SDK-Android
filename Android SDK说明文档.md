@@ -287,6 +287,99 @@ public void lmBleConnectionFailed(int code) {
 ```
 BLEUtils.setConnecting//蓝牙是否在连接中，防止重复连接
 BLEUtils.setGetToken//是否已连接到蓝牙，这个按自己项目需求调用，公版app是在连接过后，指令走完，才算连接成功
+
+蓝牙连接状态：
+```java
+BroadcastReceiver mBLEStateChangeBroadcast = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent != null) {
+                    int state = intent.getIntExtra(BLEService.BROADCAST_CONNECT_STATE_VALUE, 0);
+                    switch (state) {
+                        case BLEService.CONNECT_STATE_GATT_CONNECTING:
+                            //链接状态--GATT通道--连接中
+                        case BLEService.CONNECT_STATE_GATT_CONNECTED:
+                            // 链接状态--GATT通道--已连接
+                        case BLEService.CONNECT_STATE_SERVICE_CONNECTING:
+                            //链接状态--设备服务--连接中
+                        case BLEService.CONNECT_STATE_SERVICE_CONNECTED:
+                            // 链接状态--设备服务--已连接
+                        case BLEService.CONNECT_STATE_WRITE_CONNECTING:
+                            //链接状态--写入Character--连接中
+                        case BLEService.CONNECT_STATE_RESPOND_CONNECTING:
+                            //链接状态--响应Character--连接中
+                            ibleResponse.lmBleConnecting(state);
+                            break;
+                        case BLEService.CONNECT_STATE_SUCCESS:
+                            // 链接状态--BLE所有连接--连接成功--等待输入指令
+                            ibleResponse.lmBleConnectionSucceeded(state);
+                            break;
+                        case BLEService.CONNECT_STATE_SERVICE_DISCONNECTED:
+                            //链接状态--设备服务--连接失败
+                            ibleResponse.lmBleConnectionFailed(state);
+                        case BLEService.CONNECT_STATE_WRITE_DISCONNECTED:
+                            //链接状态--写入Character--连接失败
+                        case BLEService.CONNECT_STATE_RESPOND_DISCONNECTED:
+                            //链接状态--响应Character--连接失败
+                        case BLEService.CONNECT_STATE_DISCONNECTED:
+                            //链接状态--断开
+                            ibleResponse.lmBleConnectionFailed(state);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+            }
+        };
+```
+```java
+ /**
+     * 链接状态--GATT通道--连接中
+     */
+    public static final int CONNECT_STATE_GATT_CONNECTING = 1;
+    /**
+     * 链接状态--GATT通道--已连接
+     */
+    public static final int CONNECT_STATE_GATT_CONNECTED = 2;
+
+    /**
+     * 链接状态--设备服务--连接中
+     */
+    public static final int CONNECT_STATE_SERVICE_CONNECTING = 3;
+    /**
+     * 链接状态--设备服务--已连接
+     */
+    public static final int CONNECT_STATE_SERVICE_CONNECTED = 4;
+    /**
+     * 链接状态--写入Character--连接中
+     */
+    public static final int CONNECT_STATE_WRITE_CONNECTING = 5;
+    /**
+     * 链接状态--响应Character--连接中
+     */
+    public static final int CONNECT_STATE_RESPOND_CONNECTING = 6;
+    /**
+     * 链接状态--BLE所有连接--连接成功--等待输入指令
+     */
+    public static final int CONNECT_STATE_SUCCESS = 7;
+    /**
+     * 链接状态--设备服务--连接失败
+     */
+    public static final int CONNECT_STATE_SERVICE_DISCONNECTED = 8;
+    /**
+     * 链接状态--写入Character--连接失败
+     */
+    public static final int CONNECT_STATE_WRITE_DISCONNECTED = 9;
+    /**
+     * 链接状态--响应Character--连接失败
+     */
+    public static final int CONNECT_STATE_RESPOND_DISCONNECTED = 10;
+    /**
+     * 链接状态--断开
+     */
+    public static final int CONNECT_STATE_DISCONNECTED = 11;
+```
 ##### 3.1.4 断开蓝牙
 接口功能：断开设备。  
 接口声明：
