@@ -437,6 +437,8 @@ BLEUtils.startLeScan(this, leScanCallback);
 接口声明：
 ```java
 LmAPI.SYNC_TIME();
+//同步时间可以设置时区， 东区为正，西区为负，比如东八区0x08，西八区为0xF8
+LmAPI.SYNC_TIME_ZONE();
 ```
 注意事项：同步时间和读取时间共用一个返回值。 
 参数说明：无  
