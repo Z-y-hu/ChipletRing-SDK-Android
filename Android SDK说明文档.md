@@ -1368,27 +1368,65 @@ LmAPI.SYSTEM_CONTROL()
   }
 ```
 ##### 3.2.23 语音录制
-接口功能：录制语音  
+ 
+接口功能：获取主动推送音频信息(需要开启HID中的触摸语音，按住戒指上的磨砂区域，进行录音，戒指主动推送音频信息) 
 接口声明：
 ```java
-LmAPI.SET_AUDIO(byte data)
+LmAPI.GET_CONTROL_AUDIO_ADPCM();
 ```
-参数说明：0代表关闭，1代表打开  
+回调：
+```java
+ public void GET_CONTROL_AUDIO_ADPCM(byte pcmType) {
+        if(pcmType==0x0){//是PCM
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //设置推送adpcm
+                        LmAPI.CONTROL_AUDIO_ADPCM_AUDIO((byte) 0x1);
+                    }
+                },200);
+        }
+    }
+```
+接口功能：设置主动推送音频信息，如果是pcm格式，建议设置成adpcm，防止丢包
+接口声明：
+```java
+//设置推送adpcm
+LmAPI.CONTROL_AUDIO_ADPCM_AUDIO((byte) 0x1);
+```
+
+接口功能：控制音频传输
+接口声明：
+```java
+LmAPI.CONTROL_AUDIO_ADPCM(byte data)
+```
+参数说明：(byte) 0x1 开启，(byte) 0x0 关闭 
 回调：
 ```java
 @Override
-    public void CONTROL_AUDIO(byte[] bytes) {
-        postView("\n音频结果：" + Arrays.toString(bytes));
-        byte[] adToPcm = new AdPcmTool().adpcmToPcmFromJNI(bytes);
-
-        savePcmFile(outputPath,adToPcm);
+   public void CONTROL_AUDIO(byte[] bytes) {
+       //通过以上设置，默认都是adpcm格式
+ byte[] adToPcm = new AdPcmTool().adpcmToPcmFromJNI(bytes);
   }
 ```
 **注：返回的数据是byte数组，adpcm格式转为pcm格式，保存到文件中**
 
 简化版本
 ```java
- public static void CONTROL_AUDIO_ADPCM(int control,IAudioListenerLite listenerLite)
+
+
+ //获取主动推送音频信息，通过getControlAudioAdpcmResult(boolean adpcm)返回，如果不是adpcm，建议调用PUSH_AUDIO_INFORMATION设置成adpcm
+ public static void GET_CONTROL_AUDIO_ADPCM(IAudioListenerLite listenerLite) 
+
+
+ //设置主动推送音频信息，是否开启adpcm格式，通过pushAudioInformationResult返回，success为true说明设置adpcm格式正确
+ public static void PUSH_AUDIO_INFORMATION(boolean isAdPcm,IAudioListenerLite listenerLite)
+
+
+ //控制adpcm格式音频传输，是否开启adpcm格式，建议设置成adpcm，即isOpen设置成true，否则有丢包的风险， 数据信息通过controlAudioResult方法返回
+ public static void CONTROL_ADPCM_TRANSFER(boolean isOpen,IAudioListenerLite listenerLite)
+
+
  public interface IAudioListenerLite {
      /**
       *控制音频传输
