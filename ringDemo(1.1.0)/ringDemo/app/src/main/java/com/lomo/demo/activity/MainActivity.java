@@ -163,15 +163,12 @@ public class MainActivity extends BaseActivity {
         adapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(Object o, int position) {
-
-
-                DeviceBean deviceBean = (DeviceBean) o;
-
-                UtilSharedPreference.saveString(MainActivity.this,"address",deviceBean.getDevice().getAddress());
+                BleDeviceInfo  deviceBean = (BleDeviceInfo) o;
+                BLEUtils.isHIDDevice=deviceBean.getBindingIndicatorBit()==1;
+                 UtilSharedPreference.saveString(MainActivity.this,"address",deviceBean.getDevice().getAddress());
+                App.getInstance().setDeviceBean(deviceBean);
                 //关闭当前页面，跳转到TestActivity并且携带deviceBean对象
                 Intent intent = new Intent(MainActivity.this, TestActivity.class);
-//                App.getInstance().setDeviceBean(deviceBean);
-                intent.putExtra("deviceBean",deviceBean);
                 startActivity(intent);
                 finish();
             }
@@ -204,28 +201,19 @@ public class MainActivity extends BaseActivity {
             if (device == null || TextUtils.isEmpty(device.getName())) {
                 return;
             }
+
             //是否符合条件，符合条件，会返回戒指设备信息
             BleDeviceInfo bleDeviceInfo = LogicalApi.getBleDeviceInfoWhenBleScan(device, rssi, bytes);
             if(bleDeviceInfo==null){
                 return;
             }
-            DeviceBean deviceBean=new DeviceBean(device,rssi);
-            deviceBean.setDevice(bleDeviceInfo.getDevice());
-            deviceBean.setHidDevice(bleDeviceInfo.getHidDevice());
-            deviceBean.setRssi(bleDeviceInfo.getRssi());
-            deviceBean.setBindingIndicatorBit(bleDeviceInfo.getBindingIndicatorBit());
-            deviceBean.setChargingIndicator(bleDeviceInfo.getChargingIndicator());
-            deviceBean.setCommunicationProtocolVersion(bleDeviceInfo.getCommunicationProtocolVersion());
-            deviceBean.setSystemBind(bleDeviceInfo.isSystemBind());
-            // 存储到集合中，使用设备的 MAC 地址作为键
-            DeviceManager.deviceMap.put(device.getAddress(), deviceBean);
-
             if (macList.contains(device.getAddress())) {
                 return;
             }
-            // 如果设备是新的，则将其加入集合
+
             macList.add(device.getAddress());
-            adapter.updateData(new DeviceBean(device, rssi));
+            adapter.updateData(bleDeviceInfo);
+
         }
     };
 }

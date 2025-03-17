@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 
 import com.lm.sdk.LmAPI;
+import com.lm.sdk.mode.BleDeviceInfo;
 import com.lomo.demo.adapter.DeviceBean;
 
 /**
@@ -13,7 +14,7 @@ import com.lomo.demo.adapter.DeviceBean;
  */
 public class App extends Application {
     private static App app;
-    private DeviceBean deviceBean;
+    private BleDeviceInfo deviceBean;
     private BluetoothAdapter mBluetoothAdapter;
     @Override
     public void onCreate() {
@@ -27,12 +28,12 @@ public class App extends Application {
     public static App getInstance() {
         return app;
     }
-    public void setDeviceBean(DeviceBean deviceBean) {
+    public void setDeviceBean(BleDeviceInfo deviceBean) {
         this.deviceBean = deviceBean;
 
     }
 
-    public DeviceBean getDeviceBean() {
+    public BleDeviceInfo getDeviceBean() {
         return deviceBean;
     }
 

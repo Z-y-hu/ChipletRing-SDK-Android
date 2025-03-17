@@ -124,6 +124,11 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
     }
 
     @Override
+    public void battery_push(byte b, byte datum) {
+
+    }
+
+    @Override
     public void timeOut() {
 
     }
@@ -305,6 +310,11 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
         }else if(result == (byte)0x01){
             postView("\n设置音频类型成功");
         }
+    }
+
+    @Override
+    public void TOUCH_AUDIO_FINISH_XUN_FEI() {
+
     }
 
     public static String byteToBitString(byte b) {
@@ -556,6 +566,11 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
                     public void updateHistoryFinish() {
                         postView("\n历史数据上传服务器完成");
                     }
+
+                    @Override
+                    public void serviceError(String errorMsg) {
+                        postView("\n服务器出错");
+                    }
                 });
 
                 break;
@@ -648,4 +663,6 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
             tv_result2.scrollTo(0, 0);
 
     }
+
+
 }

@@ -9,6 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +23,7 @@ import androidx.annotation.NonNull;
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
+import com.lm.sdk.AdPcmTool;
 import com.lm.sdk.BLEService;
 import com.lm.sdk.DataApi;
 import com.lm.sdk.LmAPI;
@@ -32,6 +36,9 @@ import com.lm.sdk.inter.IHistoryListener;
 import com.lm.sdk.inter.IQ2Listener;
 import com.lm.sdk.inter.IResponseListener;
 import com.lm.sdk.inter.LmOTACallback;
+import com.lm.sdk.library.utils.PreferencesUtils;
+import com.lm.sdk.library.utils.ToastUtils;
+import com.lm.sdk.mode.BleDeviceInfo;
 import com.lm.sdk.mode.DistanceCaloriesBean;
 import com.lm.sdk.mode.HistoryDataBean;
 import com.lm.sdk.mode.SleepBean;
@@ -53,8 +60,10 @@ import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class TestActivity extends BaseActivity implements IResponseListener, View.OnClickListener {
     public String TAG = getClass().getSimpleName();
@@ -64,12 +73,29 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     Button bt_version;
     Button bt_sync_time;
     Button bt_start_update;
-    private DeviceBean deviceBean;
+    private BleDeviceInfo deviceBean;
     private BluetoothDevice bluetoothDevice;
-    private String hidDevice="0";
-
     static String mac;
     String outputPath = com.lomo.demo.FileUtil.getSDPath(App.getInstance(), "保存" + ".pcm");
+    private List<BluetoothDevice> dataEntityList = new ArrayList<>();
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+
+            if (msg.what == 101) {
+
+                    String mac = UtilSharedPreference.getStringValue(TestActivity.this, "address");
+                    if (!TextUtils.isEmpty(mac) && !BLEUtils.isGetToken()) {
+                        Log.e("TAG", "Handler  延迟重连  resetConnect 1111 ");
+                        BLEUtils.setConnecting(false);
+                        connect(mac);
+                    }
+
+            }
+            return false;
+        }
+    });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,20 +137,11 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
         //获取上个页面传递过来的deviceBean对象
         Intent intent = getIntent();
         if (intent != null) {
-              deviceBean = intent.getParcelableExtra("deviceBean");
+              deviceBean = App.getInstance().getDeviceBean();
              bluetoothDevice = deviceBean.getDevice();
             mac = bluetoothDevice.getAddress();
-            DeviceBean bean = DeviceManager.deviceMap.get(mac);
-//            String hidDevice=bean.getHidDevice();
-//            if(hidDevice == "0" || hidDevice == null){
-//                BLEUtils.isHIDDevice = false;
-//            }else{
-//                BLEUtils.isHIDDevice = true;
-//            }
-//            assert deviceBean != null;
-            App.getInstance().setDeviceBean(deviceBean);
-               BLEUtils.connectLockByBLE(this, deviceBean.getDevice());
-//            connect(mac);
+            BLEUtils.removeBond(deviceBean.getDevice());
+            BLEUtils.connectLockByBLE(this, bluetoothDevice);
         } else {
             Toast.makeText(this, "未知设备，请重新选择!", Toast.LENGTH_SHORT).show();
             finish();
@@ -144,18 +161,16 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     }
 
 
-
+    /**
+     * 断联以后，重连
+     * @param mac
+     */
     private void connect(String mac) {
+        dataEntityList.clear();
         Logger.show(TAG, "connect=" + mac, 6);
         this.mac = mac;
         //合并
         checkPermission();
-        // progress_bar_connect.setVisibility(View.VISIBLE);
-//  下边代码是走配对或gtta配对      //获取BluetoothAdapter
-//        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-//        showBondedDevice(mac,bluetoothAdapter);
-
-
     }
 
     public void checkPermission() {
@@ -164,40 +179,48 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             permission = new String[]{Permission.ACCESS_FINE_LOCATION, Permission.BLUETOOTH_CONNECT, Permission.BLUETOOTH_SCAN};
         } else {
-            permission = new String[]{Permission.READ_MEDIA_IMAGES,Permission.READ_MEDIA_VIDEO,Permission.READ_MEDIA_AUDIO, Permission.WRITE_EXTERNAL_STORAGE, Permission.ACCESS_FINE_LOCATION};
+            permission = new String[]{Permission.READ_MEDIA_IMAGES, Permission.READ_MEDIA_VIDEO, Permission.READ_MEDIA_AUDIO, Permission.WRITE_EXTERNAL_STORAGE, Permission.ACCESS_FINE_LOCATION};
         }
         XXPermissions.with(this).permission(permission)
                 .request(new OnPermissionCallback() {
                     @Override
                     public void onGranted(@NonNull List<String> permissions, boolean allGranted) {
                         if (!allGranted) {
-                            // ToastUtils.show(getResources().getString(R.string.tips_get_permission_err));
+                            ToastUtils.show(getResources().getString(R.string.tips_get_permission_err));
                             return;
                         }
-                        Log.e("ConnectDevice","mac :"+mac);
+
+                        Logger.show("ConnectDevice", "mac :" + mac);
                         BluetoothDevice remote = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
-//                        remote=null;
                         if (BLEService.isGetToken()) {
-                            Log.e("ConnectDevice"," 蓝牙已连接");
+                            Logger.show("ConnectDevice", " 蓝牙已连接");
 
                         } else if (remote != null && (mac).equalsIgnoreCase(remote.getAddress())) {
-                            UtilSharedPreference.saveString(TestActivity.this,"address",remote.getAddress());
-                            Log.e("ConnectDevice"," 蓝牙 RemoteDevice 连接   ");
+                            Set<BluetoothDevice> bondedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+                            Logger.show("ConnectDevice", " 蓝牙 RemoteDevice 连接   ");
 
-                            BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
-                            BLEUtils.connectLockByBLE(TestActivity.this, remote);
-                            App.getInstance().setDeviceBean(new DeviceBean(remote, -50));
+                            //如果系统蓝牙已经有绑定的戒指，直接连接
+                            if (bondedDevices.contains(remote)) {
+
+                                BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+                                BLEUtils.connectLockByBLE(TestActivity.this, remote);
+                            } else {//如果没有，就进入扫描
+
+                                Logger.show("ConnectDevice", " 蓝牙 startLeScan 连接   ");
+                                BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+                                BLEUtils.startLeScan(TestActivity.this, leScanCallback);
+                            }
+                            App.getInstance().setDeviceBean(new BleDeviceInfo(remote, -50));
                         } else {
-                            Log.e("ConnectDevice"," 蓝牙 startLeScan 连接   ");
+                            Logger.show("ConnectDevice", " 蓝牙1 startLeScan 连接   ");
                             BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
                             BLEUtils.startLeScan(TestActivity.this, leScanCallback);
                         }
-
                     }
                 });
     }
 
-    boolean isReUpData;
+    boolean connecting = false;
     @SuppressLint("MissingPermission")
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
@@ -205,15 +228,29 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
             if (device == null || StringUtils.isEmpty(device.getName())) {
                 return;
             }
-            isReUpData = false;
+            if ((mac).equalsIgnoreCase(device.getAddress()) || !BLEService.isGetToken()) {
+                if (dataEntityList.contains(device)) {
+                    return;
+                }
+                Logger.show("ConnectDevice", "(mac).equalsIgnoreCase(device.getAddress())");
+                try {
 
-            if ((mac).equalsIgnoreCase(device.getAddress()) || BLEService.isGetToken()) {
-                UtilSharedPreference.saveString(TestActivity.this,"address",device.getAddress());
-                Logger.show(TAG, "=== STOP Scan");
-                BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
-//                bluetoothUtils.connect(device);
-                BLEUtils.connectLockByBLE(TestActivity.this, device);
-                App.getInstance().setDeviceBean(new DeviceBean(device, rssi));
+                    //是否符合条件，符合条件，会返回戒指设备信息
+                    BleDeviceInfo bleDeviceInfo = LogicalApi.getBleDeviceInfoWhenBleScan(device, rssi, bytes);
+                    if (bleDeviceInfo == null) {
+                        Log.i("bleDeviceInfo","null");
+                        return;
+                    }
+
+
+                    App.getInstance().setDeviceBean(bleDeviceInfo);
+                    connecting = true;
+                    dataEntityList.add(device);
+                    BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+                    BLEUtils.connectLockByBLE(TestActivity.this, device);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     };
@@ -223,6 +260,7 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
         super.onDestroy();
         BLEUtils.disconnectBLE(this);
         LmAPI.removeWLSCmdListener(this);
+        handler.removeMessages(101);
     }
 
     @Override
@@ -235,13 +273,6 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
         if(i==7){
             BLEUtils.setGetToken(true);
             postView("\n连接成功");
-            int hardconnection = UtilSharedPreference.getIntValue(getApplicationContext(), "NeedHardconnection");
-            if(hardconnection==2){//如果是软连接，继续弹出硬连接，用户自由选择要不要配对
-                UtilSharedPreference.saveInt(getApplicationContext(), "NeedHardconnection",1);
-                BluetoothDevice remote = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
-                BLEUtils.connectLockByBLE(this, remote);
-                postView("\n配对中");
-            }
         }
 
     }
@@ -249,8 +280,16 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
     @Override
     public void lmBleConnectionFailed(int i) {
         BLEUtils.setGetToken(false);
-        postView("\n连接失败");
-    }
+        postView("\n连接失败 ");
+
+            Log.e("ConnectDevice", " 蓝牙 connectionFailed");
+
+            handler.removeMessages(101);
+            handler.sendEmptyMessageDelayed(101, 5000);
+
+        }
+
+
 
     @Override
     public void SystemControl(SystemControlBean systemControlBean) {
@@ -259,8 +298,8 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 
     @Override
     public void CONTROL_AUDIO(byte[] bytes) {
-//        postView("\n音频结果：" + Arrays.toString(bytes));
-//        byte[] adToPcm = new AdPcmTool().adpcmToPcmFromJNI(bytes);
+        postView("\n音频结果：" + Arrays.toString(bytes));
+        byte[] adToPcm = new AdPcmTool().adpcmToPcmFromJNI(bytes);
 //
 //        savePcmFile(outputPath,adToPcm);
 //        postView("\n已保存：" + outputPath);
@@ -773,6 +812,16 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
             tv_result.scrollTo(0, scrollAmount);
         else
             tv_result.scrollTo(0, 0);
+
+    }
+
+    @Override
+    public void battery_push(byte b, byte datum) {
+
+    }
+
+    @Override
+    public void TOUCH_AUDIO_FINISH_XUN_FEI() {
 
     }
 }

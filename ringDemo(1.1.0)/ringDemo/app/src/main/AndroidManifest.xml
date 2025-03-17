@@ -43,13 +43,15 @@
         tools:ignore="LockedOrientationActivity">
         <activity
             android:name=".activity.TestActivity"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|orientation|screenLayout|uiMode|screenSize|navigation"
             android:exported="false" />
         <activity
             android:name=".activity.TestActivity2"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|orientation|screenLayout|uiMode|screenSize|navigation"
             android:exported="false" />
         <activity
             android:name=".activity.MainActivity"
-            android:configChanges="orientation|keyboardHidden"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|orientation|screenLayout|uiMode|screenSize|navigation"
             android:exported="true"
             android:screenOrientation="user">
             <intent-filter>
