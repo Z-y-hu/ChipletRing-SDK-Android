@@ -220,7 +220,6 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                 });
     }
 
-    boolean connecting = false;
     @SuppressLint("MissingPermission")
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
@@ -244,7 +243,6 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
 
 
                     App.getInstance().setDeviceBean(bleDeviceInfo);
-                    connecting = true;
                     dataEntityList.add(device);
                     BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
                     BLEUtils.connectLockByBLE(TestActivity.this, device);
