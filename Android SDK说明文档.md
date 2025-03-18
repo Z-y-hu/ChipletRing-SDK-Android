@@ -400,6 +400,136 @@ BLEUtils.disconnectBLE(Context context);
 ```
 参数说明：mac：戒指mac地址   
 返回值：无  
+公版sdk重连逻辑，如果蓝牙断开，延时重连，可以参考
+```java
+    private List<BluetoothDevice> dataEntityList = new ArrayList<>();
+
+ @Override
+    public void lmBleConnectionFailed(int i) {
+        BLEUtils.setGetToken(false);
+        postView("\n连接失败 ");
+
+            Log.e("ConnectDevice", " 蓝牙 connectionFailed");
+
+            handler.removeMessages(101);
+            handler.sendEmptyMessageDelayed(101, 3000);
+
+        }
+
+  Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+
+            if (msg.what == 101) {
+
+                    String mac = UtilSharedPreference.getStringValue(TestActivity.this, "address");
+                    if (!TextUtils.isEmpty(mac) && !BLEUtils.isGetToken()) {
+                        Log.e("TAG", "Handler  延迟重连  resetConnect 1111 ");
+                        BLEUtils.setConnecting(false);
+                        connect(mac);
+                    }
+
+            }
+            return false;
+        }
+    });
+
+
+ /**
+     * 断联以后，重连
+     * @param mac
+     */
+    private void connect(String mac) {
+        dataEntityList.clear();
+        Logger.show(TAG, "connect=" + mac, 6);
+        this.mac = mac;
+        //合并
+        checkPermission();
+    }
+
+    public void checkPermission() {
+
+        String[] permission;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permission = new String[]{Permission.ACCESS_FINE_LOCATION, Permission.BLUETOOTH_CONNECT, Permission.BLUETOOTH_SCAN};
+        } else {
+            permission = new String[]{Permission.READ_MEDIA_IMAGES, Permission.READ_MEDIA_VIDEO, Permission.READ_MEDIA_AUDIO, Permission.WRITE_EXTERNAL_STORAGE, Permission.ACCESS_FINE_LOCATION};
+        }
+        XXPermissions.with(this).permission(permission)
+                .request(new OnPermissionCallback() {
+                    @Override
+                    public void onGranted(@NonNull List<String> permissions, boolean allGranted) {
+                        if (!allGranted) {
+                            ToastUtils.show(getResources().getString(R.string.tips_get_permission_err));
+                            return;
+                        }
+
+                        Logger.show("ConnectDevice", "mac :" + mac);
+                        BluetoothDevice remote = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
+                        if (BLEService.isGetToken()) {
+                            Logger.show("ConnectDevice", " 蓝牙已连接");
+
+                        } else if (remote != null && (mac).equalsIgnoreCase(remote.getAddress())) {
+                            Set<BluetoothDevice> bondedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+                            Logger.show("ConnectDevice", " 蓝牙 RemoteDevice 连接   ");
+
+                            //如果系统蓝牙已经有绑定的戒指，直接连接
+                            if (bondedDevices.contains(remote)) {
+
+                                BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+                                BLEUtils.connectLockByBLE(TestActivity.this, remote);
+                            } else {//如果没有，就进入扫描
+
+                                Logger.show("ConnectDevice", " 蓝牙 startLeScan 连接   ");
+                                BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+                                BLEUtils.startLeScan(TestActivity.this, leScanCallback);
+                            }
+                            App.getInstance().setDeviceBean(new BleDeviceInfo(remote, -50));
+                        } else {
+                            Logger.show("ConnectDevice", " 蓝牙1 startLeScan 连接   ");
+                            BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+                            BLEUtils.startLeScan(TestActivity.this, leScanCallback);
+                        }
+                    }
+                });
+    }
+
+    boolean connecting = false;
+    @SuppressLint("MissingPermission")
+    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+        @Override
+        public void onLeScan(BluetoothDevice device, int rssi, byte[] bytes) {
+            if (device == null || StringUtils.isEmpty(device.getName())) {
+                return;
+            }
+            if ((mac).equalsIgnoreCase(device.getAddress()) || !BLEService.isGetToken()) {
+                if (dataEntityList.contains(device)) {
+                    return;
+                }
+                Logger.show("ConnectDevice", "(mac).equalsIgnoreCase(device.getAddress())");
+                try {
+
+                    //是否符合条件，符合条件，会返回戒指设备信息
+                    BleDeviceInfo bleDeviceInfo = LogicalApi.getBleDeviceInfoWhenBleScan(device, rssi, bytes);
+                    if (bleDeviceInfo == null) {
+                        Log.i("bleDeviceInfo","null");
+                        return;
+                    }
+
+
+                    App.getInstance().setDeviceBean(bleDeviceInfo);
+                    connecting = true;
+                    dataEntityList.add(device);
+                    BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
+                    BLEUtils.connectLockByBLE(TestActivity.this, device);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
+```
 ##### 3.1.6 前台服务
 目前蓝牙连接服务是后台的，存在息屏状态下，或者app进入后台，蓝牙断连的问题，好处就是功耗低。如果需要将服务做成前台服务，可以在Application的onCreate()里设置
 ```java
@@ -411,7 +541,14 @@ BLEUtils.disconnectBLE(Context context);
 BLEUtils.disconnectBLE(Context context);
 ```
 断开连接，否则蓝牙一直连接，功耗很大，电量消耗很快
-
+##### 3.1.6 解除绑定
+### 注意 换绑戒指时，建议将之前戒指解除绑定，调用指令，清理掉历史数据，否则有可能出现A戴过的戒指，B去戴，造成B的数据里有A的数据，或者一个人戴多个戒指睡眠，最后睡眠数据重叠的情况
+```java
+ //断开连接
+  BLEUtils.disconnectBLE(getSupportActivity());
+//解除系统蓝牙绑定，防止下次搜索不到戒指
+  BLEUtils.removeBond(BLEService.getmBluetoothDevice());
+```
 #### 3.2 通讯协议
 此类是使用戒指功能的公共类，戒指的功能通过该类直接调用即可,数据反馈除了特殊说明外 统一由IResponseListener接口反馈。(1.0.35版本后新增简化版本，入参和返回都做了封装，不再使用byte类型，通过LmAPILite调用，并且将指令返回接口按照功能分成多个小接口，职责更清晰，回调更少，之前监听LmAPI的地方换成LmAPILite即可)
 调用此类的接口 ，需保证与戒指处于连接状态  
