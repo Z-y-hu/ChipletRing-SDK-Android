@@ -494,7 +494,6 @@ BLEUtils.disconnectBLE(Context context);
                 });
     }
 
-    boolean connecting = false;
     @SuppressLint("MissingPermission")
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
@@ -518,7 +517,6 @@ BLEUtils.disconnectBLE(Context context);
 
 
                     App.getInstance().setDeviceBean(bleDeviceInfo);
-                    connecting = true;
                     dataEntityList.add(device);
                     BLEUtils.stopLeScan(TestActivity.this, leScanCallback);
                     BLEUtils.connectLockByBLE(TestActivity.this, device);
