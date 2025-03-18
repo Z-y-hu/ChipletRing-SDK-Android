@@ -400,7 +400,7 @@ BLEUtils.disconnectBLE(Context context);
 ```
 参数说明：mac：戒指mac地址   
 返回值：无  
-公版sdk重连逻辑，如果蓝牙断开，延时重连，可以参考
+公版app重连逻辑，如果蓝牙断开，延时重连，可以参考
 ```java
     private List<BluetoothDevice> dataEntityList = new ArrayList<>();
 
