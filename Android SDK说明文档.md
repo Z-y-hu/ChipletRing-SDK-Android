@@ -501,7 +501,7 @@ BLEUtils.disconnectBLE(Context context);
             if (device == null || StringUtils.isEmpty(device.getName())) {
                 return;
             }
-            if ((mac).equalsIgnoreCase(device.getAddress()) || !BLEService.isGetToken()) {
+            if ((mac).equalsIgnoreCase(device.getAddress()) && !BLEService.isGetToken()) {
                 if (dataEntityList.contains(device)) {
                     return;
                 }
