@@ -1127,9 +1127,10 @@ LmAPI.GET_HEART_Q2（IQ2Listener iQ2Listener）
 接口功能：读取历史记录。  
 接口声明：
 ```java
-LmAPI.READ_HISTORY（int type,IHistoryListener iHistoryListener）
+LmAPI.READ_HISTORY(byte type, long timeMillis,IHistoryListener iHistoryListener)
 ```
 参数说明：type: 1,获取全部历史记录；0，获取未上传的历史记录。读取过为上传历史记录，下次读取的时候，就会从上次读取时间以后算起，如果想要将之前的数据也拿到，可以在 progress自己记录，本地数据库也保存了数据，也可以通过DataApi.instance.queryHistoryData查询到。
+timeMillis：秒级时间戳，0是默认所有未上传数据，传值以后，会上报该时间以后的数据，即使timeMillis在上次上传数据的时间之前
 返回值：
 ```java
 LmAPI.READ_HISTORY(type, new IHistoryListener() {
@@ -1164,7 +1165,7 @@ LmAPI.READ_HISTORY(type, new IHistoryListener() {
 
 简化版本
 ```java
-   public static void READ_HISTORY(int type, IHistoryListenerLite listenerLite)
+   public static void READ_HISTORY(int type, long timeMillis,IHistoryListenerLite listenerLite)
 
    public interface IHistoryListenerLite {
     void error(int code);
