@@ -2159,6 +2159,99 @@ public class HistoryDataBean{
     private byte[] rrBytes;
  }
 ```
+##### 3.5.3 睡眠数据绘图相关
+如果需要绘图，比如清醒时间，深睡时间等，需要将原始数据进行处理一下，处理代码是：
+```java
+initSleepChat(thBean.getStartTime(),thBean.getSleepDataBeanList());
+//thBean是接口返回的Sleep2thBean
+public void initSleepChat( long showStartTime,List<HistoryDataBean> historyDataBeanList) {
+        List<SleepChartBean> list = new ArrayList<>();
+        int totalCount = 0;//记录条数
+        int lastType = 0;
+        long endTime = 0;
+        boolean wakeUp = false;
+        for (int i = 0; i < historyDataBeanList.size(); i++) {
+            HistoryDataBean dataBean = historyDataBeanList.get(i);
+            String time = DateUtils.longToString(dataBean.getTime() * 1000, "yyyy-MM-dd HH:mm");
+
+            totalCount++;
+            if (lastType == 0) {
+                if(dataBean.getSleepType()>1){
+                    lastType = dataBean.getSleepType();
+                    list.add(new SleepChartBean(lastType, time, time));
+
+                }
+
+            } else if (lastType != dataBean.getSleepType()) {
+                long changeTime = historyDataBeanList.get(i -1).getTime();
+                time = DateUtils.longToString(changeTime * 1000, "yyyy-MM-dd HH:mm");
+                list.get(list.size() - 1).setEndTime(time);
+                long longtime = dataBean.getTime()-historyDataBeanList.get(i-1).getTime();
+                lastType = dataBean.getSleepType();
+                if(longtime < 90 * 60) {//两条数据相差不超过90分钟
+                    list.add(new SleepChartBean(lastType, time, time));
+                }
+            }
+
+            if(i >0 ){//识别间隔时间
+                long longtime = dataBean.getTime()-historyDataBeanList.get(i-1).getTime();
+
+                if(longtime>90*60){//超出一个小时
+                  long  setEnd=DateUtils.stringToLong(list.get(list.size() - 1).getEndTime(), "yyyy-MM-dd HH:mm");
+                    String endTime1 = DateUtils.longToString(setEnd, "yyyy-MM-dd HH:mm");
+                    list.get(list.size() - 1).setEndTime(endTime1);
+                    list.get(list.size() - 1).setSleepType(historyDataBeanList.get(i-1).getSleepType());
+                    endTime = DateUtils.stringToLong(list.get(list.size() - 1).getEndTime(), "yyyy-MM-dd HH:mm");
+
+                    break;//终止循环
+                }
+            }
+            if (list.size() > 0 && (totalCount == historyDataBeanList.size() || wakeUp)) { //最后一条数据
+                list.get(list.size() - 1).setEndTime(time);
+                list.get(list.size() - 1).setSleepType(dataBean.getSleepType());
+                endTime = DateUtils.stringToLong(list.get(list.size() - 1).getEndTime(), "yyyy-MM-dd HH:mm");
+                break;//终止循环
+            }
+        }
+            //showStartTime 睡眠开始时间
+           //endTime睡眠结束时间
+    }
+```
+```java
+
+    /**
+     * 将字符串转换为时间戳
+     */
+    public static long stringToLong(String time, String format) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        Date date = new Date();
+        try {
+            date = sdf.parse(time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date.getTime();
+    }
+
+    /**
+     * 将时间戳转换为字符串
+     *
+     * @param time   时间戳
+     * @param format 字符串格式  例如:yyyy-MM-dd HH:mm:ss
+     * @return
+     */
+    public static String longToString(long time, String format) {
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        Date curDate = new Date(time);
+        return formatter.format(curDate);
+    }
+```
+处理完以后得数据，可以根据sleepType来判断是否睡眠状态数据
+1：清醒
+2：浅睡
+3：深睡
+4：快速眼动
+用户可以根据这些类别，按照时间排序，计算出清醒等的开始时间和结束时间
 ## 四、升级服务
 ### 1、服务介绍
 为了进一步简化用户对接流程，提高算法质量，共享固件资源，将公版app所用的服务进行共享(1.0.34版本后新增)，仅需要3个步骤，就可以使用升级服务(服务的接口是http的，如果调用方使用的是https，需要同时兼容两种模式，如调用服务无响应，可能是因为CLEARTEXT communication to XX not permitted by network security policy 这样的错误)
@@ -2178,6 +2271,7 @@ public class HistoryDataBean{
 
             }
         });
+
 ```
 ### 3、调用服务
 根据token，调用服务，目前提供获取用户睡眠数据的服务，ota升级服务
