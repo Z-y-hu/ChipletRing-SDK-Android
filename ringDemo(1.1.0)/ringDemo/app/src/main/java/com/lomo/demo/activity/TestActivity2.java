@@ -466,6 +466,11 @@ public class TestActivity2 extends BaseActivity implements IResponseListener, Vi
                     public void success() {
                         postView("\n测量心率完成");
                     }
+
+                    @Override
+                    public void resultDataSHOUSHI(int heart, int bloodOxygen) {
+
+                    }
                 });
                 break;
             case R.id.bt_app_bind:

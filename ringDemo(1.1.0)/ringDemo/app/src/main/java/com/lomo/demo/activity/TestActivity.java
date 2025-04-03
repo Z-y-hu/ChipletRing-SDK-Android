@@ -590,32 +590,69 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
               //  break;
             case R.id.bt_blood_oxygen:
                 postView("\n开始测量血氧");
-                LmAPI.GET_HEART_Q2((byte) 0x01, new IQ2Listener() {
+//                LmAPI.GET_HEART_Q2((byte) 0x01, new IQ2Listener() {
+//                    @Override
+//                    public void progress(int progress) {
+//                        postView("\n测量血氧进度：" + progress + "%");
+//                    }
+//
+//                    @Override
+//                    public void resultData(int heart, int q2, int temp) {
+//                        postView("\n测量血氧数据：" + q2);
+//                    }
+//
+//                    @Override
+//                    public void waveformData(byte seq, byte number, String waveData) {
+//                        tv_result.setText(waveData);
+//                    }
+//
+//                    @Override
+//                    public void error(int code) {
+//                        postView("\n测量血氧错误：" + code);
+//                    }
+//
+//                    @Override
+//                    public void success() {
+//                        postView("\n测量血氧完成");
+//                    }
+//
+//                });
+
+                LmAPI.GET_PPG_SHOUSHI((byte) 30,  (byte) 1, (byte) 1,(byte) 0, new IHeartListener() {
                     @Override
                     public void progress(int progress) {
-                        postView("\n测量血氧进度：" + progress + "%");
+                        postView("\n测量PPG进度：" + progress + "%");
                     }
 
                     @Override
-                    public void resultData(int heart, int q2, int temp) {
-                        postView("\n测量血氧数据：" + q2);
+                    public void resultData(int heart, int heartRota, int yaLi, int temp) {
+                        postView("\n测量PPG resultData：" + heart + ","+heartRota+","+yaLi+","+temp);
                     }
 
                     @Override
                     public void waveformData(byte seq, byte number, String waveData) {
-                        tv_result.setText(waveData);
+                        postView("\n测量PPG waveData：" + waveData );
+                    }
+
+                    @Override
+                    public void rriData(byte seq, byte number, String data) {
+                        postView("\n测量PPG rriData：" + data );
                     }
 
                     @Override
                     public void error(int code) {
-                        postView("\n测量血氧错误：" + code);
+
                     }
 
                     @Override
                     public void success() {
-                        postView("\n测量血氧完成");
+                        postView("\n测量PPG success"  );
                     }
 
+                    @Override
+                    public void resultDataSHOUSHI(int heart, int bloodOxygen) {
+                        postView("\n测量PPG resultDataSHOUSHI" +heart+","+ bloodOxygen);
+                    }
                 });
                 break;
             case R.id.bt_heart:
@@ -681,12 +718,17 @@ public class TestActivity extends BaseActivity implements IResponseListener, Vie
                     public void success() {
                         postView("\n测量心率完成");
                     }
+
+                    @Override
+                    public void resultDataSHOUSHI(int heart, int bloodOxygen) {
+
+                    }
                 });
                 break;
             case R.id.bt_read_log:
                 postView("\n开始读取全部数据");
                 //postView("\n开始读取未上传数据");
-                LmAPI.READ_HISTORY((byte) 0x01, new IHistoryListener() {
+                LmAPI.READ_HISTORY((byte) 0x01,0, new IHistoryListener() {
                     @Override
                     public void error(int code) {
                         if(code == 3){
