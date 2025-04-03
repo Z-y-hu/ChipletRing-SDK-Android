@@ -2264,7 +2264,7 @@ OtaApi.otaUpdateWithCheckVersion(version, TestActivity.this, App.getInstance().g
                     @Override
                     public void onComplete() {
                         postView("\nota升级结束");
-                        OtaApi.destoryOta(TestActivity.this);
+                      
                     }
 
                     @Override
