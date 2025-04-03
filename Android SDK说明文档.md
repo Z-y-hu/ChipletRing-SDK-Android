@@ -2313,7 +2313,7 @@ DataApi.instance.deleteHistoryErrorBatch();
                     }
                 });
 ```
-获取睡眠数据
+获取睡眠数据，需要在updateHistoryFinish回调里获取，保证云端数据已经保存，才能计算出睡眠数据，可以延时1s左右，保证能准确获取
 ```java
                 postView("\n从云端计算睡眠");
                 String dateTimeString = "2025-02-12 23:59:59";
